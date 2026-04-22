@@ -1,4 +1,192 @@
 <!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Shu — A Quiet PhD Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-display: 'Instrument Serif', serif;
+    --font-body: 'Inter', sans-serif;
+    --bg: #041F33;
+    --fg: #ffffff;
+    --muted: hsl(240 4% 66%);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--fg);
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* 视频背景：完整显示原图，无任何蒙版/滤镜 */
+  .bg-video {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: contain;
+    object-position: center;
+    background: #041F33;
+    z-index: 0;
+  }
+  .bg-video-fallback {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #041F33;
+    z-index: 0;
+  }
+
+  .page {
+    position: relative;
+    z-index: 10;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 48px 24px;
+  }
+
+  /* Liquid glass CTA */
+  .liquid-glass {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.18);
+    position: relative;
+    overflow: hidden;
+    color: var(--fg);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-weight: 400;
+    transition: transform .2s ease, background .2s ease;
+    border-radius: 9999px;
+    padding: 18px 52px;
+    font-size: 16px;
+    margin-top: 44px;
+    border: none;
+  }
+  .liquid-glass:hover {
+    transform: scale(1.03);
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .liquid-glass::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.4px;
+    background: linear-gradient(180deg,
+      rgba(255,255,255,0.45) 0%,
+      rgba(255,255,255,0.15) 20%,
+      rgba(255,255,255,0) 40%,
+      rgba(255,255,255,0) 60%,
+      rgba(255,255,255,0.15) 80%,
+      rgba(255,255,255,0.45) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Hero */
+  .hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: 1100px;
+    width: 100%;
+  }
+  .signature {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(48px, 8vw, 128px);
+    line-height: 0.95;
+    letter-spacing: -2.46px;
+    color: var(--muted);
+    margin: 0 0 18px 0;
+  }
+  .signature sup {
+    font-size: 0.22em;
+    vertical-align: super;
+    margin-left: 0.05em;
+    opacity: 0.85;
+  }
+  .hero h1 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(48px, 8vw, 128px);
+    line-height: 0.95;
+    letter-spacing: -2.46px;
+    margin: 0;
+    color: var(--fg);
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: var(--muted);
+  }
+  .hero-subtitle {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--muted);
+    max-width: 640px;
+    margin: 32px auto 0;
+    padding: 0 8px;
+  }
+  @media (min-width: 640px) { .hero-subtitle { font-size: 18px; } }
+
+  /* Animations */
+  @keyframes fade-rise {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-rise         { animation: fade-rise .8s ease-out both; }
+  .animate-fade-rise-delay   { animation: fade-rise .8s ease-out .2s both; }
+  .animate-fade-rise-delay-2 { animation: fade-rise .8s ease-out .4s both; }
+  .animate-fade-rise-delay-3 { animation: fade-rise .8s ease-out .6s both; }
+</style>
+</head>
+<body>
+
+<!-- Background -->
+<div class="bg-video-fallback" aria-hidden="true"></div>
+<video class="bg-video" autoplay loop muted playsinline preload="auto" aria-hidden="true">
+  <source src="assets/hero-bg.mp4" type="video/mp4" />
+</video>
+
+<div class="page">
+  <main class="hero">
+    <div class="signature animate-fade-rise">Shu<sup>®</sup></div>
+    <h1 class="animate-fade-rise-delay">
+      Where <em>research</em> writes through the <em>silence.</em>
+    </h1>
+    <p class="hero-subtitle animate-fade-rise-delay-2">
+      A quiet studio for moods, daily rituals, and the life of research. A companion to Shu through the long rhythms of a PhD.
+    </p>
+    <a href="phd-workspace-v2.html" class="liquid-glass animate-fade-rise-delay-3">Begin Today</a>
+  </main>
+</div>
+
+</body>
+</html>
+<!doctype html>
 <html lang="zh-cn">
 <head>
 <meta charset="utf-8" />
