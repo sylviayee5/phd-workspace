@@ -27,14 +27,14 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* 视频背景：完整显示原图，无任何蒙版/滤镜 */
+  /* 视频背景：填满视口不留黑边，保留底部花田 */
   .bg-video {
     position: fixed;
     inset: 0;
     width: 100vw;
     height: 100vh;
-    object-fit: contain;
-    object-position: center;
+    object-fit: cover;
+    object-position: center bottom;   /* 优先保留底部鲜艳花田 */
     background: #041F33;
     z-index: 0;
   }
