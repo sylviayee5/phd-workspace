@@ -1,0 +1,19 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# 每日备份（数据量大，本地保留即可）
+data/daily-backups/
+data/restore-tested/
+
+# 月度快照（可选择性 push，默认排除）
+data/monthly-snapshots/
+
+# 日志
+logs/*.log
+
+# 编辑器
+.vscode/
+*.swp
+*.swo
