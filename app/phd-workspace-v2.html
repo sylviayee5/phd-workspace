@@ -443,6 +443,7 @@
                   <h3 id="socialPanelTitle" class="font-black">社交触点</h3>
                 </div>
                 <div class="flex items-center gap-2">
+                  <button id="socialHistoryBtn" class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-calm-ink hover:bg-gray-200 transition flex items-center gap-1.5"><i class="fa-solid fa-calendar-days text-xs"></i> 历史</button>
                   <button id="socialManageBtn" class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-calm-ink hover:bg-gray-200 transition flex items-center gap-1.5"><i class="fa-solid fa-user-gear text-xs"></i> 管理</button>
                   <span id="socialPanelHint" class="text-xs text-calm-mute">点一下就记一次联系</span>
                 </div>
@@ -1518,6 +1519,36 @@
         </div>
         <button id="socialAddContactBtn" class="w-full py-3 rounded-xl font-black bg-dopamine-coral text-white hover:opacity-90 transition text-sm">+ 添加</button>
       </div>
+    </div>
+  </div>
+
+  <!-- 社交触点历史 Modal -->
+  <div id="socialHistoryModal" class="fixed inset-0 z-50 items-center justify-center bg-black/30 backdrop-blur-sm p-4" style="display:none;">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col">
+      <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white rounded-t-3xl">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-calendar-days text-dopamine-coral"></i>
+          <span class="font-black text-calm-ink">联系记录</span>
+        </div>
+        <button id="socialHistoryCloseBtn" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition"><i class="fa-solid fa-xmark text-sm text-calm-mute"></i></button>
+      </div>
+      <!-- 月份导航 -->
+      <div class="flex items-center justify-between px-6 pt-4 pb-2">
+        <button id="socialHistPrevBtn" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 transition flex items-center justify-center"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+        <span id="socialHistMonthLabel" class="font-black text-calm-ink text-sm"></span>
+        <button id="socialHistNextBtn" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 transition flex items-center justify-center"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+      </div>
+      <!-- 日历 -->
+      <div class="px-6 pb-2 overflow-y-auto flex-1">
+        <div class="grid grid-cols-7 text-center text-[10px] text-calm-mute mb-1">
+          <div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div><div>日</div>
+        </div>
+        <div id="socialHistCalendar" class="grid grid-cols-7 gap-1"></div>
+        <!-- 选中日期详情 -->
+        <div id="socialHistDayDetail" class="mt-4 min-h-[40px]"></div>
+      </div>
+      <!-- 图例 -->
+      <div id="socialHistLegend" class="px-6 py-3 border-t border-gray-100 flex flex-wrap gap-2"></div>
     </div>
   </div>
 
@@ -4161,6 +4192,110 @@
       }
     }
 
+    // ── 社交历史月历 ──────────────────────────────────
+    let socialHistYear = new Date().getFullYear();
+    let socialHistMonth = new Date().getMonth(); // 0-based
+
+    function renderSocialHistCalendar() {
+      const contacts = state.socialContacts || [];
+      const records = state.social || [];
+      const y = socialHistYear, m = socialHistMonth;
+      const label = document.getElementById('socialHistMonthLabel');
+      if (label) label.textContent = `${y} 年 ${m+1} 月`;
+
+      // 本月第一天星期几（转为周一=0）
+      const firstDay = new Date(y, m, 1);
+      let startDow = firstDay.getDay(); // 0=Sun
+      startDow = startDow === 0 ? 6 : startDow - 1; // 转为周一=0
+      const daysInMonth = new Date(y, m+1, 0).getDate();
+
+      // 建立每天的记录 map
+      const dayMap = {};
+      records.forEach(r => {
+        if (!r.date) return;
+        const rd = new Date(r.date);
+        if (rd.getFullYear() === y && rd.getMonth() === m) {
+          const d = rd.getDate();
+          if (!dayMap[d]) dayMap[d] = [];
+          dayMap[d].push(r);
+        }
+      });
+
+      const cal = document.getElementById('socialHistCalendar');
+      if (!cal) return;
+      const todayS = todayStr();
+      const todayDate = new Date(todayS).getDate();
+      const isCurrentMonth = y === new Date().getFullYear() && m === new Date().getMonth();
+
+      let cells = '';
+      // 空白格
+      for (let i = 0; i < startDow; i++) cells += `<div></div>`;
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dayRecords = dayMap[d] || [];
+        const isToday = isCurrentMonth && d === todayDate;
+        const hasRecords = dayRecords.length > 0;
+        const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        // 彩色点（每个联系人一个颜色，去重）
+        const dotContactIds = [...new Set(dayRecords.map(r => r.contactId))];
+        const dots = dotContactIds.slice(0,4).map(cid => {
+          const c = contacts.find(x => x.id === cid);
+          const color = c ? c.color : 'calm-mute';
+          return `<span class="inline-block w-1.5 h-1.5 rounded-full bg-${color}"></span>`;
+        }).join('');
+        cells += `<button onclick="socialHistSelectDay('${dateStr}')" class="flex flex-col items-center py-1.5 rounded-xl hover:bg-gray-50 transition ${
+          isToday ? 'ring-2 ring-dopamine-coral' : ''
+        } ${ hasRecords ? 'font-bold' : 'text-calm-mute' }" data-date="${dateStr}">
+          <span class="text-xs">${d}</span>
+          <div class="flex gap-0.5 mt-0.5 h-2 items-center">${dots}</div>
+        </button>`;
+      }
+      cal.innerHTML = cells;
+
+      // 图例
+      const legend = document.getElementById('socialHistLegend');
+      if (legend) {
+        legend.innerHTML = contacts.map(c => `
+          <span class="inline-flex items-center gap-1 text-[10px] text-calm-mute">
+            <span class="inline-block w-2.5 h-2.5 rounded-full bg-${c.color}"></span>
+            ${escapeHtml(c.zh)}
+          </span>`).join('');
+      }
+
+      // 重置日期详情
+      const detail = document.getElementById('socialHistDayDetail');
+      if (detail) detail.innerHTML = `<p class="text-xs text-calm-mute text-center">点击某天查看详情</p>`;
+    }
+
+    function socialHistSelectDay(dateStr) {
+      const contacts = state.socialContacts || [];
+      const records = (state.social || []).filter(r => r.date === dateStr);
+      const detail = document.getElementById('socialHistDayDetail');
+      if (!detail) return;
+      // 高亮选中
+      document.querySelectorAll('#socialHistCalendar button').forEach(b => b.classList.remove('bg-dopamine-coral/10'));
+      const sel = document.querySelector(`#socialHistCalendar button[data-date="${dateStr}"]`);
+      if (sel) sel.classList.add('bg-dopamine-coral/10');
+
+      const d = new Date(dateStr);
+      const dateLabel = `${d.getMonth()+1} 月 ${d.getDate()} 日`;
+      if (records.length === 0) {
+        detail.innerHTML = `<p class="text-xs text-calm-mute text-center">${dateLabel} 无记录</p>`;
+        return;
+      }
+      detail.innerHTML = `<div class="text-xs font-bold text-calm-ink mb-2">${dateLabel} · ${records.length} 次联系</div>
+        <div class="space-y-1.5">${records.sort((a,b)=>(a.time||'').localeCompare(b.time||'')).map(r => {
+          const c = contacts.find(x => x.id === r.contactId);
+          const name = c ? c.zh : r.contactId;
+          const color = c ? c.color : 'calm-ink';
+          return `<div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-${color}/10">
+            <span class="w-2 h-2 rounded-full bg-${color} flex-shrink-0"></span>
+            <span class="font-medium text-${color} text-xs">${escapeHtml(name)}</span>
+            ${r.time ? `<span class="text-calm-mute text-[10px] ml-auto">${r.time}</span>` : ''}
+          </div>`;
+        }).join('')}</div>`;
+    }
+    window.socialHistSelectDay = socialHistSelectDay;
+
     function bindSocialManage() {
       const COLOR_OPTIONS = Object.entries(SOCIAL_COLOR_HEX).map(([name, hex]) => ({ name, hex }));
       let selectedColor = COLOR_OPTIONS[0].name;
@@ -4186,6 +4321,27 @@
       const modal = document.getElementById('socialManageModal');
       const manageBtn = document.getElementById('socialManageBtn');
       const closeBtn = document.getElementById('socialManageCloseBtn');
+      const histBtn = document.getElementById('socialHistoryBtn');
+      const histModal = document.getElementById('socialHistoryModal');
+      const histCloseBtn = document.getElementById('socialHistoryCloseBtn');
+      const histPrevBtn = document.getElementById('socialHistPrevBtn');
+      const histNextBtn = document.getElementById('socialHistNextBtn');
+      if (histBtn) histBtn.addEventListener('click', () => {
+        socialHistYear = new Date().getFullYear();
+        socialHistMonth = new Date().getMonth();
+        renderSocialHistCalendar();
+        if (histModal) histModal.style.display = 'flex';
+      });
+      if (histCloseBtn) histCloseBtn.addEventListener('click', () => { if (histModal) histModal.style.display = 'none'; });
+      if (histModal) histModal.addEventListener('click', e => { if (e.target === histModal) histModal.style.display = 'none'; });
+      if (histPrevBtn) histPrevBtn.addEventListener('click', () => {
+        socialHistMonth--; if (socialHistMonth < 0) { socialHistMonth = 11; socialHistYear--; }
+        renderSocialHistCalendar();
+      });
+      if (histNextBtn) histNextBtn.addEventListener('click', () => {
+        socialHistMonth++; if (socialHistMonth > 11) { socialHistMonth = 0; socialHistYear++; }
+        renderSocialHistCalendar();
+      });
       if (manageBtn) manageBtn.addEventListener('click', () => { renderSocialManageList(); if (modal) modal.style.display = 'flex'; });
       if (closeBtn) closeBtn.addEventListener('click', () => { if (modal) modal.style.display = 'none'; });
       if (modal) modal.addEventListener('click', e => { if (e.target === modal) modal.style.display = 'none'; });
