@@ -33,7 +33,9 @@
     inset: 0;
     width: 100vw;
     height: 100vh;
-    object-fit: cover;
+    object-fit: contain;      /* 保持原图比例，不裁切 */
+    object-position: center;
+    background: #041F33;      /* 视频未覆盖区域的底色 */
     z-index: 0;
   }
   .bg-video-fallback {
@@ -208,10 +210,13 @@
     position: fixed;
     inset: 0;
     z-index: 1;
+    /* 只在顶部和底部加轻微暗化，保证导航和文字可读，中段保留鲜艳色 */
     background: linear-gradient(180deg,
-      rgba(4, 31, 51, 0.55) 0%,
-      rgba(4, 31, 51, 0.35) 40%,
-      rgba(4, 31, 51, 0.65) 100%);
+      rgba(4, 31, 51, 0.35) 0%,
+      rgba(4, 31, 51, 0.15) 25%,
+      rgba(4, 31, 51, 0) 50%,
+      rgba(4, 31, 51, 0.1) 75%,
+      rgba(4, 31, 51, 0.35) 100%);
     pointer-events: none;
   }
 
