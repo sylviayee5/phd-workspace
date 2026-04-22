@@ -3970,15 +3970,24 @@
           <div class="text-[10px] text-calm-mute">${uiLocale === 'en' ? '30-day' : '近 30 天'}</div>
         </button>`;
       }).join('') || `<div class="col-span-full text-sm text-calm-mute text-center py-3">暂无联系人，点右上角"管理"添加</div>`;
-      const recent = [...(state.social || [])].sort((a, b) => (b.date + (b.time||'')).localeCompare(a.date + (a.time||''))).slice(0, 5);
+      const recent = [...(state.social || [])].sort((a, b) => (b.date + (b.time||'')).localeCompare(a.date + (a.time||''))).slice(0, 8);
       if (recent.length === 0) {
-        recentEl.textContent = uiLocale === 'en' ? 'No touchpoints yet. Click a contact to log.' : '还没有记录，点上方卡片记一次。';
+        recentEl.innerHTML = `<span class="text-calm-mute">${uiLocale === 'en' ? 'No touchpoints yet. Click a contact to log.' : '还没有记录，点上方卡片记一次。'}</span>`;
       } else {
-        recentEl.innerHTML = (uiLocale === 'en' ? 'Recent: ' : '最近：') + recent.map(r => {
+        // 把今天/昨天/日期分组显示
+        const todayS = todayStr();
+        const yesterdayS = (() => { const d = new Date(); d.setDate(d.getDate()-1); return d.toISOString().slice(0,10); })();
+        const labelDate = d => d === todayS ? (uiLocale==='en'?'Today':'今天') : d === yesterdayS ? (uiLocale==='en'?'Yesterday':'昨天') : d;
+        recentEl.innerHTML = `<div class="flex flex-wrap gap-1.5 mt-0.5">` + recent.map(r => {
           const c = contacts.find(x => x.id === r.contactId);
           const name = c ? (uiLocale === 'en' ? (c.en || c.zh) : c.zh) : r.contactId;
-          return `${escapeHtml(name)} (${r.date})`;
-        }).join(' · ');
+          const colorClass = c ? c.color : 'calm-ink';
+          const timeStr = r.time ? ` ${r.time}` : '';
+          return `<span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-${colorClass}/10 text-${colorClass} font-medium border border-${colorClass}/20">
+            <span>${escapeHtml(name)}</span>
+            <span class="opacity-60 font-normal">${labelDate(r.date)}${timeStr}</span>
+          </span>`;
+        }).join('') + `</div>`;
       }
     }
     function addSocial(contactId) {
