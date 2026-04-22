@@ -4012,11 +4012,11 @@
         recentEl.innerHTML = `<div class="flex flex-wrap gap-1.5 mt-0.5">` + recent.map(r => {
           const c = contacts.find(x => x.id === r.contactId);
           const name = c ? (uiLocale === 'en' ? (c.en || c.zh) : c.zh) : r.contactId;
-          const colorClass = c ? c.color : 'calm-ink';
+          const hex = c ? (SOCIAL_COLOR_HEX[c.color] || '#999') : '#999';
           const timeStr = r.time ? ` ${r.time}` : '';
-          return `<span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-${colorClass}/10 text-${colorClass} font-medium border border-${colorClass}/20">
+          return `<span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium border" style="background:${hex}18;color:${hex};border-color:${hex}40">
             <span>${escapeHtml(name)}</span>
-            <span class="opacity-60 font-normal">${labelDate(r.date)}${timeStr}</span>
+            <span style="opacity:0.6;font-weight:400">${labelDate(r.date)}${timeStr}</span>
           </span>`;
         }).join('') + `</div>`;
       }
@@ -4276,7 +4276,7 @@
       // 高亮选中
       document.querySelectorAll('#socialHistCalendar button').forEach(b => b.classList.remove('bg-dopamine-coral/10'));
       const sel = document.querySelector(`#socialHistCalendar button[data-date="${dateStr}"]`);
-      if (sel) sel.classList.add('bg-dopamine-coral/10');
+      if (sel) sel.style.background = '#E05C5C18';
 
       const d = new Date(dateStr);
       const dateLabel = `${d.getMonth()+1} 月 ${d.getDate()} 日`;
@@ -4288,10 +4288,10 @@
         <div class="space-y-1.5">${records.sort((a,b)=>(a.time||'').localeCompare(b.time||'')).map(r => {
           const c = contacts.find(x => x.id === r.contactId);
           const name = c ? c.zh : r.contactId;
-          const color = c ? c.color : 'calm-ink';
-          return `<div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-${color}/10">
-            <span class="w-2 h-2 rounded-full bg-${color} flex-shrink-0"></span>
-            <span class="font-medium text-${color} text-xs">${escapeHtml(name)}</span>
+          const hex = c ? (SOCIAL_COLOR_HEX[c.color] || '#999') : '#999';
+          return `<div class="flex items-center gap-2 px-3 py-2 rounded-xl" style="background:${hex}18">
+            <span class="w-2 h-2 rounded-full flex-shrink-0" style="background:${hex}"></span>
+            <span class="font-medium text-xs" style="color:${hex}">${escapeHtml(name)}</span>
             ${r.time ? `<span class="text-calm-mute text-[10px] ml-auto">${r.time}</span>` : ''}
           </div>`;
         }).join('')}</div>`;
