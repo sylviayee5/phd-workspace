@@ -1,4 +1,13 @@
-# PhD Workspace 本地长期使用说明
+# PhD Workspace 使用说明
+
+## 访问方式
+- **在线版（推荐，手机 / 电脑通用）**：https://sylviayee5.github.io/phd-workspace/app/phd-workspace-v2.html
+- **本地版**：直接打开 `app/phd-workspace-v2.html`
+
+## 云端同步
+- 数据通过 Supabase 云端同步，手机和电脑共享同一份数据
+- 页面加载时自动判断推送或拉取，无需手动操作
+- 可在"设置"页手动推送 / 拉取，或关闭自动同步
 
 ## 目录用途
 - app: 工作台 HTML 主文件
@@ -8,7 +17,7 @@
 - logs: 备份与恢复记录
 
 ## 推荐使用方式
-1. 打开 app/phd-workspace-v2.html。
+1. 优先使用在线版（GitHub Pages），手机和电脑数据自动同步。
 2. 每天结束前在“设置 / 数据管理”点击“下载 JSON 备份”。
 3. 将备份文件移动到 data/daily-backups。
 4. 每周至少一次做恢复演练，将验证通过的备份复制到 data/restore-tested。

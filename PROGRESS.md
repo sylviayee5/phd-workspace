@@ -57,9 +57,34 @@
 
 - **i18n 覆盖**：全部新文案双语，`applyLocaleStaticText()` 运行时刷新新卡片标题、占位符、按钮文案。
 
+### 2026-04-22 新增（云端同步 + GitHub Pages + UI 改进）
+
+- **GitHub Pages 部署**：
+  - Repo: `https://github.com/sylviayee5/phd-workspace`
+  - 访问地址: `https://sylviayee5.github.io/phd-workspace/app/phd-workspace-v2.html`
+  - 分支: `main`，根目录 `/`，手机 / 电脑均可访问
+
+- **Supabase 云端同步**：
+  - URL: `https://exzigbuwkvrhyjtpizad.supabase.co`，Table: `workspace_sync`，Row ID: `shu_phd_v2`
+  - RLS 开启，policy `allow_all` 已配置
+  - 页面加载自动双向判断：无云端数据 → 自动推送；云端比本地新 → 静默拉取
+  - 自动同步默认开启，可在设置页手动关闭
+  - 解决了手机 / 电脑 localStorage 不互通的根本问题
+
+- **社交触点 UI 全面改进**：
+  - 最近打点从文字列表改为彩色 tag 样式（今天 / 昨天 / 日期+时间）
+  - 点击联系人卡片弹出月历历史弹窗，左右切换月份，点日期查看当天记录，底部图例
+  - 三处颜色（卡片数字、最近 tag、月历圆点）统一为莫兰迪色 inline hex，彻底解决 Tailwind CDN 动态 class 不渲染问题
+  - 颜色映射常量 `SOCIAL_COLOR_HEX` 集中管理，全部 inline `style` 渲染
+
+- **天气 widget 升级为三城市**：
+  - 从单城市（拉夫堡）扩展为拉夫堡 / 惠州 / 成都三城市横排
+  - 每城市显示天气图标、温度、城市名、当地实时时间（`Intl.DateTimeFormat` 自动处理时区）
+  - 三个 API 请求并行发出（open-meteo 免费），30 分钟缓存，失败时降级显示旧缓存
+  - 常量 `WEATHER_CITIES` 管理城市配置（lat / lon / tz）
+
 ## 3. 正在做的部分
 - 当前核心功能已稳定，后续重点在使用验证和小迭代
-- 下一步考虑：移动端同步方案（Firebase Realtime Database + GitHub Pages），等待确认是否推进
 
 ## 4. 还没开始的部分
 - 还没有做真正的多语言资源文件拆分，当前还是单文件内联字典和替换逻辑。
@@ -67,10 +92,10 @@
 - 还没有做移动端深度适配收尾，只做了当前页面的基础可用性。
 - 还没有做更严格的数据校验和错误提示体系。
 - 还没有把这个工作台拆成多文件模块，当前仍是单页大文件结构。
-- 移动端数据同步（Firebase 方案）尚未实施。
 - 任务分类标签与 Analytics 图表的联通尚未实现。
-- 社交 / 能量 / 出门数据尚未进入 Analytics 看板（仅在首页和生活页有汇总）。
+- 社交 / 能量 / 出门数据尚未进入 Analytics 看板（仅在首页和生活页有汇总，待数据积累后再加图表）。
 - 周日回顾的历史记录尚无列表入口（数据已存，需要补一个查看页）。
+- 旧 contactId 小写（如 "zhenzhen"）匹配不到联系人，历史数据显示灰色，属遗留问题未处理。
 
 ## 5. 已经定下来的设计方向
 - 配色方向：暖色系加柔和低饱和调性，整体偏 Morandi 感，不走生硬高饱和科技风。
