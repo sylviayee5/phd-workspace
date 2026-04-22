@@ -3995,9 +3995,10 @@
       listEl.innerHTML = contacts.map(c => {
         const count = past30.filter(x => x.contactId === c.id).length;
         const label = uiLocale === 'en' ? (c.en || c.zh) : c.zh;
-        return `<button onclick="addSocial('${c.id}')" class="bg-white rounded-xl border border-gray-100 p-3 hover:bg-${c.color}/10 transition text-left">
+        const hex = SOCIAL_COLOR_HEX[c.color] || '#999';
+        return `<button onclick="addSocial('${c.id}')" class="bg-white rounded-xl border border-gray-100 p-3 transition text-left" onmouseover="this.style.background='${hex}18'" onmouseout="this.style.background='white'">
           <div class="text-xs text-calm-mute truncate">${escapeHtml(label)}</div>
-          <div class="text-xl font-black text-${c.color}">${count}</div>
+          <div class="text-xl font-black" style="color:${hex}">${count}</div>
           <div class="text-[10px] text-calm-mute">${uiLocale === 'en' ? '30-day' : '近 30 天'}</div>
         </button>`;
       }).join('') || `<div class="col-span-full text-sm text-calm-mute text-center py-3">暂无联系人，点右上角"管理"添加</div>`;
