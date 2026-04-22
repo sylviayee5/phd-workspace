@@ -271,15 +271,13 @@
               </div>
             </div>
             <div id="currentDateTime" class="text-sm text-calm-mute bg-orange-50 rounded-xl px-3 py-2 border border-orange-100"></div>
-            <div id="weatherWidget" class="mt-2 bg-white/70 rounded-xl px-3 py-2 border border-gray-100 text-xs flex items-center justify-between gap-2">
-              <div class="flex items-center gap-2">
-                <div id="weatherIcon" class="w-8 h-8 flex items-center justify-center text-xl"><i class="fa-solid fa-spinner fa-spin text-calm-mute"></i></div>
-                <div>
-                  <div id="weatherTemp" class="font-bold text-sm text-calm-ink">--°</div>
-                  <div id="weatherDesc" class="text-[10px] text-calm-mute">Loughborough</div>
+            <div id="weatherWidget" class="mt-2 bg-white/70 rounded-xl px-3 py-2.5 border border-gray-100 text-xs">
+              <div class="flex items-start justify-between gap-1">
+                <div id="weatherCities" class="flex gap-1 flex-1 justify-around">
+                  <div class="flex items-center gap-1 text-calm-mute"><i class="fa-solid fa-spinner fa-spin text-xs"></i><span>加载中</span></div>
                 </div>
+                <button id="weatherRefreshBtn" class="text-calm-mute hover:text-dopamine-sky ml-1 flex-shrink-0" title="Refresh"><i class="fa-solid fa-arrows-rotate text-xs"></i></button>
               </div>
-              <button id="weatherRefreshBtn" class="text-calm-mute hover:text-dopamine-sky" title="Refresh"><i class="fa-solid fa-arrows-rotate text-xs"></i></button>
             </div>
             <div class="mt-2 flex items-center justify-between">
               <span id="localeHint" class="text-xs text-calm-mute">界面语言</span>
@@ -3694,6 +3692,11 @@
 
     // Open-Meteo 天气，缓存 30 分钟
     const WEATHER_CACHE_KEY = 'phd-workspace-weather-cache';
+    const WEATHER_CITIES = [
+      { key: 'lboro',   nameZh: '拉夫堡', nameEn: 'Lboro',   lat: 52.7721, lon: -1.2062,  tz: 'Europe/London' },
+      { key: 'huizhou', nameZh: '惠州',   nameEn: 'Huizhou', lat: 23.1117, lon: 114.4152, tz: 'Asia/Shanghai'  },
+      { key: 'chengdu', nameZh: '成都',   nameEn: 'Chengdu', lat: 30.5728, lon: 104.0668, tz: 'Asia/Shanghai'  }
+    ];
     function weatherCodeToIcon(code) {
       // WMO codes: https://open-meteo.com/en/docs
       const descZh = {
@@ -3731,20 +3734,27 @@
       return { icon, cls, desc: uiLocale === 'en' ? (descEn[code] || 'Weather') : (descZh[code] || '天气') };
     }
     function renderWeather(data) {
-      const iconEl = document.getElementById('weatherIcon');
-      const tempEl = document.getElementById('weatherTemp');
-      const descEl = document.getElementById('weatherDesc');
-      if (!iconEl || !tempEl || !descEl) return;
+      const container = document.getElementById('weatherCities');
+      if (!container) return;
       if (!data) {
-        iconEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-calm-mute"></i>`;
-        tempEl.textContent = '--°';
-        descEl.textContent = uiLocale === 'en' ? 'Weather unavailable' : '天气加载失败';
+        container.innerHTML = `<span class="text-calm-mute" style="font-size:10px">${uiLocale === 'en' ? 'Unavailable' : '加载失败'}</span>`;
         return;
       }
-      const { icon, cls, desc } = weatherCodeToIcon(data.code);
-      iconEl.innerHTML = `<i class="${icon} ${cls}"></i>`;
-      tempEl.textContent = `${Math.round(data.temp)}°C`;
-      descEl.textContent = `${desc} · Loughborough`;
+      container.innerHTML = WEATHER_CITIES.map(city => {
+        const d = data[city.key];
+        const name = uiLocale === 'en' ? city.nameEn : city.nameZh;
+        if (!d) return `<div class="flex flex-col items-center gap-0.5 flex-1"><span class="text-calm-mute" style="font-size:9px">${name}</span><span class="text-calm-mute">--</span></div>`;
+        const { icon, cls } = weatherCodeToIcon(d.code);
+        const localTime = new Intl.DateTimeFormat([], { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: city.tz }).format(new Date());
+        return `<div class="flex flex-col items-center gap-0.5 flex-1 min-w-0">
+          <i class="${icon} ${cls}" style="font-size:13px"></i>
+          <div class="font-bold text-calm-ink" style="font-size:12px">${Math.round(d.temp)}°</div>
+          <div class="text-center leading-tight" style="font-size:9px;color:#9ca3af">
+            <div>${name}</div>
+            <div>${localTime}</div>
+          </div>
+        </div>`;
+      }).join('');
     }
     async function fetchWeather(force = false) {
       try {
@@ -3758,20 +3768,25 @@
             }
           }
         }
-        const url = 'https://api.open-meteo.com/v1/forecast?latitude=52.7721&longitude=-1.2062&current=temperature_2m,weather_code,wind_speed_10m&timezone=Europe%2FLondon';
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const json = await res.json();
-        const cur = json.current || {};
-        const data = {
-          temp: cur.temperature_2m,
-          code: cur.weather_code,
-          wind: cur.wind_speed_10m
-        };
+        const results = await Promise.all(WEATHER_CITIES.map(async city => {
+          const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current=temperature_2m,weather_code&timezone=${encodeURIComponent(city.tz)}`;
+          const res = await fetch(url);
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const json = await res.json();
+          const cur = json.current || {};
+          return { key: city.key, temp: cur.temperature_2m, code: cur.weather_code };
+        }));
+        const data = {};
+        results.forEach(r => { data[r.key] = { temp: r.temp, code: r.code }; });
         localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
         renderWeather(data);
       } catch (e) {
         console.warn('Weather fetch failed:', e);
+        // 网络失败时尝试用旧缓存
+        try {
+          const raw = localStorage.getItem(WEATHER_CACHE_KEY);
+          if (raw) { const cached = JSON.parse(raw); if (cached && cached.data) { renderWeather(cached.data); return; } }
+        } catch (e2) {}
         renderWeather(null);
       }
     }
