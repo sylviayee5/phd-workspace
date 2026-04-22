@@ -271,14 +271,6 @@
               </div>
             </div>
             <div id="currentDateTime" class="text-sm text-calm-mute bg-orange-50 rounded-xl px-3 py-2 border border-orange-100"></div>
-            <div id="weatherWidget" class="mt-2 bg-white/70 rounded-xl px-3 py-2.5 border border-gray-100 text-xs">
-              <div class="flex items-start justify-between gap-1">
-                <div id="weatherCities" class="flex gap-1 flex-1 justify-around">
-                  <div class="flex items-center gap-1 text-calm-mute"><i class="fa-solid fa-spinner fa-spin text-xs"></i><span>加载中</span></div>
-                </div>
-                <button id="weatherRefreshBtn" class="text-calm-mute hover:text-dopamine-sky ml-1 flex-shrink-0" title="Refresh"><i class="fa-solid fa-arrows-rotate text-xs"></i></button>
-              </div>
-            </div>
             <div class="mt-2 flex items-center justify-between">
               <span id="localeHint" class="text-xs text-calm-mute">界面语言</span>
               <button id="localeToggleBtn" class="px-2.5 py-1 rounded-lg bg-white border border-gray-200 text-xs font-bold text-calm-ink hover:bg-gray-50">EN</button>
@@ -324,6 +316,15 @@
               <div>
                 <h2 class="text-4xl md:text-5xl tracking-tight mb-2" style="font-family: 'Cormorant Garamond', Georgia, serif;">Shu</h2>
                 <p id="dashboardSubtitle" class="text-calm-mute max-w-3xl leading-7">Shu's PhD Studio · 田野 · 写作 · 投稿</p>
+              </div>
+              <div id="weatherWidget" class="bg-white/90 rounded-2xl px-3 py-2.5 border border-orange-100 shadow-soft w-full xl:max-w-[460px]">
+                <div class="flex items-center justify-between mb-2">
+                  <div id="weatherPanelTitle" class="text-[11px] font-black tracking-wide text-calm-mute">三地天气 / 3 Cities</div>
+                  <button id="weatherRefreshBtn" class="text-calm-mute hover:text-dopamine-sky" title="Refresh"><i class="fa-solid fa-arrows-rotate text-xs"></i></button>
+                </div>
+                <div id="weatherCities" class="grid grid-cols-3 gap-2">
+                  <div class="col-span-3 flex items-center gap-1 text-calm-mute"><i class="fa-solid fa-spinner fa-spin text-xs"></i><span style="font-size:11px">加载中</span></div>
+                </div>
               </div>
               <div class="grid grid-cols-2 gap-3 min-w-[300px]">
                 <div class="bg-white rounded-2xl p-4 shadow-soft border border-orange-50">
@@ -2389,6 +2390,8 @@
       });
       const localeBtn = document.getElementById('localeToggleBtn');
       if (localeBtn) localeBtn.textContent = uiLocale === 'zh' ? 'EN' : '中文';
+      const weatherTitleEl = document.getElementById('weatherPanelTitle');
+      if (weatherTitleEl) weatherTitleEl.textContent = uiLocale === 'en' ? '3 Cities Weather' : '三地天气';
       // 天气描述随语言刷新
       try {
         const raw = localStorage.getItem(WEATHER_CACHE_KEY);
@@ -3743,14 +3746,21 @@
       container.innerHTML = WEATHER_CITIES.map(city => {
         const d = data[city.key];
         const name = uiLocale === 'en' ? city.nameEn : city.nameZh;
-        if (!d) return `<div class="flex flex-col items-center gap-0.5 flex-1"><span class="text-calm-mute" style="font-size:9px">${name}</span><span class="text-calm-mute">--</span></div>`;
+        if (!d) return `<div class="bg-gray-50 rounded-xl px-2 py-2 flex flex-col items-center gap-0.5 min-w-0"><span class="text-calm-mute" style="font-size:10px">${name}</span><span class="text-calm-mute">--</span></div>`;
         const { icon, cls } = weatherCodeToIcon(d.code);
         const localTime = new Intl.DateTimeFormat([], { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: city.tz }).format(new Date());
-        return `<div class="flex flex-col items-center gap-0.5 flex-1 min-w-0">
-          <i class="${icon} ${cls}" style="font-size:13px"></i>
-          <div class="font-bold text-calm-ink" style="font-size:12px">${Math.round(d.temp)}°</div>
+        const current = Number.isFinite(d.temp) ? `${Math.round(d.temp)}°` : '--';
+        const minVal = Number.isFinite(d.min) ? `${Math.round(d.min)}°` : '--';
+        const maxVal = Number.isFinite(d.max) ? `${Math.round(d.max)}°` : '--';
+        const minMax = uiLocale === 'en'
+          ? `L ${minVal} / H ${maxVal}`
+          : `低 ${minVal} / 高 ${maxVal}`;
+        return `<div class="bg-white rounded-xl border border-gray-100 px-2 py-2 flex flex-col items-center gap-0.5 min-w-0">
+          <i class="${icon} ${cls}" style="font-size:12px"></i>
+          <div class="font-bold text-calm-ink" style="font-size:13px">${current}</div>
           <div class="text-center leading-tight" style="font-size:9px;color:#9ca3af">
-            <div>${name}</div>
+            <div class="font-bold" style="font-size:10px;color:#6b7280">${name}</div>
+            <div>${minMax}</div>
             <div>${localTime}</div>
           </div>
         </div>`;
@@ -3769,15 +3779,24 @@
           }
         }
         const results = await Promise.all(WEATHER_CITIES.map(async city => {
-          const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current=temperature_2m,weather_code&timezone=${encodeURIComponent(city.tz)}`;
+          const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&forecast_days=1&timezone=${encodeURIComponent(city.tz)}`;
           const res = await fetch(url);
           if (!res.ok) throw new Error('HTTP ' + res.status);
           const json = await res.json();
           const cur = json.current || {};
-          return { key: city.key, temp: cur.temperature_2m, code: cur.weather_code };
+          const daily = json.daily || {};
+          return {
+            key: city.key,
+            temp: cur.temperature_2m,
+            code: cur.weather_code,
+            max: Array.isArray(daily.temperature_2m_max) ? daily.temperature_2m_max[0] : cur.temperature_2m,
+            min: Array.isArray(daily.temperature_2m_min) ? daily.temperature_2m_min[0] : cur.temperature_2m
+          };
         }));
         const data = {};
-        results.forEach(r => { data[r.key] = { temp: r.temp, code: r.code }; });
+        results.forEach(r => {
+          data[r.key] = { temp: r.temp, code: r.code, max: r.max, min: r.min };
+        });
         localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
         renderWeather(data);
       } catch (e) {
