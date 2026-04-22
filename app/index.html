@@ -27,16 +27,14 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* 视频背景：填满视口 + 放大 112% 裁掉视频素材自带的深色边 */
+  /* 视频背景：铺满视口，居中裁切 */
   .bg-video {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    width: 112vw;
-    height: 112vh;
-    transform: translate(-50%, -50%);
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
     object-fit: cover;
-    object-position: center bottom;
+    object-position: center center;
     background: #041F33;
     z-index: 0;
     pointer-events: none;
