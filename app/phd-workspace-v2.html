@@ -317,15 +317,6 @@
                 <h2 class="text-4xl md:text-5xl tracking-tight mb-2" style="font-family: 'Cormorant Garamond', Georgia, serif;">Shu</h2>
                 <p id="dashboardSubtitle" class="text-calm-mute max-w-3xl leading-7">Shu's PhD Studio · 田野 · 写作 · 投稿</p>
               </div>
-              <div id="weatherWidget" class="bg-white/90 rounded-2xl px-3 py-2.5 border border-orange-100 shadow-soft w-full xl:max-w-[460px]">
-                <div class="flex items-center justify-between mb-2">
-                  <div id="weatherPanelTitle" class="text-[11px] font-black tracking-wide text-calm-mute">三地天气 / 3 Cities</div>
-                  <button id="weatherRefreshBtn" class="text-calm-mute hover:text-dopamine-sky" title="Refresh"><i class="fa-solid fa-arrows-rotate text-xs"></i></button>
-                </div>
-                <div id="weatherCities" class="grid grid-cols-3 gap-2">
-                  <div class="col-span-3 flex items-center gap-1 text-calm-mute"><i class="fa-solid fa-spinner fa-spin text-xs"></i><span style="font-size:11px">加载中</span></div>
-                </div>
-              </div>
               <div class="grid grid-cols-2 gap-3 min-w-[300px]">
                 <div class="bg-white rounded-2xl p-4 shadow-soft border border-orange-50">
                   <div id="heroFocusLabel" class="text-sm text-calm-mute mb-1">今日专注</div>
@@ -347,6 +338,31 @@
             </div>
             <div id="dashboardFootnote" class="relative mt-4 text-xs text-calm-mute/90 leading-5">
               就是把自律、科研投稿放进同个工作台。这里整合了多巴胺、视觉、起居、考勤、时间块、专注、深度专注、饮食、情绪、抓手机克制、成就系统、统计看板以及新增的论文、会议投稿管理系统。所有数据默认保存在本地浏览器。
+            </div>
+          </div>
+
+          <div id="weatherWidget" class="soft-card p-5 border-t-4 border-dopamine-sky">
+            <div class="flex items-center justify-between mb-4 gap-3 flex-wrap">
+              <div class="flex items-center gap-3">
+                <i class="fa-solid fa-cloud-sun text-dopamine-sky text-xl"></i>
+                <h3 id="weatherPanelTitle" class="font-black text-lg">三地天气</h3>
+                <span id="weatherPanelHint" class="text-xs text-calm-mute">拉夫堡 · 惠州 · 成都</span>
+              </div>
+              <button id="weatherRefreshBtn" class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-calm-ink hover:bg-gray-200 transition flex items-center gap-1.5">
+                <i class="fa-solid fa-arrows-rotate text-xs"></i><span id="weatherRefreshLabel"> 刷新</span>
+              </button>
+            </div>
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-5 items-start">
+              <div id="weatherCities" class="grid grid-cols-3 gap-3">
+                <div class="col-span-3 flex items-center gap-2 text-calm-mute py-3">
+                  <i class="fa-solid fa-spinner fa-spin"></i><span class="text-sm ml-1">加载中</span>
+                </div>
+              </div>
+              <div id="weatherLboroDetail" class="bg-sky-50/50 rounded-2xl p-4 border border-sky-100">
+                <div class="flex items-center gap-2 text-calm-mute">
+                  <i class="fa-solid fa-spinner fa-spin"></i><span class="text-sm ml-1">加载中</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -2392,6 +2408,10 @@
       if (localeBtn) localeBtn.textContent = uiLocale === 'zh' ? 'EN' : '中文';
       const weatherTitleEl = document.getElementById('weatherPanelTitle');
       if (weatherTitleEl) weatherTitleEl.textContent = uiLocale === 'en' ? '3 Cities Weather' : '三地天气';
+      const weatherHintEl = document.getElementById('weatherPanelHint');
+      if (weatherHintEl) weatherHintEl.textContent = uiLocale === 'en' ? 'Loughborough · Huizhou · Chengdu' : '拉夫堡 · 惠州 · 成都';
+      const weatherRefreshLabelEl = document.getElementById('weatherRefreshLabel');
+      if (weatherRefreshLabelEl) weatherRefreshLabelEl.textContent = uiLocale === 'en' ? ' Refresh' : ' 刷新';
       // 天气描述随语言刷新
       try {
         const raw = localStorage.getItem(WEATHER_CACHE_KEY);
@@ -3736,38 +3756,111 @@
       else if (code >= 95) { icon = 'fa-solid fa-bolt'; cls = 'wx-bolt'; }
       return { icon, cls, desc: uiLocale === 'en' ? (descEn[code] || 'Weather') : (descZh[code] || '天气') };
     }
+    function windDirLabel(deg) {
+      const zh = ['北','北北东','东北','东北东','东','东南东','东南','南南东','南','南南西','西南','西南西','西','西北西','西北','北北西'];
+      const en = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+      const idx = Math.round((deg % 360) / 22.5) % 16;
+      return uiLocale === 'en' ? en[idx] : zh[idx];
+    }
+    function clothingTip(feels, code) {
+      const isRain = Number.isFinite(code) && ((code >= 51 && code <= 67) || (code >= 80 && code <= 82));
+      const rainNote = isRain ? (uiLocale === 'en' ? '☂ Bring umbrella. ' : '☂ 记得带伞。') : '';
+      if (!Number.isFinite(feels)) return rainNote + (uiLocale === 'en' ? 'Data unavailable.' : '数据暂不可用。');
+      let tip;
+      if (feels < 0)    tip = uiLocale === 'en' ? '🧥 Heavy coat + thermals — it\'s freezing' : '🧥 厚羽绒/大衣，务必多层保暖';
+      else if (feels < 8)  tip = uiLocale === 'en' ? '🧥 Warm coat, scarf & gloves needed'  : '🧥 厚外套+围巾+手套，很冷';
+      else if (feels < 14) tip = uiLocale === 'en' ? '🧣 Light jacket or hoodie, scarf handy' : '🧣 薄外套或卫衣，围巾备着';
+      else if (feels < 18) tip = uiLocale === 'en' ? '👕 Long sleeves, light jacket handy'    : '👕 长袖，外套带着';
+      else if (feels < 23) tip = uiLocale === 'en' ? '👕 Light layers, jacket optional'       : '👕 薄长袖，外套可带可不带';
+      else                 tip = uiLocale === 'en' ? '☀️ T-shirt weather, enjoy!'             : '☀️ 短袖就够了，好天气';
+      return rainNote + tip;
+    }
+    function uvLevelLabel(uv) {
+      if (!Number.isFinite(uv)) return '--';
+      const val = uv.toFixed(1);
+      if (uv < 3)  return uiLocale === 'en' ? val + ' — Low'       : val + ' 低，无需防晒';
+      if (uv < 6)  return uiLocale === 'en' ? val + ' — Moderate'  : val + ' 中，可涂防晒';
+      if (uv < 8)  return uiLocale === 'en' ? val + ' — High'      : val + ' 高，建议防晒';
+      if (uv < 11) return uiLocale === 'en' ? val + ' — Very High' : val + ' 很高，必须防晒';
+      return uiLocale === 'en' ? val + ' — Extreme' : val + ' 极强，全面防护';
+    }
     function renderWeather(data) {
       const container = document.getElementById('weatherCities');
+      const detailEl  = document.getElementById('weatherLboroDetail');
       if (!container) return;
       if (!data) {
-        container.innerHTML = `<span class="text-calm-mute" style="font-size:10px">${uiLocale === 'en' ? 'Unavailable' : '加载失败'}</span>`;
+        container.innerHTML = '<div class="col-span-3 text-calm-mute text-sm">' + (uiLocale === 'en' ? 'Unavailable' : '加载失败') + '</div>';
+        if (detailEl) detailEl.innerHTML = '';
         return;
       }
       container.innerHTML = WEATHER_CITIES.map(city => {
         const d = data[city.key];
         const name = uiLocale === 'en' ? city.nameEn : city.nameZh;
-        if (!d) return `<div class="bg-gray-50 rounded-xl px-2 py-2 flex flex-col items-center gap-0.5 min-w-0"><span class="text-calm-mute" style="font-size:10px">${name}</span><span class="text-calm-mute">--</span></div>`;
+        if (!d) return '<div class="bg-gray-50 rounded-2xl p-3 flex flex-col items-center gap-1"><span class="text-xs font-bold text-calm-mute">' + name + '</span><span class="text-calm-mute text-xl">--</span></div>';
         const { icon, cls } = weatherCodeToIcon(d.code);
         const localTime = new Intl.DateTimeFormat([], { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: city.tz }).format(new Date());
-        const current = Number.isFinite(d.temp) ? `${Math.round(d.temp)}°` : '--';
-        const feels = Number.isFinite(d.feels) ? `${Math.round(d.feels)}°` : '--';
-        const minVal = Number.isFinite(d.min) ? `${Math.round(d.min)}°` : '--';
-        const maxVal = Number.isFinite(d.max) ? `${Math.round(d.max)}°` : '--';
-        const feelsText = uiLocale === 'en' ? `Feels ${feels}` : `体感 ${feels}`;
-        const minMax = uiLocale === 'en'
-          ? `L ${minVal} / H ${maxVal}`
-          : `低 ${minVal} / 高 ${maxVal}`;
-        return `<div class="bg-white rounded-xl border border-gray-100 px-2 py-2 flex flex-col items-center gap-0.5 min-w-0">
-          <i class="${icon} ${cls}" style="font-size:12px"></i>
-          <div class="font-bold text-calm-ink" style="font-size:13px">${current}</div>
-          <div class="text-center leading-tight" style="font-size:9px;color:#9ca3af">
-            <div class="font-bold" style="font-size:10px;color:#6b7280">${name}</div>
-            <div>${feelsText}</div>
-            <div>${minMax}</div>
-            <div>${localTime}</div>
-          </div>
-        </div>`;
+        const current    = Number.isFinite(d.temp)  ? Math.round(d.temp)  + '°' : '--';
+        const feelsVal   = Number.isFinite(d.feels) ? Math.round(d.feels) + '°' : '--';
+        const minVal     = Number.isFinite(d.min)   ? Math.round(d.min)   + '°' : '--';
+        const maxVal     = Number.isFinite(d.max)   ? Math.round(d.max)   + '°' : '--';
+        const feelsLine  = (uiLocale === 'en' ? 'Feels ' : '体感 ') + feelsVal;
+        const minMaxLine = uiLocale === 'en' ? 'L ' + minVal + ' / H ' + maxVal : '低 ' + minVal + ' 高 ' + maxVal;
+        return '<div class="bg-white rounded-2xl border border-gray-100 p-3 flex flex-col items-center gap-1.5">'
+          + '<i class="' + icon + ' ' + cls + '" style="font-size:20px"></i>'
+          + '<div class="font-black text-calm-ink text-2xl">' + current + '</div>'
+          + '<div class="text-center leading-snug">'
+          + '<div class="font-bold text-xs text-calm-ink">' + name + '</div>'
+          + '<div class="text-[10px] text-calm-mute">' + feelsLine + '</div>'
+          + '<div class="text-[10px] text-calm-mute">' + minMaxLine + '</div>'
+          + '<div class="text-[10px] text-calm-mute">' + localTime + '</div>'
+          + '</div></div>';
       }).join('');
+      if (!detailEl) return;
+      const lb = data['lboro'];
+      if (!lb) {
+        detailEl.innerHTML = '<span class="text-calm-mute text-sm">' + (uiLocale === 'en' ? 'Loughborough data unavailable' : '拉夫堡数据暂不可用') + '</span>';
+        return;
+      }
+      const windSpd  = Number.isFinite(lb.wind)     ? Math.round(lb.wind)     + ' km/h' : '--';
+      const windGst  = Number.isFinite(lb.windGust) ? Math.round(lb.windGust) + ' km/h' : '--';
+      const windDir  = Number.isFinite(lb.windDir)  ? windDirLabel(lb.windDir) : '--';
+      const humid    = Number.isFinite(lb.humidity) ? Math.round(lb.humidity) + '%' : '--';
+      const rainProb = Number.isFinite(lb.rainProb) ? Math.round(lb.rainProb) + '%' : '--';
+      const uvLabel  = uvLevelLabel(lb.uvMax);
+      const clothing = clothingTip(lb.feels, lb.code);
+      const wLabel    = uiLocale === 'en' ? '💨 Wind'         : '💨 风况';
+      const rLabel    = uiLocale === 'en' ? '🌧 Rain Today'   : '🌧 今日降雨';
+      const hLabel    = uiLocale === 'en' ? '💧 Humidity'     : '💧 湿度';
+      const uvLbl     = uiLocale === 'en' ? '☀️ UV Index'     : '☀️ UV 防晒';
+      const gustLbl   = uiLocale === 'en' ? 'Gusts '          : '阵风 ';
+      const probLbl   = uiLocale === 'en' ? 'probability'     : '概率';
+      const outfitLbl = uiLocale === 'en' ? '👔 Outfit Tip'   : '👔 穿衣建议';
+      const hdrTitle  = uiLocale === 'en' ? '🇬🇧 Loughborough Details' : '🇬🇧 拉夫堡详情';
+      detailEl.innerHTML = '<div class="text-xs font-black text-calm-ink mb-3">' + hdrTitle + '</div>'
+        + '<div class="grid grid-cols-2 gap-2 mb-3">'
+        + '<div class="bg-white rounded-xl p-2.5 border border-gray-100">'
+        + '<div class="text-[10px] text-calm-mute mb-0.5">' + wLabel + '</div>'
+        + '<div class="text-sm font-bold text-calm-ink">' + windDir + ' ' + windSpd + '</div>'
+        + '<div class="text-[10px] text-calm-mute">' + gustLbl + windGst + '</div>'
+        + '</div>'
+        + '<div class="bg-white rounded-xl p-2.5 border border-gray-100">'
+        + '<div class="text-[10px] text-calm-mute mb-0.5">' + rLabel + '</div>'
+        + '<div class="text-sm font-bold text-calm-ink">' + rainProb + '</div>'
+        + '<div class="text-[10px] text-calm-mute">' + probLbl + '</div>'
+        + '</div>'
+        + '<div class="bg-white rounded-xl p-2.5 border border-gray-100">'
+        + '<div class="text-[10px] text-calm-mute mb-0.5">' + hLabel + '</div>'
+        + '<div class="text-sm font-bold text-calm-ink">' + humid + '</div>'
+        + '</div>'
+        + '<div class="bg-white rounded-xl p-2.5 border border-gray-100">'
+        + '<div class="text-[10px] text-calm-mute mb-0.5">' + uvLbl + '</div>'
+        + '<div class="text-sm font-bold text-calm-ink">' + uvLabel + '</div>'
+        + '</div>'
+        + '</div>'
+        + '<div class="bg-orange-50 rounded-xl p-3 border border-orange-100">'
+        + '<div class="text-[10px] text-calm-mute mb-1">' + outfitLbl + '</div>'
+        + '<div class="text-sm font-bold text-calm-ink">' + clothing + '</div>'
+        + '</div>';
     }
     async function fetchWeather(force = false) {
       try {
@@ -3782,7 +3875,10 @@
           }
         }
         const results = await Promise.all(WEATHER_CITIES.map(async city => {
-          const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current=temperature_2m,apparent_temperature,weather_code&daily=temperature_2m_max,temperature_2m_min&forecast_days=1&timezone=${encodeURIComponent(city.tz)}`;
+          const isLboro   = city.key === 'lboro';
+          const curExtra  = isLboro ? ',wind_speed_10m,wind_direction_10m,wind_gusts_10m,relative_humidity_2m' : '';
+          const dayExtra  = isLboro ? ',uv_index_max,precipitation_probability_max' : '';
+          const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current=temperature_2m,apparent_temperature,weather_code${curExtra}&daily=temperature_2m_max,temperature_2m_min${dayExtra}&forecast_days=1&timezone=${encodeURIComponent(city.tz)}`;
           const res = await fetch(url);
           if (!res.ok) throw new Error('HTTP ' + res.status);
           const json = await res.json();
@@ -3794,12 +3890,22 @@
             feels: cur.apparent_temperature,
             code: cur.weather_code,
             max: Array.isArray(daily.temperature_2m_max) ? daily.temperature_2m_max[0] : cur.temperature_2m,
-            min: Array.isArray(daily.temperature_2m_min) ? daily.temperature_2m_min[0] : cur.temperature_2m
+            min: Array.isArray(daily.temperature_2m_min) ? daily.temperature_2m_min[0] : cur.temperature_2m,
+            wind:     isLboro ? cur.wind_speed_10m       : undefined,
+            windDir:  isLboro ? cur.wind_direction_10m   : undefined,
+            windGust: isLboro ? cur.wind_gusts_10m       : undefined,
+            humidity: isLboro ? cur.relative_humidity_2m : undefined,
+            uvMax:    isLboro && Array.isArray(daily.uv_index_max)                  ? daily.uv_index_max[0]                  : undefined,
+            rainProb: isLboro && Array.isArray(daily.precipitation_probability_max) ? daily.precipitation_probability_max[0] : undefined
           };
         }));
         const data = {};
         results.forEach(r => {
-          data[r.key] = { temp: r.temp, feels: r.feels, code: r.code, max: r.max, min: r.min };
+          data[r.key] = {
+            temp: r.temp, feels: r.feels, code: r.code, max: r.max, min: r.min,
+            wind: r.wind, windDir: r.windDir, windGust: r.windGust,
+            humidity: r.humidity, uvMax: r.uvMax, rainProb: r.rainProb
+          };
         });
         localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
         renderWeather(data);
