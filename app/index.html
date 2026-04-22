@@ -150,8 +150,26 @@
     max-width: 640px;
     margin: 32px auto 0;
     padding: 0 8px;
+    font-weight: 600;
   }
   @media (min-width: 640px) { .hero-subtitle { font-size: 18px; } }
+  .hero-subtitle .shu-inline {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-style: italic;
+    color: var(--fg);
+    font-size: 1.15em;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+  .hero-subtitle .shu-inline svg {
+    width: 0.85em;
+    height: 0.85em;
+    vertical-align: -0.08em;
+    margin-right: 0.18em;
+    display: inline-block;
+    flex-shrink: 0;
+  }
 
   /* Animations */
   @keyframes fade-rise {
