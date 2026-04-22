@@ -4096,6 +4096,37 @@
       clearTimeout(syncDebounceTimer);
       syncDebounceTimer = setTimeout(syncPush, 5000);
     }
+    // 页面加载时静默检查云端是否更新，若云端更新时间晚于本地上次推送则自动拉取
+    async function autoSyncOnLoad() {
+      if (!syncAutoEnabled) return;
+      const statusEl = document.getElementById('syncStatusBar');
+      try {
+        const res = await fetch(
+          `${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?id=eq.${encodeURIComponent(SUPABASE_ROW_ID)}&select=data,updated_at`,
+          { headers: supabaseHeaders() }
+        );
+        if (!res.ok) return;
+        const rows = await res.json();
+        if (!Array.isArray(rows) || rows.length === 0) return;
+        const cloudUpdatedAt = rows[0].updated_at ? new Date(rows[0].updated_at).getTime() : 0;
+        const lastPushRaw = localStorage.getItem(SYNC_PUSH_TIME_KEY);
+        // 用上次推送时间判断：云端更新时间比本地推送时间新才拉取
+        const lastPushMs = lastPushRaw ? new Date(lastPushRaw).getTime() : 0;
+        if (cloudUpdatedAt <= lastPushMs) return; // 云端不比本地新，不需要拉取
+        const remoteState = JSON.parse(rows[0].data);
+        Object.assign(state, remoteState);
+        saveState();
+        renderAll();
+        renderNow();
+        const now = new Date().toLocaleString('zh-CN');
+        localStorage.setItem(SYNC_PULL_TIME_KEY, now);
+        renderSyncStatus();
+        const cloudTime = rows[0].updated_at ? rows[0].updated_at.slice(0, 16).replace('T', ' ') : '?';
+        if (statusEl) statusEl.innerHTML = `<span class="text-green-600">✓ 自动同步：已从云端拉取最新数据（${escapeHtml(cloudTime)}）</span>`;
+      } catch (e) {
+        console.warn('autoSyncOnLoad error:', e);
+      }
+    }
     function bindSync() {
       syncAutoEnabled = localStorage.getItem(SYNC_AUTO_KEY) === '1';
       renderSyncStatus();
@@ -6479,6 +6510,7 @@
       bindCountdowns();
       bindSocialManage();
       bindSync();
+      autoSyncOnLoad(); // 自动同步开启时，页面加载后静默检查云端更新
       const qRefBtn = document.getElementById('quoteRefreshBtn');
       if (qRefBtn) qRefBtn.addEventListener('click', () => {
         const base = quoteManualIndex >= 0 ? quoteManualIndex : (
