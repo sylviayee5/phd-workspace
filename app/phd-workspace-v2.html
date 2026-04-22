@@ -3976,14 +3976,14 @@
 
     // 社交触点颜色映射（class name → hex，用于管理弹窗和圆点渲染）
     const SOCIAL_COLOR_HEX = {
-      'dopamine-sky':    '#B8A78C',
-      'dopamine-mint':   '#A8B5A0',
-      'dopamine-coral':  '#B88A73',
-      'dopamine-orange': '#C49B8A',
-      'dopamine-pink':   '#A87360',
-      'dopamine-purple': '#8A6F5C',
-      'dopamine-yellow': '#D9C9A3',
-      'dopamine-lime':   '#B8C4A3'
+      'dopamine-sky':    '#3B9EE8',
+      'dopamine-mint':   '#2EAA76',
+      'dopamine-coral':  '#E05C5C',
+      'dopamine-orange': '#F4845F',
+      'dopamine-pink':   '#D63FA6',
+      'dopamine-purple': '#7C5CBF',
+      'dopamine-yellow': '#D4A017',
+      'dopamine-lime':   '#6BBF45'
     };
     function renderSocial() {
       const listEl = document.getElementById('socialContactList');
@@ -4235,12 +4235,12 @@
         const isToday = isCurrentMonth && d === todayDate;
         const hasRecords = dayRecords.length > 0;
         const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-        // 彩色点（每个联系人一个颜色，去重）
+        // 彩色点（每个联系人一个颜色，去重，用 hex inline style 保证颜色准确）
         const dotContactIds = [...new Set(dayRecords.map(r => r.contactId))];
         const dots = dotContactIds.slice(0,4).map(cid => {
           const c = contacts.find(x => x.id === cid);
-          const color = c ? c.color : 'calm-mute';
-          return `<span class="inline-block w-1.5 h-1.5 rounded-full bg-${color}"></span>`;
+          const hex = c ? (SOCIAL_COLOR_HEX[c.color] || '#999') : '#999';
+          return `<span class="inline-block w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:${hex}"></span>`;
         }).join('');
         cells += `<button onclick="socialHistSelectDay('${dateStr}')" class="flex flex-col items-center py-1.5 rounded-xl hover:bg-gray-50 transition ${
           isToday ? 'ring-2 ring-dopamine-coral' : ''
@@ -4254,11 +4254,13 @@
       // 图例
       const legend = document.getElementById('socialHistLegend');
       if (legend) {
-        legend.innerHTML = contacts.map(c => `
-          <span class="inline-flex items-center gap-1 text-[10px] text-calm-mute">
-            <span class="inline-block w-2.5 h-2.5 rounded-full bg-${c.color}"></span>
+        legend.innerHTML = contacts.map(c => {
+          const hex = SOCIAL_COLOR_HEX[c.color] || '#999';
+          return `<span class="inline-flex items-center gap-1 text-[10px] text-calm-mute">
+            <span class="inline-block w-2.5 h-2.5 rounded-full flex-shrink-0" style="background:${hex}"></span>
             ${escapeHtml(c.zh)}
-          </span>`).join('');
+          </span>`;
+        }).join('');
       }
 
       // 重置日期详情
