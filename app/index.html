@@ -27,16 +27,19 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* 视频背景：填满视口不留黑边，保留底部花田 */
+  /* 视频背景：填满视口 + 放大 112% 裁掉视频素材自带的深色边 */
   .bg-video {
     position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
+    top: 50%;
+    left: 50%;
+    width: 112vw;
+    height: 112vh;
+    transform: translate(-50%, -50%);
     object-fit: cover;
-    object-position: center bottom;   /* 优先保留底部鲜艳花田 */
+    object-position: center bottom;
     background: #041F33;
     z-index: 0;
+    pointer-events: none;
   }
   .bg-video-fallback {
     position: fixed;
