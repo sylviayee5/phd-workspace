@@ -4096,7 +4096,7 @@
       clearTimeout(syncDebounceTimer);
       syncDebounceTimer = setTimeout(syncPush, 5000);
     }
-    // 页面加载时静默检查云端是否更新，若云端更新时间晚于本地上次推送则自动拉取
+    // 页面加载时静默双向同步：无云端数据则推送；云端更新则拉取
     async function autoSyncOnLoad() {
       if (!syncAutoEnabled) return;
       const statusEl = document.getElementById('syncStatusBar');
@@ -4107,12 +4107,16 @@
         );
         if (!res.ok) return;
         const rows = await res.json();
-        if (!Array.isArray(rows) || rows.length === 0) return;
+        // 云端无数据 → 自动推送本地数据上去
+        if (!Array.isArray(rows) || rows.length === 0) {
+          await syncPush();
+          return;
+        }
         const cloudUpdatedAt = rows[0].updated_at ? new Date(rows[0].updated_at).getTime() : 0;
         const lastPushRaw = localStorage.getItem(SYNC_PUSH_TIME_KEY);
-        // 用上次推送时间判断：云端更新时间比本地推送时间新才拉取
         const lastPushMs = lastPushRaw ? new Date(lastPushRaw).getTime() : 0;
-        if (cloudUpdatedAt <= lastPushMs) return; // 云端不比本地新，不需要拉取
+        if (cloudUpdatedAt <= lastPushMs) return; // 云端不比本地新，已是最新
+        // 云端更新 → 静默拉取
         const remoteState = JSON.parse(rows[0].data);
         Object.assign(state, remoteState);
         saveState();
@@ -4122,13 +4126,16 @@
         localStorage.setItem(SYNC_PULL_TIME_KEY, now);
         renderSyncStatus();
         const cloudTime = rows[0].updated_at ? rows[0].updated_at.slice(0, 16).replace('T', ' ') : '?';
-        if (statusEl) statusEl.innerHTML = `<span class="text-green-600">✓ 自动同步：已从云端拉取最新数据（${escapeHtml(cloudTime)}）</span>`;
+        if (statusEl) statusEl.innerHTML = `<span class="text-green-600">✓ 已自动同步最新数据（${escapeHtml(cloudTime)}）</span>`;
       } catch (e) {
         console.warn('autoSyncOnLoad error:', e);
       }
     }
     function bindSync() {
-      syncAutoEnabled = localStorage.getItem(SYNC_AUTO_KEY) === '1';
+      // 默认开启自动同步（首次打开时 localStorage 中无此键，默认视为已开启）
+      const storedAuto = localStorage.getItem(SYNC_AUTO_KEY);
+      syncAutoEnabled = storedAuto === null ? true : storedAuto === '1';
+      if (storedAuto === null) localStorage.setItem(SYNC_AUTO_KEY, '1');
       renderSyncStatus();
       const pushBtn = document.getElementById('syncPushBtn');
       const pullBtn = document.getElementById('syncPullBtn');
