@@ -434,8 +434,8 @@
     }
     .cal-today-btn:hover { background: #fff; }
     .cal-range-label {
-      font-family: 'Instrument Serif', Georgia, serif;
-      font-size: 22px; color: #2A2E33; letter-spacing: -.01em;
+      font-family: inherit;
+      font-size: 15px; font-weight: 700; color: #2A2E33; letter-spacing: -.005em;
     }
 
     /* 日 / 周视图时间轴容器 */
@@ -2276,15 +2276,16 @@
     const SUBMISSION_STAGE_COLOR = {
       '选题中':'#9A8AA0','写作中':'#B8846B','内审/合作者':'#C4A670','待投稿':'#C4A670','已投稿':'#7A9AB2','审稿中':'#8B95A1','返修中':'#C49080','已接收':'#7A9080','搁置/拒稿':'#9ca3af'
     };
+    // 类别颜色：科研（学习/科研/写作/会议）统一冷色系（蓝→紫），生活（运动/饮食/休息/生活）统一暖色系（绿→黄→橙）
     const CATEGORY_META = {
-      study: { label: '学习', icon: '📖', color: '#7A9AB2' },
-      research: { label: '科研', icon: '🧪', color: '#9A8AA0' },
-      writing: { label: '写作', icon: '✍️', color: '#B8846B' },
-      meeting: { label: '会议', icon: '👥', color: '#8B95A1' },
-      exercise: { label: '运动', icon: '🏃', color: '#7A9080' },
-      meal: { label: '饮食', icon: '🍽️', color: '#C4A670' },
-      rest: { label: '休息', icon: '🛌', color: '#A8B89A' },
-      life: { label: '生活', icon: '🧹', color: '#C49080' }
+      study:    { label: '学习', icon: '📖', color: '#7A9AB2' }, // 雾蓝
+      research: { label: '科研', icon: '🧪', color: '#5F7BA0' }, // 深蓝
+      writing:  { label: '写作', icon: '✍️', color: '#7E7FA8' }, // 蓝紫
+      meeting:  { label: '会议', icon: '👥', color: '#8B95A1' }, // 石板灰
+      exercise: { label: '运动', icon: '🏃', color: '#8FA886' }, // 草绿
+      meal:     { label: '饮食', icon: '🍽️', color: '#C9A85C' }, // 金黄
+      rest:     { label: '休息', icon: '🛌', color: '#D4B97A' }, // 暖黄米
+      life:     { label: '生活', icon: '🧹', color: '#B88A5E' }  // 琥珀橙
     };
 
     const SHU_PHD_DATES = {
@@ -3582,8 +3583,12 @@
       const list = state.timeBlocks[date] || [];
       const item = list.find(x => x.id === id);
       if (!item) return;
-      const title = prompt(localeText('修改时间块标题', 'Edit time block title'), item.title || '');
+      const title = prompt(localeText('修改标题', 'Edit title'), item.title || '');
       if (title === null) return;
+      const newDateRaw = prompt(localeText('修改日期（YYYY-MM-DD）', 'Edit date (YYYY-MM-DD)'), item.date || date);
+      if (newDateRaw === null) return;
+      const newDate = (newDateRaw || '').trim();
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(newDate)) { alert(localeText('日期格式应为 YYYY-MM-DD', 'Invalid date format, use YYYY-MM-DD')); return; }
       const start = prompt(localeText('修改开始时间（HH:MM）', 'Edit start time (HH:MM)'), item.start || '09:00');
       if (start === null) return;
       const startHM = normalizeHM(start);
@@ -3592,14 +3597,32 @@
       if (end === null) return;
       const endHM = normalizeHM(end);
       if (endHM === null) { alert(localeText('时间格式应为 HH:MM', 'Invalid time format, use HH:MM')); return; }
+      const catKeys = Object.keys(CATEGORY_META);
+      const catList = catKeys.map((k, i) => `${i + 1}. ${CATEGORY_META[k].icon} ${CATEGORY_META[k].label} (${k})`).join('\n');
+      const catInput = prompt(localeText(`修改类型（输入编号或英文 key）：\n${catList}`, `Edit category (enter number or key):\n${catList}`), item.category || 'study');
+      if (catInput === null) return;
+      let newCat = (catInput || '').trim();
+      const asNum = parseInt(newCat, 10);
+      if (!isNaN(asNum) && asNum >= 1 && asNum <= catKeys.length) newCat = catKeys[asNum - 1];
+      if (!CATEGORY_META[newCat]) { alert(localeText('类型无效，已保留原类型', 'Invalid category, kept original')); newCat = item.category; }
       const notes = prompt(localeText('修改备注（可留空）', 'Edit notes (optional)'), item.notes || '');
       if (notes === null) return;
+      // 若日期变更，需要从旧数组移除并放入新数组
+      if (newDate !== date) {
+        const idx = list.findIndex(x => x.id === id);
+        if (idx > -1) list.splice(idx, 1);
+        if (!state.timeBlocks[newDate]) state.timeBlocks[newDate] = [];
+        state.timeBlocks[newDate].push(item);
+      }
       item.title = title.trim() || item.title;
+      item.date = newDate;
       item.start = startHM;
       item.end = endHM;
+      item.category = newCat;
       item.notes = notes.trim();
       item.minutes = minutesBetween(startHM, endHM);
-      list.sort((a,b)=>a.start.localeCompare(b.start));
+      (state.timeBlocks[newDate] || []).sort((a,b)=>a.start.localeCompare(b.start));
+      if (typeof calState !== 'undefined' && calState) { calState.cursor = newDate; }
       saveState(); renderCalendarSection(); renderAll();
     }
     function editTimeBlock(id, date) {
