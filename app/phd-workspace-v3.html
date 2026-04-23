@@ -678,6 +678,40 @@
       }
       /* 弹窗自身 padding 收紧 */
       [id$="Modal"].fixed.inset-0 { padding: 12px !important; }
+
+      /* 日历 grid-cols-7：小屏收紧 gap、缩小字号 */
+      #attendanceCalendarGrid.grid-cols-7,
+      #meetingCalGrid.grid-cols-7,
+      #socialHistCalendar.grid-cols-7 {
+        gap: 4px !important;
+      }
+      #attendanceCalendarGrid .cal-cell,
+      #attendanceCalendarGrid > * {
+        min-height: 44px;
+        font-size: 11px;
+      }
+      #meetingCalGrid > *,
+      #socialHistCalendar > * {
+        font-size: 10px;
+      }
+      /* 出勤日历图例文字缩小避免溢出 */
+      .soft-card .text-xs.flex.flex-wrap.gap-4 { gap: 8px; font-size: 10px; }
+
+      /* 月历 cal-month-cell（会议/计划日历）小屏收紧 */
+      .cal-month-cell { min-height: 64px; padding: 3px 3px 2px; }
+      .cal-month-cell .mc-date { width: 18px; height: 18px; font-size: 10px; }
+      .cal-month-cell .mc-block { font-size: 9px; padding: 1px 3px; }
+
+      /* 长表格统一允许横滚 */
+      main table, main .whitespace-nowrap {
+        font-size: 12px;
+      }
+      /* 投稿/论文卡片的 min-w-[220px] 在小屏取消 */
+      main .flex-1[class*="min-w-"] {
+        min-width: 0 !important;
+      }
+      /* 会议日历 toolbar 允许换行 */
+      .flex.flex-wrap.items-center.gap-3 { gap: 8px; }
     }
 
   </style>
