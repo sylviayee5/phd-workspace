@@ -5239,13 +5239,41 @@
       const day = getDayAttendance();
       if (day.leave) { alert(uiLocale === 'en' ? 'Today is marked as leave. Remove leave record before attendance check-in.' : '今日已请假，若要打卡请先删除请假记录。'); return; }
       const slot = day.periods[period];
+      const label = (typeof periodLabel === 'function') ? periodLabel(period) : period;
       if (action === 'start') {
         if (slot.activeStart) { alert(uiLocale === 'en' ? 'This period is already in progress.' : '这一时段已经在进行中。'); return; }
-        slot.activeStart = timeNow();
+        // 支持补录：输入真实开始时间
+        const preset = timeNow();
+        const input = prompt(localeText(`请输入${label}真实开始时间（HH:MM）`, `Enter actual ${label} start time (HH:MM)`), preset);
+        if (input === null) return;
+        const hm = normalizeHM(input);
+        if (!hm) { alert(localeText('时间格式应为 HH:MM', 'Invalid time format, use HH:MM')); return; }
+        slot.activeStart = hm;
       } else {
-        if (!slot.activeStart) { alert(uiLocale === 'en' ? 'No active start time, cannot end this period.' : '还没有开始，不能结束。'); return; }
-        const end = timeNow();
-        slot.segments.push({ start: slot.activeStart, end, minutes: minutesBetween(slot.activeStart, end), qualified: slot.activeStart <= PERIOD_META[period].startStandard });
+        if (!slot.activeStart) {
+          // 没有活跃开始：允许补录一整段（开始 + 结束）
+          const confirmFill = confirm(localeText(`尚未记录${label}开始时间。是否一次性补录一整段（开始 + 结束）？`, `No active ${label} start recorded. Backfill a full segment (start + end)?`));
+          if (!confirmFill) return;
+          const startInput = prompt(localeText(`${label}开始时间（HH:MM）`, `${label} start time (HH:MM)`), timeNow());
+          if (startInput === null) return;
+          const startHM = normalizeHM(startInput);
+          if (!startHM) { alert(localeText('时间格式应为 HH:MM', 'Invalid time format, use HH:MM')); return; }
+          const endInput = prompt(localeText(`${label}结束时间（HH:MM）`, `${label} end time (HH:MM)`), timeNow());
+          if (endInput === null) return;
+          const endHM = normalizeHM(endInput);
+          if (!endHM) { alert(localeText('时间格式应为 HH:MM', 'Invalid time format, use HH:MM')); return; }
+          if (endHM <= startHM) { alert(localeText('结束时间必须晚于开始时间。', 'End time must be later than start time.')); return; }
+          slot.segments.push({ start: startHM, end: endHM, minutes: minutesBetween(startHM, endHM), qualified: startHM <= PERIOD_META[period].startStandard });
+          saveState(); renderAll();
+          return;
+        }
+        // 已有活跃开始：输入真实结束时间
+        const endInput = prompt(localeText(`请输入${label}真实结束时间（HH:MM）`, `Enter actual ${label} end time (HH:MM)`), timeNow());
+        if (endInput === null) return;
+        const endHM = normalizeHM(endInput);
+        if (!endHM) { alert(localeText('时间格式应为 HH:MM', 'Invalid time format, use HH:MM')); return; }
+        if (endHM <= slot.activeStart) { alert(localeText('结束时间必须晚于开始时间。', 'End time must be later than start time.')); return; }
+        slot.segments.push({ start: slot.activeStart, end: endHM, minutes: minutesBetween(slot.activeStart, endHM), qualified: slot.activeStart <= PERIOD_META[period].startStandard });
         slot.activeStart = null;
       }
       saveState(); renderAll();
