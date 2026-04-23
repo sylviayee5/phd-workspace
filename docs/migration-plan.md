@@ -2,62 +2,70 @@
 
 > 起点：v1.0-before-mobile（git tag，已打）
 > 目标：一套数据，多端同步，手机可用，离线也能用
+> **当前状态（2026-04-23）：核心目标已达成，桌面 PWA + Supabase 云同步全部跑通。**
 
-## 七阶段路线图
+## 关键事实
 
-### Phase 0：用户注册 Supabase（进行中）
-- [ ] Shu 注册 Supabase 账号（GitHub 登录）
-- [ ] 新建 project（推荐区域：Singapore 或 London）
-- [ ] 拿到 Project URL 和 anon public key
-- [ ] 填入 shared/supabase-client.js
+### 两个 Supabase 项目的用途
+Shu 账号下有两个 Supabase project：
 
-### Phase 0.5：目录重构 + 快照（已完成 2026-04-23）
-- [x] git tag v1.0-before-mobile
-- [x] 新建 shared/ assets/ pwa/ docs/ 目录
+1. **`sylviayee5's Project`**（ref `exzigbuwkvrhyjtpizad`）= **正在用的**
+   - Table `workspace_sync`，row id `shu_phd_v2`
+   - 持续同步真实数据，`app/phd-workspace-v3.html` 里 `SUPABASE_URL` / `SUPABASE_KEY` 指向这个
+   - anon JWT key 已修正（之前错写成 sb_publishable_... 导致认证失败，2026-04-23 修复）
+
+2. **`phd-workspace`**（ref `rjkdtbvohnddbihxioqz`）= **今天新建，空置**
+   - Table `workspace_sync`，row id `shu_phd_v3`
+   - 建时以为要迁移，后发现旧项目数据是最新的，**不再使用**
+   - 保留不删（免费层支持 2 个项目，没成本），留作将来实验用
+
+### app 的同步机制（已在生产）
+- `saveState()` 触发后，防抖 5 秒自动 `syncPush` 到云
+- 页面加载时 `autoSyncOnLoad` 双向判断：云端无数据 → 推送，云端较新 → 静默拉取
+- 设置页 `云端同步 · Supabase` 卡显示最后推/拉时间 + 手动按钮 + 开关
+
+## 七阶段路线图（回顾）
+
+### Phase 0：Supabase 项目就绪 ✅（完成于更早，2026-04-22）
+- Shu 已有账号，旧 project 已建表、配 RLS、装同步代码
+
+### Phase 0.5：目录重构 + 快照 ✅（2026-04-23）
+- [x] git tag `v1.0-before-mobile`
+- [x] 新建 `shared/` `assets/` `pwa/` `docs/` 目录
 - [x] 创建三份占位文档
-- [x] 暂不改名 phd-workspace-v3.html（保留 GitHub Pages 链接有效）
 
-### Phase 1：PWA 外壳（可先于 Supabase 完成）
-- [ ] 制作 icon-192.png / icon-512.png（可用现有 logo 或简单设计）
-- [ ] 编写 assets/manifest.json
-- [ ] 编写 pwa/service-worker.js（先做离线缓存，不做后台同步）
-- [ ] 在 phd-workspace-v3.html `<head>` 加 manifest link + 注册 service worker
-- [ ] 验证：Chrome 地址栏出现「安装」按钮；手机 Safari「添加到主屏幕」成功
+### Phase 1：PWA 外壳 ✅（2026-04-23）
+- [x] `assets/icon-192.png` + `icon-512.png`（terracotta 底白 S）
+- [x] `assets/manifest.json`
+- [x] `pwa/service-worker.js` + `app/sw.js`（GitHub Pages scope workaround）
+- [x] `phd-workspace-v3.html` 加 manifest link / theme-color / apple-touch-icon / SW register
+- [x] 验证：Edge 地址栏出现安装按钮 → 已装到 Launchpad
+- [x] Service Worker 显示 activated and running
 
-### Phase 2：Supabase 数据库结构设计
-- [ ] 按 docs/supabase-schema.md 的草稿在 Supabase Dashboard 建表
-- [ ] 配置 RLS 策略
-- [ ] 在 Dashboard 手动插入一行测试数据
+### Phase 2：Supabase 数据库 ✅（早已完成）
+- 旧 project 的 `workspace_sync` 表早就建好并持续在用
+- 今天额外在新 project 建了份表（`shu_phd_v3`），未使用
 
-### Phase 3：邮箱 Magic Link 登录
-- [ ] shared/auth.js：signIn / signOut / getUser
-- [ ] 桌面页面加「登录 / 退出」按钮
-- [ ] 未登录状态仍可本地使用（降级）
+### Phase 3：云同步 key 修复 ✅（2026-04-23）
+- 旧 `SUPABASE_KEY` 用的是 `sb_publishable_...` 新格式 key，认证不过导致同步失败
+- 换回标准 JWT anon key (`eyJ...`) 后，saveState → 5s 后自动推送正常
+- commit `2579f18`
 
-### Phase 4：localStorage → Supabase 双写
-- [ ] shared/data-layer.js 封装 read / write
-- [ ] 写操作：localStorage 立即写 + Supabase 异步写
-- [ ] 读操作：优先 Supabase，失败降级 localStorage
-- [ ] 冲突策略：以 updated_at 较新的为准
+### Phase 4：手机端使用（验证）✅（2026-04-23）
+- PWA 在手机浏览器「添加到主屏幕」
+- 打开后从 Supabase 自动拉取，数据与电脑一致
 
-### Phase 5：一次性数据迁移
-- [ ] 写一个「导入到云」按钮：读当前 localStorage，上传到 Supabase
-- [ ] 先在 Supabase Dashboard 确认数据完整
-- [ ] 保留 localStorage 作为本地缓存，不清空
-
-### Phase 6：手机响应式 / 独立手机页
-- [ ] 决策：是改造 v3.html 做响应式，还是新建 mobile.html？（见 docs/mobile-design.md）
-- [ ] 核心日常操作（打卡、查看今日任务）优先
-- [ ] 文字编辑密集型功能（写作、反思）次优先
-
-### Phase 7：集成 + 离线处理
-- [ ] Service Worker 缓存 Supabase 读请求
-- [ ] 离线写入排队，恢复连接后批量同步
-- [ ] 桌面 / 手机 双端实机测试
+### 未来可选改进（没急迫性）
+- [ ] 邮箱 Magic Link 登录：把 RLS 从 `to anon allow_all` 改为 `auth.uid() = user_id`（单用户也可做）
+- [ ] 独立 `mobile.html`：为手机端精简布局（见 `docs/mobile-design.md`）
+- [ ] Service Worker 缓存 Supabase GET 请求，实现真正离线读
+- [ ] 离线写入队列：断网时先排队，恢复后批量推送
 
 ## 风险与回滚
 
-- 任何阶段崩了都能 `git checkout v1.0-before-mobile` 回到桌面单机版
+- 崩了 → `git checkout v1.0-before-mobile` 回 desktop-only 桌面版
+- 云数据损坏 → localStorage 还在；设置页有「从剪贴板导入 JSON」恢复入口
+- Supabase 欠费/跑路 → 前端仍能单机跑 localStorage
 - localStorage 不删：即使云同步整体失败，本地数据还在
 - 每周至少一次 JSON 导出备份（已有流程）
 

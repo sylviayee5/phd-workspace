@@ -126,8 +126,19 @@
   - 七阶段迁移路线图见 `docs/migration-plan.md`（Phase 0 Supabase 注册进行中）
 
 ## 3. 正在做的部分
-- **手机 + 云同步改造（Phase 0 进行中）**：Shu 正在注册 Supabase 账号，等待 Project URL + anon key 填入 `shared/supabase-client.js`
-- 下一步 Phase 1：PWA 外壳（manifest.json + 图标 + service-worker.js），可先于 Supabase 独立完成
+- **桌面 PWA + 云同步已上线**：app 已可从 Edge 安装到 Launchpad，自动同步到 Supabase（旧 project `sylviayee5's Project`），手机 / 电脑数据互通
+- 核心目标达成，后续主要是观察稳定性与视情况做手机端精简版
+
+### 2026-04-23 补充（云同步修复 + PWA 验证）
+
+- **同步失效问题定位**：`SUPABASE_KEY` 一度写成新格式 `sb_publishable_...`，该格式对 REST API 认证不通过，导致 `saveState` 触发的 `syncPush` 全部失败
+  - 修复：换回标准 JWT anon key（`eyJ...`），提交 `2579f18`
+  - 验证：设置页「云端同步」卡显示「刚刚推送成功」，Table Editor 中 `updated_at` 实时更新
+- **两个 Supabase 项目的用途澄清**（避免未来混淆）：
+  - `sylviayee5's Project`（ref `exzigbuwkvrhyjtpizad`）+ row `shu_phd_v2` = **生产**，app 代码里指向这个
+  - `phd-workspace`（ref `rjkdtbvohnddbihxioqz`）+ row `shu_phd_v3` = 今天新建后未使用，保留不删
+- **PWA 已在 Edge 安装成独立 app**，图标出现在 Launchpad 和 Finder `Microsoft Edge 应用`
+- **手机端验证**：PWA 在手机浏览器可「添加到主屏幕」，数据与电脑一致
 
 ## 4. 还没开始的部分
 - 还没有做真正的多语言资源文件拆分，当前还是单文件内联字典和替换逻辑。
