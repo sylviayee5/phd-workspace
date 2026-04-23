@@ -523,6 +523,20 @@
       content: ''; position: absolute; left: -5px; top: -4px;
       width: 10px; height: 10px; border-radius: 50%; background: #B8846B;
     }
+    /* 节假日标记 */
+    .cal-holiday-banner {
+      padding: 3px 8px; font-size: 10px; font-weight: 700; letter-spacing: .02em;
+      color: #A8503A; background: rgba(196,144,128,.14);
+      border-bottom: 1px solid rgba(196,144,128,.25);
+      display: flex; align-items: center; gap: 4px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .mc-holiday {
+      font-size: 9px; font-weight: 700; color: #A8503A;
+      margin: 2px 0 3px; padding: 2px 5px;
+      background: rgba(196,144,128,.14); border-radius: 4px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
 
     /* 月视图 */
     .cal-month {
@@ -2303,6 +2317,29 @@
       { date: '2026-12-25', nameEn: 'Christmas Day', nameZh: '圣诞节' },
       { date: '2026-12-28', nameEn: 'Boxing Day (substitute day)', nameZh: '节礼日（补假）' }
     ];
+
+    // 中国法定节假日（2026）：只收录节天本身，不处理国务院调休具体安排
+    const CN_HOLIDAYS_2026 = [
+      { date: '2026-01-01', nameZh: '元旦', nameEn: 'New Year\'s Day' },
+      { date: '2026-02-17', nameZh: '春节', nameEn: 'Chinese New Year' },
+      { date: '2026-04-05', nameZh: '清明节', nameEn: 'Qingming Festival' },
+      { date: '2026-05-01', nameZh: '劳动节', nameEn: 'Labour Day' },
+      { date: '2026-06-19', nameZh: '端午节', nameEn: 'Dragon Boat Festival' },
+      { date: '2026-09-25', nameZh: '中秋节', nameEn: 'Mid-Autumn Festival' },
+      { date: '2026-10-01', nameZh: '国庆节', nameEn: 'National Day' }
+    ];
+
+    // 统一查询：返回 { type: 'cn'|'uk'|'both', label, badge }
+    function getHolidayInfo(ds) {
+      const cn = CN_HOLIDAYS_2026.find(h => h.date === ds);
+      const uk = UK_BANK_HOLIDAYS_2026.find(h => h.date === ds);
+      if (!cn && !uk) return null;
+      const label = (uiLocale === 'en')
+        ? [cn && cn.nameEn, uk && uk.nameEn].filter(Boolean).join(' / ')
+        : [cn && cn.nameZh, uk && uk.nameZh].filter(Boolean).join(' / ');
+      const flag = cn && uk ? '🇨🇳🇬🇧' : cn ? '🇨🇳' : '🇬🇧';
+      return { type: cn && uk ? 'both' : cn ? 'cn' : 'uk', label, flag };
+    }
 
     const ENCOURAGEMENT_QUOTES = [
       { zh: '学术不是为了尽快结束问题，而是为了学会和问题一起生活。', en: 'Scholarship is not about ending questions quickly, it is about learning to live with them.', authorZh: '汉娜 阿伦特', authorEn: 'Hannah Arendt' },
@@ -5425,6 +5462,11 @@
         col += mode === 'week'
           ? `<div class="cal-col-header ${isToday?'is-today':''}"><div>${headerText}</div><div class="day-num">${dObj.getDate()}</div></div>`
           : `<div class="cal-col-header" style="visibility:hidden;">h</div>`;
+        // 节假日横条（位于 header 下方、时轴上方）
+        const hol = getHolidayInfo(day.date);
+        if (hol) {
+          col += `<div class="cal-holiday-banner" title="${escapeHtml(hol.label)}">${hol.flag} ${escapeHtml(hol.label)}</div>`;
+        }
         col += `<div style="position:relative;">`;
         // 小时格线
         for (let h = CAL_HOUR_START; h <= CAL_HOUR_END; h++) {
@@ -5474,6 +5516,10 @@
         const more = blocks.length - shown.length;
         let cell = `<div class="cal-month-cell ${inMonth?'':'other-month'} ${isToday?'is-today':''}" data-date="${ds}">`;
         cell += `<div class="mc-date">${d.getDate()}</div>`;
+        const mhol = getHolidayInfo(ds);
+        if (mhol) {
+          cell += `<div class="mc-holiday" title="${escapeHtml(mhol.label)}">${mhol.flag} ${escapeHtml(mhol.label)}</div>`;
+        }
         if (shown.length) {
           cell += '<div class="mc-blocks">';
           shown.forEach(b => {
