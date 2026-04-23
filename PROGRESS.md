@@ -100,8 +100,34 @@
   - 鼓励语卡从首页移除（DOM 元素隐藏保留 ID 供 JS 使用）
   - 社交触点 + 能量检查从首页迁移到「情绪与观心」页顶部（功能不变，只换位置）
 
+### 2026-04-23 新增（Modal UX + 会议日历 + 目录重构）
+
+- **Modal 交互统一**：
+  - 全部 9 个弹窗（任务、专注补录、投稿、里程碑、会议、田野、反思、导入、会议日详情）统一改为 `flex items-center justify-center` + `backdrop-blur-lg` 磨砂玻璃效果，内层 `bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl`
+  - 原先 CSS 缺 `flex` 导致 modal 偏上；修复后所有弹窗真正居中
+  - 原生 `prompt()` 替换为自定义 `inputModal` + `showInputModal()` Promise helper（上午 / 下午 / 晚间时段手动补录时间），支持 Enter 提交 / Esc 取消
+
+- **会议日历**：
+  - meetings section 新增月 / 周视图切换日历
+  - 月视图 7 列网格，过去日显示灰色小点，今日高亮琥珀色，未来日蓝色
+  - 点击任一日期弹出当日会议列表（`openMeetingDayModal`）
+  - 日期统一格式化为 `DD MMM YYYY`（如 `06 Oct 2025`）
+
+- **会议卡片样式迭代**（三轮后定稿）：
+  - 最终方案：长条 `<details>` 展开卡，折叠时显示日期 + 标题 + 导师徽标 + 时长
+  - 展开后显示 议程 / 备注 / Action Items + Edit / Delete 按钮
+  - 统一函数 `meetingDetailsHtml(m, {defaultOpen, compact})`：upcoming 默认展开，past 默认折叠
+
+- **Phase 0.5 目录重构**（为手机 + Supabase 云同步做准备）：
+  - 打 git tag `v1.0-before-mobile` 作为回滚快照
+  - 新建目录：`shared/`（共用 JS 模块）、`assets/`（PWA 图标 + manifest）、`pwa/`（service worker）、`docs/`（设计文档）
+  - 新建占位文档：`docs/supabase-schema.md`、`docs/migration-plan.md`、`docs/mobile-design.md`
+  - **`phd-workspace-v3.html` 暂不改名**，避免破坏 GitHub Pages 链接 `https://sylviayee5.github.io/phd-workspace/app/phd-workspace-v3.html`，改名留到后期配合重定向一起做
+  - 七阶段迁移路线图见 `docs/migration-plan.md`（Phase 0 Supabase 注册进行中）
+
 ## 3. 正在做的部分
-- 当前核心功能已稳定，后续重点在使用验证和小迭代
+- **手机 + 云同步改造（Phase 0 进行中）**：Shu 正在注册 Supabase 账号，等待 Project URL + anon key 填入 `shared/supabase-client.js`
+- 下一步 Phase 1：PWA 外壳（manifest.json + 图标 + service-worker.js），可先于 Supabase 独立完成
 
 ## 4. 还没开始的部分
 - 还没有做真正的多语言资源文件拆分，当前还是单文件内联字典和替换逻辑。

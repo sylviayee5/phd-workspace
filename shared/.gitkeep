@@ -1,0 +1,6 @@
+# shared/ 目录
+# 桌面和手机页面共用的 JavaScript 模块
+# 后续会放：
+#   - supabase-client.js  Supabase 连接配置
+#   - data-layer.js       数据读写抽象（localStorage + 云）
+#   - auth.js             登录/用户管理
