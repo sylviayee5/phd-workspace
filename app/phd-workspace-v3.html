@@ -18,35 +18,34 @@
       theme: {
         extend: {
           colors: {
-            // 暖色 Morandi · 去粉色版：terracotta / sand / sage / deep-terracotta / ochre
+            // 中性石墨 · 雾蓝方案：所有 dopamine-*/calm-* 旧类名兼容映射到新中性色
             dopamine: {
-              orange: '#C49B8A',   // terracotta（主暖色）
-              pink:   '#A87360',   // deep terracotta（替代粉位，仍暖但无粉）
-              yellow: '#D9C9A3',   // warm sand
-              mint:   '#A8B5A0',   // sage
-              sky:    '#B8A78C',   // olive-tan（替代蓝色位，改暖）
-              purple: '#8A6F5C',   // cocoa brown（替代紫位）
-              coral:  '#B88A73',   // soft rust
-              lime:   '#B8C4A3'    // sage-lime
+              orange: '#4A4E55',   // primary graphite（主色）
+              pink:   '#2D3138',   // primary hover / deep graphite
+              yellow: '#B8A878',   // warn · 褪色土黄（语义保留）
+              mint:   '#7A9080',   // success · 鼠尾草绿（语义保留）
+              sky:    '#8B95A1',   // accent · 雾蓝点缀
+              purple: '#6B6F76',   // mid graphite
+              coral:  '#A87878',   // danger · 烟灰红（语义保留）
+              lime:   '#8B95A1'    // accent 同款
             },
             calm: {
-              blue:  '#B8A78C',
-              lilac: '#8A6F5C',
-              peach: '#E1C9A8',
-              green: '#A8B5A0',
-              sand:  '#D9C9A3',
-              rose:  '#A87360',
-              ink:   '#3E332A',
-              mute:  '#8A7F70',
-              bg:    '#FAF7F1'
+              blue:  '#8B95A1',    // accent mist
+              lilac: '#6B6F76',
+              peach: '#E5E7EB',    // cloud
+              green: '#7A9080',
+              sand:  '#E5E7EB',
+              rose:  '#A87878',
+              ink:   '#1F2328',
+              mute:  '#8C8F94',
+              bg:    '#F7F7F6'
             },
-            // Tailwind 默认 rose/pink 工具类改成暖 terracotta，防止粉色泄漏
-            // orange/yellow/amber 用 Tailwind 默认（已经是暖色、但更饱和，我们改为低饱和米色调）
-            orange: { 50:'#F4EDE3', 100:'#E9DCC7', 200:'#D9C3A0', 500:'#C49B8A', 600:'#A87360' },
-            rose:   { 50:'#F4EDE3', 100:'#E9DCC7', 200:'#D9C3A0', 500:'#A87360', 600:'#7E5542' },
-            pink:   { 50:'#F4EDE3', 100:'#E9DCC7', 200:'#D9C3A0', 500:'#A87360', 600:'#7E5542' },
-            yellow: { 50:'#F4EEDE', 100:'#E9DCB9', 200:'#D9C68A', 500:'#C9A94F', 600:'#A98836' },
-            amber:  { 50:'#F4EEDE', 100:'#E9DCB9', 200:'#D9C68A', 500:'#C9A94F', 600:'#A98836' }
+            // 中性化 Tailwind 覆盖（保留类名兼容）
+            orange: { 50:'#F2F3F4', 100:'#E5E7EB', 200:'#CED1D6', 500:'#4A4E55', 600:'#2D3138' },
+            rose:   { 50:'#F3F1F1', 100:'#E8E5E5', 200:'#D4CECE', 500:'#A87878', 600:'#8A5858' },
+            pink:   { 50:'#F3F1F1', 100:'#E8E5E5', 200:'#D4CECE', 500:'#A87878', 600:'#8A5858' },
+            yellow: { 50:'#F4F2EA', 100:'#E8E2CD', 200:'#D4C9A3', 500:'#B8A878', 600:'#8A7A4A' },
+            amber:  { 50:'#F4F2EA', 100:'#E8E2CD', 200:'#D4C9A3', 500:'#B8A878', 600:'#8A7A4A' }
           },
           boxShadow: {
             soft: '0 12px 30px -12px rgba(0,0,0,.12)',
@@ -61,16 +60,16 @@
     }
   </script>
   <style>
-    /* 中性奶白 + 墙墙磨玻璃 · v3 （GlassPro / Apple 风）*/
+    /* 中性冷灰 + 磨玻璃 · v3 · 石墨雾蓝方案 */
     body {
       background:
-        radial-gradient(1200px 620px at 88% 6%, rgba(200,185,165,.14) 0%, rgba(200,185,165,0) 55%),
-        radial-gradient(1000px 520px at 8% 20%, rgba(180,190,200,.12) 0%, rgba(180,190,200,0) 55%),
-        radial-gradient(900px 500px at 50% 100%, rgba(195,185,170,.10) 0%, rgba(195,185,170,0) 60%),
-        linear-gradient(160deg, #F6F5F1 0%, #EFEEE9 50%, #F4F3EE 100%);
+        radial-gradient(1200px 620px at 88% 6%, rgba(139,149,161,.12) 0%, rgba(139,149,161,0) 55%),
+        radial-gradient(1000px 520px at 8% 20%, rgba(80,90,110,.10) 0%, rgba(80,90,110,0) 55%),
+        radial-gradient(900px 500px at 50% 100%, rgba(120,128,140,.08) 0%, rgba(120,128,140,0) 60%),
+        linear-gradient(160deg, #F7F7F6 0%, #EFEFEE 50%, #F4F4F3 100%);
       background-attachment: fixed;
       min-height: 100vh;
-      color: #1F2937;
+      color: #1F2328;
     }
     /* 板块大字水印（GlassPro 风） */
     .section-watermark {
@@ -80,7 +79,7 @@
       line-height: 0.95;
       letter-spacing: -0.02em;
       text-transform: uppercase;
-      color: rgba(10, 38, 56, 0.07);
+      color: rgba(31, 35, 40, 0.07);
       pointer-events: none;
       user-select: none;
       margin-bottom: -0.4em;
@@ -105,10 +104,10 @@
         0 1px 0 rgba(255,255,255,.8) inset,
         0 32px 70px -26px rgba(10,40,70,.22);
     }
-    /* 玻璃药片侧栏 · 暖灰 tint（给内部白玻璃胶囊一个对比画布） */
+    /* 玻璃药片侧栏 · 冷灰 tint */
     .glass-pill {
       background:
-        linear-gradient(180deg, rgba(214,204,190,.48) 0%, rgba(200,190,176,.52) 100%);
+        linear-gradient(180deg, rgba(220,222,226,.55) 0%, rgba(206,209,214,.58) 100%);
       backdrop-filter: blur(32px) saturate(180%);
       -webkit-backdrop-filter: blur(32px) saturate(180%);
       border: 1px solid rgba(255,255,255,.55);
@@ -116,7 +115,7 @@
       box-shadow:
         0 1px 0 rgba(255,255,255,.7) inset,
         0 -1px 0 rgba(255,255,255,.3) inset,
-        0 30px 70px -28px rgba(70,55,40,.22);
+        0 30px 70px -28px rgba(30,34,40,.22);
     }
     /* 顶部多巴胺色条 → 左侧 4px 细色签 */
     .soft-card[class*="border-dopamine-"] {
@@ -135,13 +134,13 @@
       background: currentColor;
       opacity: .55;
     }
-    .soft-card.border-dopamine-orange { color: #C49B8A; }
-    .soft-card.border-dopamine-pink   { color: #A87360; }
-    .soft-card.border-dopamine-yellow { color: #C9A94F; }
-    .soft-card.border-dopamine-mint   { color: #A8B5A0; }
-    .soft-card.border-dopamine-sky    { color: #B8A78C; }
-    .soft-card.border-dopamine-purple { color: #8A6F5C; }
-    .soft-card.border-dopamine-coral  { color: #B88A73; }
+    .soft-card.border-dopamine-orange { color: #4A4E55; }
+    .soft-card.border-dopamine-pink   { color: #2D3138; }
+    .soft-card.border-dopamine-yellow { color: #B8A878; }
+    .soft-card.border-dopamine-mint   { color: #7A9080; }
+    .soft-card.border-dopamine-sky    { color: #8B95A1; }
+    .soft-card.border-dopamine-purple { color: #6B6F76; }
+    .soft-card.border-dopamine-coral  { color: #A87878; }
 
     /* 板块水印大字（GlassPro 风）用 ::before 注入 */
     .section { position: relative; }
@@ -154,7 +153,7 @@
       line-height: 0.95;
       letter-spacing: -0.025em;
       text-transform: uppercase;
-      color: rgba(10, 38, 56, 0.06);
+      color: rgba(31, 35, 40, 0.06);
       pointer-events: none;
       user-select: none;
       margin: -8px 0 -28px 6px;
@@ -208,7 +207,7 @@
       transform: translateY(-50%) scaleY(0);
       width: 2px;
       height: 18px;
-      background: linear-gradient(180deg, #B5927C, #9E7A63);
+      background: linear-gradient(180deg, #4A4E55, #2D3138);
       border-radius: 2px;
       transition: transform .22s ease;
       z-index: 2;
@@ -219,28 +218,28 @@
       -webkit-backdrop-filter: blur(14px) saturate(160%);
       box-shadow:
         inset 0 1px 1px rgba(255,255,255,.55),
-        0 4px 14px -8px rgba(80,65,50,.25);
+        0 4px 14px -8px rgba(30,34,40,.25);
       transform: translateX(2px);
-      color: #0A2638;
+      color: #1F2328;
     }
     .nav-btn:hover::after { opacity: .7; }
     .nav-btn.active {
       background: rgba(255,255,255,.82);
       backdrop-filter: blur(22px) saturate(1.7);
       -webkit-backdrop-filter: blur(22px) saturate(1.7);
-      color: #0A2638;
+      color: #1F2328;
       box-shadow:
         inset 0 1px 1.5px rgba(255,255,255,.95),
-        inset 0 -1px 0 rgba(80,65,50,.06),
-        0 10px 24px -14px rgba(80,65,50,.35),
-        0 2px 4px -2px rgba(80,65,50,.12);
+        inset 0 -1px 0 rgba(30,34,40,.06),
+        0 10px 24px -14px rgba(30,34,40,.35),
+        0 2px 4px -2px rgba(30,34,40,.12);
     }
     .nav-btn.active::after { opacity: 1; }
     .nav-btn.active::before {
       transform: translateY(-50%) scaleY(1);
     }
     .nav-btn.active i {
-      color: #9E7A63;
+      color: #4A4E55;
     }
     /* section 切换淡入 */
     .section { display: none; }
@@ -284,7 +283,7 @@
     .wx-rain { color: #7B95A8; animation: wxPulse 1.4s ease-in-out infinite; display: inline-block; }
     @keyframes wxPulse { 0%,100% { opacity: .7; } 50% { opacity: 1; } }
     .wx-snow { color: #B8C0C8; animation: wxSpin 10s linear infinite; display: inline-block; }
-    .wx-bolt { color: #C49B8A; animation: wxFlash 1.6s ease-in-out infinite; display: inline-block; }
+    .wx-bolt { color: #4A4E55; animation: wxFlash 1.6s ease-in-out infinite; display: inline-block; }
     @keyframes wxFlash { 0%,92%,100% { opacity: 1; } 94%,98% { opacity: .35; } }
     .wx-fog { color: #B5AEA3; animation: wxPulse 3s ease-in-out infinite; display: inline-block; }
   
@@ -346,27 +345,27 @@
     .diet-cal-cell:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
     .history-cell {
       border-radius: 12px;
-      background: #F4EDE3;
-      border: 1px solid rgba(138,111,92,0.10);
+      background: #F2F3F4;
+      border: 1px solid rgba(107,111,118,0.10);
       padding: 10px 6px;
       text-align: center;
       transition: transform .15s ease, box-shadow .15s ease;
-      color: #3E332A;
+      color: #1F2328;
       min-height: 72px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
     }
-    .history-cell:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(138,111,92,0.18); }
-    .history-cell[data-today="1"] { outline: 2px solid #A87360; outline-offset: -2px; }
-    .history-cell[data-level="0"] { background: #F4EDE3; }                    /* 无数据：米白 */
-    .history-cell[data-level="1"] { background: #E9DCC7; }                    /* 低：浅沙 */
-    .history-cell[data-level="2"] { background: #D9C3A0; }                    /* 中：沙 */
-    .history-cell[data-level="3"] { background: #C49B8A; color: #FFF9F2; }    /* 高：赤陶 */
-    .history-cell[data-level="4"] { background: #A87360; color: #FFF9F2; }    /* 最高：深赤陶 */
+    .history-cell:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(107,111,118,0.18); }
+    .history-cell[data-today="1"] { outline: 2px solid #2D3138; outline-offset: -2px; }
+    .history-cell[data-level="0"] { background: #F2F3F4; }                    /* 无数据：米白 */
+    .history-cell[data-level="1"] { background: #E5E7EB; }                    /* 低：浅沙 */
+    .history-cell[data-level="2"] { background: #CED1D6; }                    /* 中：沙 */
+    .history-cell[data-level="3"] { background: #4A4E55; color: #FFF9F2; }    /* 高：赤陶 */
+    .history-cell[data-level="4"] { background: #2D3138; color: #FFF9F2; }    /* 最高：深赤陶 */
     .history-cell[data-level="leave"] {
-      background: repeating-linear-gradient(45deg, #E9DCC7, #E9DCC7 4px, #F4EDE3 4px, #F4EDE3 8px);
-      color: #8A7F70;
+      background: repeating-linear-gradient(45deg, #E5E7EB, #E5E7EB 4px, #F2F3F4 4px, #F2F3F4 8px);
+      color: #8C8F94;
     }
     .history-cell .hc-day    { font-size: 10px; letter-spacing: 0.06em; opacity: 0.75; text-transform: uppercase; }
     .history-cell .hc-date   { font-size: 11px; font-weight: 700; margin-top: 1px; }
@@ -375,9 +374,9 @@
 
     /* 跳转高亮：倒计时点击后短暂高亮目标卡 */
     @keyframes navHighlightPulse {
-      0%   { box-shadow: 0 0 0 0 rgba(196,155,138,0.0), 0 0 0 0 rgba(196,155,138,0.0); }
-      30%  { box-shadow: 0 0 0 4px rgba(196,155,138,0.35), 0 8px 18px rgba(138,111,92,0.18); }
-      100% { box-shadow: 0 0 0 0 rgba(196,155,138,0.0), 0 0 0 0 rgba(196,155,138,0.0); }
+      0%   { box-shadow: 0 0 0 0 rgba(74,78,85,0.0), 0 0 0 0 rgba(74,78,85,0.0); }
+      30%  { box-shadow: 0 0 0 4px rgba(74,78,85,0.35), 0 8px 18px rgba(107,111,118,0.18); }
+      100% { box-shadow: 0 0 0 0 rgba(74,78,85,0.0), 0 0 0 0 rgba(74,78,85,0.0); }
     }
     .nav-highlight { animation: navHighlightPulse 1.6s ease-out; }
 
@@ -407,11 +406,11 @@
         <div class="glass-pill p-5 sticky top-4">
           <div class="mb-6">
             <a href="index.html" class="flex items-center gap-3 mb-3 group rounded-2xl -mx-1 px-1 py-1 hover:bg-white/40 transition" title="返回首页 / Back to landing">
-              <div class="w-11 h-11 rounded-2xl bg-white/70 backdrop-blur border border-white/80 text-[#0A2638] flex items-center justify-center shadow-sm group-hover:shadow-md group-hover:-translate-y-0.5 transition">
+              <div class="w-11 h-11 rounded-2xl bg-white/70 backdrop-blur border border-white/80 text-[#1F2328] flex items-center justify-center shadow-sm group-hover:shadow-md group-hover:-translate-y-0.5 transition">
                 <i class="fa-solid fa-graduation-cap text-base"></i>
               </div>
               <div>
-                <h1 class="serif-title text-2xl text-[#0A2638] leading-none">Shu<sup class="text-[10px] align-super opacity-60">®</sup></h1>
+                <h1 class="serif-title text-2xl text-[#1F2328] leading-none">Shu<sup class="text-[10px] align-super opacity-60">®</sup></h1>
                 <p id="sidebarSubtitle" class="text-[11px] tracking-[0.18em] uppercase text-calm-mute mt-1">PhD Studio</p>
               </div>
             </a>
@@ -419,8 +418,8 @@
             <div class="mt-2 flex items-center justify-between">
               <span id="localeHint" class="text-[11px] uppercase tracking-wider text-calm-mute">Language</span>
               <div class="flex items-center gap-1.5">
-                <button id="localeToggleBtn" class="px-2.5 py-1 rounded-lg bg-white/60 backdrop-blur border border-white/80 text-xs font-bold text-[#0A2638] hover:bg-white/80">EN</button>
-                <button id="settingsIconBtn" data-target="settings-section" class="nav-btn w-8 h-7 rounded-lg bg-white/60 backdrop-blur border border-white/80 flex items-center justify-center text-[#0A2638] hover:bg-white/80" title="设置 / Settings"><i class="fa-solid fa-gear text-xs"></i></button>
+                <button id="localeToggleBtn" class="px-2.5 py-1 rounded-lg bg-white/60 backdrop-blur border border-white/80 text-xs font-bold text-[#1F2328] hover:bg-white/80">EN</button>
+                <button id="settingsIconBtn" data-target="settings-section" class="nav-btn w-8 h-7 rounded-lg bg-white/60 backdrop-blur border border-white/80 flex items-center justify-center text-[#1F2328] hover:bg-white/80" title="设置 / Settings"><i class="fa-solid fa-gear text-xs"></i></button>
               </div>
             </div>
           </div>
@@ -465,10 +464,10 @@
         <section id="dashboard-section" data-watermark="Studio." class="section active space-y-5">
           <div class="soft-card p-6 md:p-8 overflow-hidden relative">
             <div class="absolute -right-12 -top-12 w-40 h-40 rounded-full bg-white/40 blur-3xl"></div>
-            <div class="absolute right-20 bottom-0 w-48 h-48 rounded-full bg-[#A8B5A0]/15 blur-3xl"></div>
+            <div class="absolute right-20 bottom-0 w-48 h-48 rounded-full bg-[#7A9080]/15 blur-3xl"></div>
             <div class="relative flex flex-col xl:flex-row xl:items-center xl:justify-between gap-5">
               <div>
-                <h2 class="text-5xl md:text-6xl tracking-tight mb-2 text-[#0A2638]" style="font-family: 'Instrument Serif', Georgia, serif; font-weight: 400;">Shu<sup class="text-base align-super opacity-50">®</sup></h2>
+                <h2 class="text-5xl md:text-6xl tracking-tight mb-2 text-[#1F2328]" style="font-family: 'Instrument Serif', Georgia, serif; font-weight: 400;">Shu<sup class="text-base align-super opacity-50">®</sup></h2>
                 <p id="dashboardSubtitle" class="text-calm-mute max-w-3xl leading-7">Shu's PhD Studio · 田野 · 写作 · 投稿</p>
               </div>
               <div class="grid grid-cols-2 gap-3 min-w-[300px]">
@@ -732,10 +731,10 @@
               </div>
               <div id="attendanceCalendarGrid" class="grid grid-cols-7 gap-2"></div>
               <div class="mt-4 text-xs flex flex-wrap gap-4 text-calm-mute">
-                <div class="flex items-center gap-1"><span class="dot" style="background:#D9C9A3"></span><span id="legendWakeOk">早起达标</span></div>
-                <div class="flex items-center gap-1"><span class="dot" style="background:#8A6F5C"></span><span id="legendSleepOk">早睡达标</span></div>
-                <div class="flex items-center gap-1"><span class="dot" style="background:#A8B5A0"></span><span id="legendHighAttendance">满勤/高出勤</span></div>
-                <div class="flex items-center gap-1"><span class="dot" style="background:#B8A78C"></span><span id="legendLeave">请假</span></div>
+                <div class="flex items-center gap-1"><span class="dot" style="background:#B8A878"></span><span id="legendWakeOk">早起达标</span></div>
+                <div class="flex items-center gap-1"><span class="dot" style="background:#6B6F76"></span><span id="legendSleepOk">早睡达标</span></div>
+                <div class="flex items-center gap-1"><span class="dot" style="background:#7A9080"></span><span id="legendHighAttendance">满勤/高出勤</span></div>
+                <div class="flex items-center gap-1"><span class="dot" style="background:#8B95A1"></span><span id="legendLeave">请假</span></div>
               </div>
             </div>
           </div>
@@ -1381,7 +1380,7 @@
                       <input id="thesisChCurrentInput" type="number" placeholder="0" class="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-gray-400">
                     </div>
                     <div class="md:col-span-2">
-                      <button id="thesisChAddBtn" class="w-full px-3 py-2 rounded-lg bg-[#9E7A63] text-white text-sm font-bold hover:bg-[#8A6851] transition"><i class="fa-solid fa-plus mr-1"></i><span id="thesisChAddLabel">添加章节</span></button>
+                      <button id="thesisChAddBtn" class="w-full px-3 py-2 rounded-lg bg-[#4A4E55] text-white text-sm font-bold hover:bg-[#2D3138] transition"><i class="fa-solid fa-plus mr-1"></i><span id="thesisChAddLabel">添加章节</span></button>
                     </div>
                   </div>
                 </div>
@@ -1452,20 +1451,20 @@
             <!-- 顶部标题 -->
             <div class="flex items-start justify-between gap-4 mb-5">
               <div>
-                <h2 id="resourcesTitle" class="text-2xl font-black mb-1 flex items-center gap-3"><i class="fa-solid fa-bookmark text-[#9E7A63]"></i> 文献与资源</h2>
+                <h2 id="resourcesTitle" class="text-2xl font-black mb-1 flex items-center gap-3"><i class="fa-solid fa-bookmark text-[#4A4E55]"></i> 文献与资源</h2>
                 <p id="resourcesSubtitle" class="text-sm text-calm-mute leading-6 max-w-2xl">常用期刊、会议、灵感与工具网站。按分类收藏，一键打开；数据保存于本地浏览器。</p>
               </div>
-              <button id="resToggleFormBtn" class="shrink-0 px-4 py-2 rounded-xl bg-[#9E7A63] text-white text-sm font-bold hover:bg-[#8A6851] transition inline-flex items-center gap-2">
+              <button id="resToggleFormBtn" class="shrink-0 px-4 py-2 rounded-xl bg-[#4A4E55] text-white text-sm font-bold hover:bg-[#2D3138] transition inline-flex items-center gap-2">
                 <i class="fa-solid fa-plus text-xs"></i><span id="resToggleFormLabel">添加资源</span>
               </button>
             </div>
 
             <!-- Tab 分段导航（带数量） -->
             <div id="resourceTabs" class="flex flex-wrap gap-2 border-b border-gray-200 mb-5 pb-0">
-              <button class="res-tab px-4 py-2.5 text-sm font-bold inline-flex items-center gap-2 border-b-2 border-[#9E7A63] text-calm-ink -mb-px" data-cat="journals">
+              <button class="res-tab px-4 py-2.5 text-sm font-bold inline-flex items-center gap-2 border-b-2 border-[#4A4E55] text-calm-ink -mb-px" data-cat="journals">
                 <i class="fa-solid fa-book-open-reader text-xs opacity-70"></i>
                 <span id="resTabJournals">期刊</span>
-                <span class="res-count text-[10px] px-1.5 py-0.5 rounded-full bg-[#9E7A63]/15 text-[#9E7A63] font-black" data-count-cat="journals">0</span>
+                <span class="res-count text-[10px] px-1.5 py-0.5 rounded-full bg-[#4A4E55]/15 text-[#4A4E55] font-black" data-count-cat="journals">0</span>
               </button>
               <button class="res-tab px-4 py-2.5 text-sm font-bold inline-flex items-center gap-2 border-b-2 border-transparent text-calm-mute hover:text-calm-ink -mb-px" data-cat="conferences">
                 <i class="fa-solid fa-users text-xs opacity-70"></i>
@@ -1489,18 +1488,18 @@
               <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
                 <div class="md:col-span-4">
                   <label id="resLabelName" class="text-[10px] uppercase tracking-widest text-calm-mute font-black mb-1 block">名称</label>
-                  <input id="resName" type="text" placeholder="例如：Journal of Architecture" class="w-full px-3 py-2.5 rounded-lg bg-white border border-gray-200 text-sm focus:outline-none focus:border-[#9E7A63]">
+                  <input id="resName" type="text" placeholder="例如：Journal of Architecture" class="w-full px-3 py-2.5 rounded-lg bg-white border border-gray-200 text-sm focus:outline-none focus:border-[#4A4E55]">
                 </div>
                 <div class="md:col-span-4">
                   <label id="resLabelUrl" class="text-[10px] uppercase tracking-widest text-calm-mute font-black mb-1 block">网址</label>
-                  <input id="resUrl" type="url" placeholder="https://..." class="w-full px-3 py-2.5 rounded-lg bg-white border border-gray-200 text-sm focus:outline-none focus:border-[#9E7A63]">
+                  <input id="resUrl" type="url" placeholder="https://..." class="w-full px-3 py-2.5 rounded-lg bg-white border border-gray-200 text-sm focus:outline-none focus:border-[#4A4E55]">
                 </div>
                 <div class="md:col-span-2">
                   <label id="resLabelTag" class="text-[10px] uppercase tracking-widest text-calm-mute font-black mb-1 block">标签</label>
-                  <input id="resTag" type="text" placeholder="可选" class="w-full px-3 py-2.5 rounded-lg bg-white border border-gray-200 text-sm focus:outline-none focus:border-[#9E7A63]">
+                  <input id="resTag" type="text" placeholder="可选" class="w-full px-3 py-2.5 rounded-lg bg-white border border-gray-200 text-sm focus:outline-none focus:border-[#4A4E55]">
                 </div>
                 <div class="md:col-span-2">
-                  <button id="resAddBtn" class="w-full px-4 py-2.5 rounded-lg bg-[#9E7A63] text-white text-sm font-bold hover:bg-[#8A6851] transition"><i class="fa-solid fa-check mr-1.5"></i><span id="resLabelAdd">添加</span></button>
+                  <button id="resAddBtn" class="w-full px-4 py-2.5 rounded-lg bg-[#4A4E55] text-white text-sm font-bold hover:bg-[#2D3138] transition"><i class="fa-solid fa-check mr-1.5"></i><span id="resLabelAdd">添加</span></button>
                 </div>
               </div>
             </div>
@@ -2093,23 +2092,23 @@
       { id: 'habit_mind', name: '观心记录', icon: '🫶' }
     ];
     const PERIOD_META = {
-      morning: { labelZh: '上午', labelEn: 'Morning', startStandard: '08:00', color: '#C49B8A' },
-      afternoon: { labelZh: '下午', labelEn: 'Afternoon', startStandard: '14:00', color: '#B8A78C' },
-      evening: { labelZh: '晚上', labelEn: 'Evening', startStandard: '19:00', color: '#8A6F5C' }
+      morning: { labelZh: '上午', labelEn: 'Morning', startStandard: '08:00', color: '#4A4E55' },
+      afternoon: { labelZh: '下午', labelEn: 'Afternoon', startStandard: '14:00', color: '#8B95A1' },
+      evening: { labelZh: '晚上', labelEn: 'Evening', startStandard: '19:00', color: '#6B6F76' }
     };
     const SUBMISSION_COLUMNS = ['选题中','写作中','待投稿','已投稿','审稿中','返修中','已接收','搁置/拒稿'];
     const SUBMISSION_STAGE_COLOR = {
-      '选题中':'#8A6F5C','写作中':'#C49B8A','内审/合作者':'#D9C9A3','待投稿':'#B8A78C','已投稿':'#A8B5A0','审稿中':'#B8A78C','返修中':'#B88A73','已接收':'#A8B5A0','搁置/拒稿':'#9ca3af'
+      '选题中':'#6B6F76','写作中':'#4A4E55','内审/合作者':'#B8A878','待投稿':'#8B95A1','已投稿':'#7A9080','审稿中':'#8B95A1','返修中':'#A87878','已接收':'#7A9080','搁置/拒稿':'#9ca3af'
     };
     const CATEGORY_META = {
       study: { label: '学习', icon: '📖', color: '#9fbcdb' },
       research: { label: '科研', icon: '🧪', color: '#bbaecc' },
-      writing: { label: '写作', icon: '✍️', color: '#C49B8A' },
-      meeting: { label: '会议', icon: '👥', color: '#B8A78C' },
-      exercise: { label: '运动', icon: '🏃', color: '#A8B5A0' },
-      meal: { label: '饮食', icon: '🍽️', color: '#B8C4A3' },
-      rest: { label: '休息', icon: '🛌', color: '#D9C9A3' },
-      life: { label: '生活', icon: '🧹', color: '#B88A73' }
+      writing: { label: '写作', icon: '✍️', color: '#4A4E55' },
+      meeting: { label: '会议', icon: '👥', color: '#8B95A1' },
+      exercise: { label: '运动', icon: '🏃', color: '#7A9080' },
+      meal: { label: '饮食', icon: '🍽️', color: '#7A9080' },
+      rest: { label: '休息', icon: '🛌', color: '#B8A878' },
+      life: { label: '生活', icon: '🧹', color: '#A87878' }
     };
 
     const SHU_PHD_DATES = {
@@ -4510,7 +4509,7 @@
         return;
       }
       listEl.innerHTML = contacts.map(c => {
-        const hex = SOCIAL_COLOR_HEX[c.color] || '#B8A78C';
+        const hex = SOCIAL_COLOR_HEX[c.color] || '#8B95A1';
         return `<div class="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-3">
           <span class="w-3 h-3 rounded-full flex-shrink-0" style="background:${hex}"></span>
           <div class="flex-1 min-w-0">
@@ -4778,7 +4777,7 @@
           selectedColor = colorName;
           document.getElementById('socialAddColor').value = colorName;
           pickerEl.querySelectorAll('[data-color]').forEach(b => {
-            b.style.borderColor = b.dataset.color === colorName ? '#3E332A' : 'transparent';
+            b.style.borderColor = b.dataset.color === colorName ? '#1F2328' : 'transparent';
           });
         };
         setSelected(COLOR_OPTIONS[0].name);
@@ -5017,7 +5016,7 @@
         const wakeOk = day?.wake && day.wake <= '09:00';
         const sleepOk = day?.sleep && day.sleep <= '23:30';
         const isLeave = !!day?.leave;
-        html += `<div class="calendar-cell rounded-2xl p-2 border ${isToday ? 'border-dopamine-orange bg-orange-50' : 'border-gray-100 bg-white'}"><div class="font-black text-sm mb-2">${d}</div><div class="flex gap-1 flex-wrap">${wakeOk?'<span class="dot" style="background:#D9C9A3"></span>':''}${sleepOk?'<span class="dot" style="background:#8A6F5C"></span>':''}${segCount>=2?'<span class="dot" style="background:#A8B5A0"></span>':''}${isLeave?'<span class="dot" style="background:#B8A78C"></span>':''}</div><div class="text-[11px] text-calm-mute mt-2">${isLeave ? escapeHtml(localeOptionLabel(day.leave.type)) : segCount ? (uiLocale === 'en' ? `${segCount} seg` : `${segCount}段`) : ''}</div></div>`;
+        html += `<div class="calendar-cell rounded-2xl p-2 border ${isToday ? 'border-dopamine-orange bg-orange-50' : 'border-gray-100 bg-white'}"><div class="font-black text-sm mb-2">${d}</div><div class="flex gap-1 flex-wrap">${wakeOk?'<span class="dot" style="background:#B8A878"></span>':''}${sleepOk?'<span class="dot" style="background:#6B6F76"></span>':''}${segCount>=2?'<span class="dot" style="background:#7A9080"></span>':''}${isLeave?'<span class="dot" style="background:#8B95A1"></span>':''}</div><div class="text-[11px] text-calm-mute mt-2">${isLeave ? escapeHtml(localeOptionLabel(day.leave.type)) : segCount ? (uiLocale === 'en' ? `${segCount} seg` : `${segCount}段`) : ''}</div></div>`;
       }
       grid.innerHTML = html;
     }
@@ -5725,15 +5724,15 @@
       const acceptedCount = state.submissions.filter(s => s.stage === '已接收').length;
       const longestHabitStreak = getLongestHabitStreak();
       const list = [
-        { id:'a1', title:localeText('进入心流','Flow Entry'), desc:localeText('累计专注 ≥ 300 分钟','Total focus >= 300 minutes'), unlocked: focusMinutes >= 300, icon:'fa-fire', color:'#C49B8A' },
-        { id:'a2', title:localeText('深度工作者','Deep Worker'), desc:localeText('累计专注 ≥ 1000 分钟','Total focus >= 1000 minutes'), unlocked: focusMinutes >= 1000, icon:'fa-brain', color:'#A87360' },
-        { id:'a3', title:localeText('意志初现','Willpower Rising'), desc:localeText('成功克制手机 ≥ 10 次','Successful phone restraint >= 10'), unlocked: resistCount >= 10, icon:'fa-shield-heart', color:'#8A6F5C' },
-        { id:'a4', title:localeText('手机克星','Phone Slayer'), desc:localeText('成功克制手机 ≥ 100 次','Successful phone restraint >= 100'), unlocked: resistCount >= 100, icon:'fa-ban', color:'#B8A78C' },
-        { id:'a5', title:localeText('执行闭环','Execution Loop'), desc:localeText('完成任务 ≥ 20 个','Completed tasks >= 20'), unlocked: doneTasks >= 20, icon:'fa-list-check', color:'#A8B5A0' },
-        { id:'a6', title:localeText('日日精进','Daily Momentum'), desc:localeText('习惯连续打卡 ≥ 7 天','Habit streak >= 7 days'), unlocked: longestHabitStreak >= 7, icon:'fa-seedling', color:'#B8C4A3' },
-        { id:'a7', title:localeText('观心之人','Reflective Mind'), desc:localeText('完成观心记录 ≥ 7 天','Reflection days >= 7'), unlocked: reflectionCount >= 7, icon:'fa-heart', color:'#B88A73' },
-        { id:'a8', title:localeText('开始投稿','Submission Started'), desc:localeText('建立第 1 个投稿项目','Created the first submission project'), unlocked: submissionCount >= 1, icon:'fa-paper-plane', color:'#B8A78C' },
-        { id:'a9', title:localeText('论文被接收','Paper Accepted'), desc:localeText('至少 1 个项目进入已接收','At least one project accepted'), unlocked: acceptedCount >= 1, icon:'fa-award', color:'#A8B5A0' }
+        { id:'a1', title:localeText('进入心流','Flow Entry'), desc:localeText('累计专注 ≥ 300 分钟','Total focus >= 300 minutes'), unlocked: focusMinutes >= 300, icon:'fa-fire', color:'#4A4E55' },
+        { id:'a2', title:localeText('深度工作者','Deep Worker'), desc:localeText('累计专注 ≥ 1000 分钟','Total focus >= 1000 minutes'), unlocked: focusMinutes >= 1000, icon:'fa-brain', color:'#2D3138' },
+        { id:'a3', title:localeText('意志初现','Willpower Rising'), desc:localeText('成功克制手机 ≥ 10 次','Successful phone restraint >= 10'), unlocked: resistCount >= 10, icon:'fa-shield-heart', color:'#6B6F76' },
+        { id:'a4', title:localeText('手机克星','Phone Slayer'), desc:localeText('成功克制手机 ≥ 100 次','Successful phone restraint >= 100'), unlocked: resistCount >= 100, icon:'fa-ban', color:'#8B95A1' },
+        { id:'a5', title:localeText('执行闭环','Execution Loop'), desc:localeText('完成任务 ≥ 20 个','Completed tasks >= 20'), unlocked: doneTasks >= 20, icon:'fa-list-check', color:'#7A9080' },
+        { id:'a6', title:localeText('日日精进','Daily Momentum'), desc:localeText('习惯连续打卡 ≥ 7 天','Habit streak >= 7 days'), unlocked: longestHabitStreak >= 7, icon:'fa-seedling', color:'#7A9080' },
+        { id:'a7', title:localeText('观心之人','Reflective Mind'), desc:localeText('完成观心记录 ≥ 7 天','Reflection days >= 7'), unlocked: reflectionCount >= 7, icon:'fa-heart', color:'#A87878' },
+        { id:'a8', title:localeText('开始投稿','Submission Started'), desc:localeText('建立第 1 个投稿项目','Created the first submission project'), unlocked: submissionCount >= 1, icon:'fa-paper-plane', color:'#8B95A1' },
+        { id:'a9', title:localeText('论文被接收','Paper Accepted'), desc:localeText('至少 1 个项目进入已接收','At least one project accepted'), unlocked: acceptedCount >= 1, icon:'fa-award', color:'#7A9080' }
       ];
       return list;
     }
@@ -5945,12 +5944,12 @@
     }
     // 里程碑状态 → 莫兰迪配色（节点圆点 + 状态 badge）
     const MILESTONE_STATUS_STYLE = {
-      '未开始':      { dot: '#B8A78C', badge: 'bg-[#F4EDE3] text-[#8A6F5C] border border-[#D9C3A0]' },
-      '资料准备中':  { dot: '#C49B8A', badge: 'bg-[#F4EDE3] text-[#A87360] border border-[#D9C3A0]' },
-      '写作中':      { dot: '#C49B8A', badge: 'bg-[#F4EDE3] text-[#A87360] border border-[#D9C3A0]' },
-      '审核中':      { dot: '#A87360', badge: 'bg-[#F4EDE3] text-[#A87360] border border-[#D9C3A0]' },
-      '已提交':      { dot: '#8A6F5C', badge: 'bg-[#F4EDE3] text-[#8A6F5C] border border-[#D9C3A0]' },
-      '已完成':      { dot: '#A8B5A0', badge: 'bg-[#EEF2E8] text-[#5E6E4F] border border-[#B8C4A3]' }
+      '未开始':      { dot: '#8B95A1', badge: 'bg-[#F2F3F4] text-[#6B6F76] border border-[#CED1D6]' },
+      '资料准备中':  { dot: '#4A4E55', badge: 'bg-[#F2F3F4] text-[#2D3138] border border-[#CED1D6]' },
+      '写作中':      { dot: '#4A4E55', badge: 'bg-[#F2F3F4] text-[#2D3138] border border-[#CED1D6]' },
+      '审核中':      { dot: '#2D3138', badge: 'bg-[#F2F3F4] text-[#2D3138] border border-[#CED1D6]' },
+      '已提交':      { dot: '#6B6F76', badge: 'bg-[#F2F3F4] text-[#6B6F76] border border-[#CED1D6]' },
+      '已完成':      { dot: '#7A9080', badge: 'bg-[#EDEEEF] text-[#4A4E55] border border-[#7A9080]' }
     };
     // 时间线：按 deadline 升序；没 deadline 的放最后。不再按状态分组。
     function renderMilestoneTimeline(list) {
@@ -5959,7 +5958,7 @@
         const bd = b.deadline || '9999-12-31';
         return ad.localeCompare(bd);
       });
-      return `<div class="relative pl-6 before:content-[''] before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-px before:bg-[#D9C3A0]/60">
+      return `<div class="relative pl-6 before:content-[''] before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-px before:bg-[#CED1D6]/60">
         ${sorted.map(item => renderMilestoneTimelineItem(item)).join('')}
       </div>`;
     }
@@ -5991,15 +5990,15 @@
       if (item.deadline) metaChips.push(`Deadline：${item.deadline}${urgency ? ` <span class="text-calm-mute">(${urgency})</span>` : ''}`);
       if (item.submittedAt) metaChips.push(`${localeText('提交完成', 'Submitted')}：${item.submittedAt}`);
 
-      const actions = `<button onclick="toggleMilestoneEdit('${item.id}')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-[#F4EDE3] text-[#8A6F5C] border border-[#D9C3A0] hover:bg-[#E9DCC7] transition"><i class="fa-solid fa-pen mr-1"></i>${localeText('编辑', 'Edit')}</button>
-           <button onclick="deleteMilestone('${item.id}')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-[#8A7F70] hover:bg-rose-50 hover:text-rose-600 transition">${localeText('删除', 'Delete')}</button>`;
+      const actions = `<button onclick="toggleMilestoneEdit('${item.id}')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-[#F2F3F4] text-[#6B6F76] border border-[#CED1D6] hover:bg-[#E5E7EB] transition"><i class="fa-solid fa-pen mr-1"></i>${localeText('编辑', 'Edit')}</button>
+           <button onclick="deleteMilestone('${item.id}')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-[#8C8F94] hover:bg-rose-50 hover:text-rose-600 transition">${localeText('删除', 'Delete')}</button>`;
 
       return `<div class="bg-white rounded-2xl border border-gray-100 p-5">
         <div class="flex items-start justify-between gap-3 flex-wrap">
           <div class="flex-1 min-w-[220px]">
             <div class="flex items-center gap-2 flex-wrap">
               <span class="mini-badge ${style.badge}">${escapeHtml(localeOptionLabel(item.status))}</span>
-              <div class="font-black text-base ${isDone ? 'text-[#5E6E4F]' : ''}">${escapeHtml(item.title)}</div>
+              <div class="font-black text-base ${isDone ? 'text-[#4A4E55]' : ''}">${escapeHtml(item.title)}</div>
             </div>
             ${metaChips.length ? `<div class="text-xs text-calm-mute mt-2 flex flex-wrap gap-x-3 gap-y-1">${metaChips.map(x => `<span>${x}</span>`).join('')}</div>` : ''}
           </div>
@@ -6007,12 +6006,12 @@
         </div>
         ${item.materialsDetail ? `<div class="text-sm text-calm-ink mt-3 break-words whitespace-pre-wrap">${escapeHtml(item.materialsDetail)}</div>` : ''}
 
-        ${checklist.length || !isDone ? `<div class="mt-4 rounded-xl border border-gray-100 p-3 bg-[#FAF7F1]">
+        ${checklist.length || !isDone ? `<div class="mt-4 rounded-xl border border-gray-100 p-3 bg-[#F7F7F6]">
           <div class="flex items-center justify-between gap-3 flex-wrap mb-2">
             <div class="font-bold text-sm">${localeText('要求清单', 'Requirements Checklist')} <span class="text-xs text-calm-mute font-normal">(${doneChecklist}/${checklist.length})</span></div>
           </div>
           ${checklist.length ? `<div class="space-y-1.5 ${isDone ? '' : 'mb-3'}">
-            ${checklist.map(req => `<div class="flex items-center gap-2"><input type="checkbox" ${req.done ? 'checked' : ''} ${isDone ? 'disabled' : ''} onchange="toggleMilestoneRequirement('${item.id}', '${req.id}', this.checked)"><div class="text-sm ${req.done ? 'line-through text-calm-mute' : 'text-calm-ink'} flex-1">${escapeHtml(req.text)}</div>${isDone ? '' : `<button onclick="removeMilestoneRequirement('${item.id}', '${req.id}')" class="text-xs text-[#8A7F70] hover:text-rose-500">×</button>`}</div>`).join('')}
+            ${checklist.map(req => `<div class="flex items-center gap-2"><input type="checkbox" ${req.done ? 'checked' : ''} ${isDone ? 'disabled' : ''} onchange="toggleMilestoneRequirement('${item.id}', '${req.id}', this.checked)"><div class="text-sm ${req.done ? 'line-through text-calm-mute' : 'text-calm-ink'} flex-1">${escapeHtml(req.text)}</div>${isDone ? '' : `<button onclick="removeMilestoneRequirement('${item.id}', '${req.id}')" class="text-xs text-[#8C8F94] hover:text-rose-500">×</button>`}</div>`).join('')}
           </div>` : `<div class="text-sm text-calm-mute ${isDone ? '' : 'mb-3'}">${localeText('还没有要求项', 'No requirement items yet')}</div>`}
           ${isDone ? '' : `<div class="flex gap-2">
             <input id="newReq-${item.id}" type="text" placeholder="${localeText('新增要求，例如 附件', 'Add requirement, e.g. appendix')}" class="flex-1 px-3 py-2 rounded-xl border border-gray-200 text-sm">
@@ -6020,10 +6019,10 @@
           </div>`}
         </div>` : ''}
 
-        ${logs.length || !isDone ? `<div class="mt-3 rounded-xl border border-gray-100 p-3 bg-[#FAF7F1]">
+        ${logs.length || !isDone ? `<div class="mt-3 rounded-xl border border-gray-100 p-3 bg-[#F7F7F6]">
           <div class="font-bold text-sm mb-2">${localeText('过程记录', 'Process Logs')}</div>
           ${logs.length ? `<div class="space-y-2 ${isDone ? '' : 'mb-3'}">
-            ${logs.map(log => `<div class="bg-white border border-gray-100 rounded-lg p-2"><div class="text-xs text-calm-mute mb-1">${escapeHtml(log.createdAt || '')}</div><div class="text-sm break-words whitespace-pre-wrap">${escapeHtml(log.text || '')}</div>${isDone ? '' : `<button onclick="removeMilestoneProcessLog('${item.id}', '${log.id}')" class="text-xs text-[#8A7F70] hover:text-rose-500 mt-1">${localeText('删除', 'Delete')}</button>`}</div>`).join('')}
+            ${logs.map(log => `<div class="bg-white border border-gray-100 rounded-lg p-2"><div class="text-xs text-calm-mute mb-1">${escapeHtml(log.createdAt || '')}</div><div class="text-sm break-words whitespace-pre-wrap">${escapeHtml(log.text || '')}</div>${isDone ? '' : `<button onclick="removeMilestoneProcessLog('${item.id}', '${log.id}')" class="text-xs text-[#8C8F94] hover:text-rose-500 mt-1">${localeText('删除', 'Delete')}</button>`}</div>`).join('')}
           </div>` : `<div class="text-sm text-calm-mute ${isDone ? '' : 'mb-3'}">${localeText('还没有过程记录', 'No process logs yet')}</div>`}
           ${isDone ? '' : `<div class="flex gap-2">
             <input id="newLog-${item.id}" type="text" placeholder="${localeText('追加一条过程记录', 'Append one process log')}" class="flex-1 px-3 py-2 rounded-xl border border-gray-200 text-sm">
@@ -6041,7 +6040,7 @@
       const deadlineStatusText = item.deadline
         ? `${localeText('截止状态：', 'Deadline status: ')}${urgency || '-'}`
         : localeText('截止状态：未设置 deadline', 'Deadline status: deadline not set');
-      return `<div class="bg-white rounded-2xl border-2 border-[#C49B8A] p-5 md:p-6">
+      return `<div class="bg-white rounded-2xl border-2 border-[#4A4E55] p-5 md:p-6">
           <div class="flex items-start justify-between gap-3 flex-wrap mb-4 pb-4 border-b border-gray-100">
             <div class="min-w-0 flex-1">
               <div class="text-xs text-calm-mute mb-1">${localeText('编辑里程碑', 'Edit Milestone')}</div>
@@ -6090,12 +6089,12 @@
             </label>
           </div>
 
-          <div class="mt-4 rounded-xl border border-gray-100 p-4 bg-[#FAF7F1]">
+          <div class="mt-4 rounded-xl border border-gray-100 p-4 bg-[#F7F7F6]">
             <div class="flex items-center justify-between gap-3 flex-wrap mb-3">
               <div class="font-bold text-sm">${localeText('要求清单', 'Requirements Checklist')} <span class="text-xs text-calm-mute font-normal">(${doneChecklist}/${checklist.length})</span></div>
             </div>
             <div class="space-y-1.5 mb-3">
-              ${checklist.length ? checklist.map(req => `<div class="flex items-center gap-2"><input type="checkbox" ${req.done ? 'checked' : ''} onchange="toggleMilestoneRequirement('${item.id}', '${req.id}', this.checked)"><div class="text-sm ${req.done ? 'line-through text-calm-mute' : 'text-calm-ink'} flex-1">${escapeHtml(req.text)}</div><button onclick="removeMilestoneRequirement('${item.id}', '${req.id}')" class="text-xs text-[#8A7F70] hover:text-rose-500">×</button></div>`).join('') : `<div class="text-sm text-calm-mute">${localeText('还没有要求项', 'No requirement items yet')}</div>`}
+              ${checklist.length ? checklist.map(req => `<div class="flex items-center gap-2"><input type="checkbox" ${req.done ? 'checked' : ''} onchange="toggleMilestoneRequirement('${item.id}', '${req.id}', this.checked)"><div class="text-sm ${req.done ? 'line-through text-calm-mute' : 'text-calm-ink'} flex-1">${escapeHtml(req.text)}</div><button onclick="removeMilestoneRequirement('${item.id}', '${req.id}')" class="text-xs text-[#8C8F94] hover:text-rose-500">×</button></div>`).join('') : `<div class="text-sm text-calm-mute">${localeText('还没有要求项', 'No requirement items yet')}</div>`}
             </div>
             <div class="flex gap-2">
               <input id="newReq-${item.id}" type="text" placeholder="${localeText('新增要求，例如 附件', 'Add requirement, e.g. appendix')}" class="flex-1 px-3 py-2 rounded-xl border border-gray-200 text-sm">
@@ -6103,10 +6102,10 @@
             </div>
           </div>
 
-          <div class="mt-3 rounded-xl border border-gray-100 p-4 bg-[#FAF7F1]">
+          <div class="mt-3 rounded-xl border border-gray-100 p-4 bg-[#F7F7F6]">
             <div class="font-bold text-sm mb-3">${localeText('过程记录', 'Process Logs')}</div>
             <div class="space-y-2 mb-3">
-              ${logs.length ? logs.map(log => `<div class="bg-white border border-gray-100 rounded-lg p-2"><div class="text-xs text-calm-mute mb-1">${escapeHtml(log.createdAt || '')}</div><div class="text-sm break-words whitespace-pre-wrap">${escapeHtml(log.text || '')}</div><button onclick="removeMilestoneProcessLog('${item.id}', '${log.id}')" class="text-xs text-[#8A7F70] hover:text-rose-500 mt-1">${localeText('删除', 'Delete')}</button></div>`).join('') : `<div class="text-sm text-calm-mute">${localeText('还没有过程记录', 'No process logs yet')}</div>`}
+              ${logs.length ? logs.map(log => `<div class="bg-white border border-gray-100 rounded-lg p-2"><div class="text-xs text-calm-mute mb-1">${escapeHtml(log.createdAt || '')}</div><div class="text-sm break-words whitespace-pre-wrap">${escapeHtml(log.text || '')}</div><button onclick="removeMilestoneProcessLog('${item.id}', '${log.id}')" class="text-xs text-[#8C8F94] hover:text-rose-500 mt-1">${localeText('删除', 'Delete')}</button></div>`).join('') : `<div class="text-sm text-calm-mute">${localeText('还没有过程记录', 'No process logs yet')}</div>`}
             </div>
             <div class="flex gap-2">
               <input id="newLog-${item.id}" type="text" placeholder="${localeText('追加一条过程记录', 'Append one process log')}" class="flex-1 px-3 py-2 rounded-xl border border-gray-200 text-sm">
@@ -6189,14 +6188,14 @@
       setTitle('analyticsMoodTrendTitle', '每日心情趋势', 'Daily Mood Trend');
 
       // 原有 5 图
-      buildChart('focus', 'focusChart', 'line', dates.map(d=>d.slice(5)), [{ label: localeText('专注分钟','Focus minutes'), data:focusSeries, borderColor:'#C49B8A', backgroundColor:'rgba(196,155,138,.15)', fill:true, tension:.3 }]);
+      buildChart('focus', 'focusChart', 'line', dates.map(d=>d.slice(5)), [{ label: localeText('专注分钟','Focus minutes'), data:focusSeries, borderColor:'#4A4E55', backgroundColor:'rgba(74,78,85,.15)', fill:true, tension:.3 }]);
       buildChart('attendance', 'attendanceChart', 'bar', dates.map(d=>d.slice(5)), [{ label: localeText('出勤段数','Attendance segments'), data:attendanceSeries, backgroundColor:'rgba(168,181,160,.7)' }]);
-      buildChart('phone', 'phoneChart', 'line', dates.map(d=>d.slice(5)), [{ label: localeText('成功克制次数','Successful restraints'), data:phoneSeries, borderColor:'#8A6F5C', backgroundColor:'rgba(138,111,92,.12)', fill:true, tension:.35 }]);
+      buildChart('phone', 'phoneChart', 'line', dates.map(d=>d.slice(5)), [{ label: localeText('成功克制次数','Successful restraints'), data:phoneSeries, borderColor:'#6B6F76', backgroundColor:'rgba(107,111,118,.12)', fill:true, tension:.35 }]);
       buildChart('habit', 'habitChart', 'bar', dates.map(d=>d.slice(5)), [{ label: localeText('习惯完成度 %','Habit completion %'), data:habitSeries, backgroundColor:'rgba(184,196,163,.7)' }], { max:100 });
-      buildChart('submission', 'submissionChart', 'bar', uiLocale === 'en' ? ['Topic Framing','Writing','Ready to Submit','Submitted','Under Review','Revising','Accepted','On Hold/Rejected'] : ['选题中','写作中','待投稿','已投稿','审稿中','返修中','已接收','搁置/拒稿'], [{ label: localeText('项目数','Projects'), data:submittedStageCounts, backgroundColor:['#8A6F5C','#C49B8A','#B8A78C','#A8B5A0','#B8A78C','#B88A73','#A8B5A0','#9ca3af'] }]);
+      buildChart('submission', 'submissionChart', 'bar', uiLocale === 'en' ? ['Topic Framing','Writing','Ready to Submit','Submitted','Under Review','Revising','Accepted','On Hold/Rejected'] : ['选题中','写作中','待投稿','已投稿','审稿中','返修中','已接收','搁置/拒稿'], [{ label: localeText('项目数','Projects'), data:submittedStageCounts, backgroundColor:['#6B6F76','#4A4E55','#8B95A1','#7A9080','#8B95A1','#A87878','#7A9080','#9ca3af'] }]);
 
       // 写作：每日字数
-      buildChart('writingDaily', 'writingDailyChart', 'bar', dates.map(d=>d.slice(5)), [{ label: localeText('新增字数','Words added'), data:writingSeries, backgroundColor:'rgba(168,115,96,.55)' }]);
+      buildChart('writingDaily', 'writingDailyChart', 'bar', dates.map(d=>d.slice(5)), [{ label: localeText('新增字数','Words added'), data:writingSeries, backgroundColor:'rgba(45,49,56,.55)' }]);
 
       // 写作：各文档进度条
       const docs = (state.writing && state.writing.documents) || [];
@@ -6227,15 +6226,15 @@
       const cagriSeries = monthKeys.map(k => meetings.filter(m => m.date && m.date.startsWith(k) && (m.supervisors||[]).includes('Cagri')).length);
       const cansuSeries = monthKeys.map(k => meetings.filter(m => m.date && m.date.startsWith(k) && (m.supervisors||[]).includes('Cansu')).length);
       buildChart('meeting', 'meetingChart', 'bar', monthLabels, [
-        { label: 'Cagri', data: cagriSeries, backgroundColor: 'rgba(184,167,140,.75)' },
-        { label: 'Cansu', data: cansuSeries, backgroundColor: 'rgba(138,111,92,.75)' }
+        { label: 'Cagri', data: cagriSeries, backgroundColor: 'rgba(139,149,161,.75)' },
+        { label: 'Cansu', data: cansuSeries, backgroundColor: 'rgba(107,111,118,.75)' }
       ], { stacked: true });
 
       // Action Items 完成率环形
       const hasActions = actionsAll.length > 0;
       buildChart('actionItems', 'actionItemsChart', 'doughnut',
         hasActions ? [localeText('已完成','Done'), localeText('未完成','Pending')] : [localeText('暂无数据','No data')],
-        [{ data: hasActions ? [actionsDone, actionsPending] : [1], backgroundColor: hasActions ? ['#A8B5A0','#B88A73'] : ['#e5e7eb'] }],
+        [{ data: hasActions ? [actionsDone, actionsPending] : [1], backgroundColor: hasActions ? ['#7A9080','#A87878'] : ['#e5e7eb'] }],
         { hideY: true });
 
       // 里程碑整体完成率
@@ -6243,7 +6242,7 @@
       const reqAll = milestones.reduce((s, m) => s + (m.requirementsChecklist||[]).length, 0);
       const reqDone = milestones.reduce((s, m) => s + (m.requirementsChecklist||[]).filter(r => r.done).length, 0);
       const reqPending = reqAll - reqDone;
-      buildChart('milestonesOverall', 'milestonesOverallChart', 'doughnut', [localeText('已完成要求','Completed'), localeText('未完成要求','Pending')], [{ data: [reqDone, reqPending || (reqAll === 0 ? 1 : 0)], backgroundColor: reqAll === 0 ? ['#e5e7eb','#e5e7eb'] : ['#8A6F5C','#e5e7eb'] }], { hideY: true });
+      buildChart('milestonesOverall', 'milestonesOverallChart', 'doughnut', [localeText('已完成要求','Completed'), localeText('未完成要求','Pending')], [{ data: [reqDone, reqPending || (reqAll === 0 ? 1 : 0)], backgroundColor: reqAll === 0 ? ['#e5e7eb','#e5e7eb'] : ['#6B6F76','#e5e7eb'] }], { hideY: true });
 
       // 即将到期里程碑（30 天内）
       const todayIso = todayStr();
@@ -6270,16 +6269,16 @@
       fieldwork.forEach(f => { const k = (f.location || '').trim() || localeText('未填写','Unspecified'); locCount[k] = (locCount[k] || 0) + 1; });
       const locLabels = Object.keys(locCount);
       const locData = locLabels.map(k => locCount[k]);
-      const locPalette = ['#8A6F5C','#C49B8A','#B8A78C','#A8B5A0','#D9C9A3','#A87360','#A8B5A0','#9ca3af'];
+      const locPalette = ['#6B6F76','#4A4E55','#8B95A1','#7A9080','#B8A878','#2D3138','#7A9080','#9ca3af'];
       buildChart('fieldworkLocation', 'fieldworkLocationChart', 'doughnut', locLabels.length ? locLabels : [localeText('暂无数据','No data')], [{ data: locData.length ? locData : [1], backgroundColor: locLabels.length ? locLabels.map((_,i)=>locPalette[i%locPalette.length]) : ['#e5e7eb'] }], { hideY: true });
 
       // 心情分布（全量）
       const moodMeta = [
-        { key: 'great', zh: '超棒', en: 'Great', color: '#D9C9A3' },
-        { key: 'happy', zh: '开心', en: 'Happy', color: '#A8B5A0' },
+        { key: 'great', zh: '超棒', en: 'Great', color: '#B8A878' },
+        { key: 'happy', zh: '开心', en: 'Happy', color: '#7A9080' },
         { key: 'neutral', zh: '平静', en: 'Neutral', color: '#9ca3af' },
-        { key: 'tired', zh: '疲惫', en: 'Tired', color: '#B8A78C' },
-        { key: 'sad', zh: '低落', en: 'Sad', color: '#8A6F5C' }
+        { key: 'tired', zh: '疲惫', en: 'Tired', color: '#8B95A1' },
+        { key: 'sad', zh: '低落', en: 'Sad', color: '#6B6F76' }
       ];
       const moodCount = {};
       Object.values(state.mood || {}).forEach(m => { if (m && m.mood) moodCount[m.mood] = (moodCount[m.mood] || 0) + 1; });
@@ -6292,7 +6291,7 @@
       // 每日心情趋势（区间内，把 mood 映射为分数 1-5）
       const moodScoreMap = { sad: 1, tired: 2, neutral: 3, happy: 4, great: 5 };
       const moodTrend = dates.map(d => { const m = (state.mood || {})[d]; return m && moodScoreMap[m.mood] ? moodScoreMap[m.mood] : null; });
-      buildChart('moodTrend', 'moodTrendChart', 'line', dates.map(d=>d.slice(5)), [{ label: localeText('心情分数（1 低 5 高）','Mood score (1 low – 5 high)'), data: moodTrend, borderColor:'#A87360', backgroundColor:'rgba(168,115,96,.15)', fill:true, tension:.3, spanGaps: true }], { max: 5 });
+      buildChart('moodTrend', 'moodTrendChart', 'line', dates.map(d=>d.slice(5)), [{ label: localeText('心情分数（1 低 5 高）','Mood score (1 low – 5 high)'), data: moodTrend, borderColor:'#2D3138', backgroundColor:'rgba(45,49,56,.15)', fill:true, tension:.3, spanGaps: true }], { max: 5 });
 
       // 阅读 / 写作 时间比（专注分钟，按类别 study+research vs writing）
       setTitle('analyticsReadWriteTitle', '阅读 / 写作 时间比（专注分钟）', 'Reading vs Writing (focus minutes)');
@@ -6300,8 +6299,8 @@
       const readingSeries = dates.map(d => focusInRange.filter(s => s.date === d && (s.category === 'study' || s.category === 'research')).reduce((a, s) => a + (Number(s.minutes) || 0), 0));
       const writingFocusSeries = dates.map(d => focusInRange.filter(s => s.date === d && s.category === 'writing').reduce((a, s) => a + (Number(s.minutes) || 0), 0));
       buildChart('readWrite', 'readWriteChart', 'bar', dates.map(d=>d.slice(5)), [
-        { label: localeText('阅读 / 研究','Reading / Research'), data: readingSeries, backgroundColor: 'rgba(184,167,140,.75)' },
-        { label: localeText('写作','Writing'), data: writingFocusSeries, backgroundColor: 'rgba(196,155,138,.8)' }
+        { label: localeText('阅读 / 研究','Reading / Research'), data: readingSeries, backgroundColor: 'rgba(139,149,161,.75)' },
+        { label: localeText('写作','Writing'), data: writingFocusSeries, backgroundColor: 'rgba(74,78,85,.8)' }
       ], { stacked: true });
       const readTotal = readingSeries.reduce((a,b)=>a+b,0);
       const writeTotal = writingFocusSeries.reduce((a,b)=>a+b,0);
@@ -6330,7 +6329,7 @@
         if (!vals.length) return null;
         return Number((vals.reduce((a,b)=>a+b,0) / vals.length).toFixed(2));
       });
-      buildChart('energyTrend', 'energyTrendChart', 'line', dates.map(d=>d.slice(5)), [{ label: localeText('能量 (1-5)','Energy (1-5)'), data: energySeries, borderColor:'#D9C9A3', backgroundColor:'rgba(217,201,163,.18)', fill:true, tension:.3, spanGaps: true }], { max: 5 });
+      buildChart('energyTrend', 'energyTrendChart', 'line', dates.map(d=>d.slice(5)), [{ label: localeText('能量 (1-5)','Energy (1-5)'), data: energySeries, borderColor:'#B8A878', backgroundColor:'rgba(184,168,120,.18)', fill:true, tension:.3, spanGaps: true }], { max: 5 });
 
       const compactBtn = document.getElementById('toggleSubmissionCompactBtn');
       if (compactBtn) {
@@ -6808,7 +6807,7 @@
         return `<details ${openAttr} id="jump-meeting-${m.id}" class="bg-white rounded-2xl border border-gray-100 ${paddingClass} meeting-card group"><summary class="list-none cursor-pointer select-none">${summaryInner}</summary>${detailHtml}</details>`;
       }
       const sectionHeader = (labelZh, labelEn, count) =>
-        `<div class="flex items-center gap-2 mt-2 mb-2 first:mt-0"><span class="text-sm font-black text-calm-ink">${localeText(labelZh, labelEn)}</span><span class="mini-badge bg-[#F4EDE3] text-[#8A6F5C] border border-[#D9C3A0]">${count}</span></div>`;
+        `<div class="flex items-center gap-2 mt-2 mb-2 first:mt-0"><span class="text-sm font-black text-calm-ink">${localeText(labelZh, labelEn)}</span><span class="mini-badge bg-[#F2F3F4] text-[#6B6F76] border border-[#CED1D6]">${count}</span></div>`;
       const upcomingHtml = upcoming.length
         ? sectionHeader('即将进行', 'Upcoming', upcoming.length) + upcoming.map(m => meetingDetailsHtml(m, { defaultOpen: true, compact: false })).join('')
         : '';
@@ -7196,7 +7195,7 @@
       document.querySelectorAll('.res-tab').forEach(btn => {
         const cat = btn.dataset.cat;
         const active = cat === currentResCat;
-        btn.classList.toggle('border-[#9E7A63]', active);
+        btn.classList.toggle('border-[#4A4E55]', active);
         btn.classList.toggle('text-calm-ink', active);
         btn.classList.toggle('border-transparent', !active);
         btn.classList.toggle('text-calm-mute', !active);
@@ -7204,8 +7203,8 @@
         if (badge) {
           const n = (data[cat] || []).length;
           badge.textContent = n;
-          badge.classList.toggle('bg-[#9E7A63]/15', active);
-          badge.classList.toggle('text-[#9E7A63]', active);
+          badge.classList.toggle('bg-[#4A4E55]/15', active);
+          badge.classList.toggle('text-[#4A4E55]', active);
           badge.classList.toggle('bg-gray-100', !active);
           badge.classList.toggle('text-calm-mute', !active);
         }
@@ -7222,14 +7221,14 @@
       };
       list.innerHTML = items.map((it, idx) => {
         const domain = getDomain(it.url);
-        return '<a href="' + escapeHtml(it.url) + '" target="_blank" rel="noopener noreferrer" class="group block rounded-2xl border border-gray-200 bg-white/70 hover:bg-white hover:border-[#9E7A63]/40 hover:shadow-md p-4 transition relative overflow-hidden">'
+        return '<a href="' + escapeHtml(it.url) + '" target="_blank" rel="noopener noreferrer" class="group block rounded-2xl border border-gray-200 bg-white/70 hover:bg-white hover:border-[#4A4E55]/40 hover:shadow-md p-4 transition relative overflow-hidden">'
           + '<button data-del-idx="' + idx + '" class="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/80 border border-gray-200 text-calm-mute hover:text-rose-500 hover:border-rose-300 opacity-0 group-hover:opacity-100 transition z-10 text-xs" title="删除" onclick="event.preventDefault(); event.stopPropagation();"><i class="fa-solid fa-xmark"></i></button>'
           + '<div class="flex items-start gap-3">'
-          + '<div class="shrink-0 w-9 h-9 rounded-lg bg-[#9E7A63]/10 text-[#9E7A63] flex items-center justify-center text-sm"><i class="fa-solid fa-link"></i></div>'
+          + '<div class="shrink-0 w-9 h-9 rounded-lg bg-[#4A4E55]/10 text-[#4A4E55] flex items-center justify-center text-sm"><i class="fa-solid fa-link"></i></div>'
           + '<div class="flex-1 min-w-0">'
           + '<div class="font-bold text-calm-ink text-sm leading-tight mb-1 pr-6 truncate">' + escapeHtml(it.name) + '</div>'
           + '<div class="text-[11px] text-calm-mute truncate">' + escapeHtml(domain) + '</div>'
-          + (it.tag ? '<div class="mt-2"><span class="inline-block text-[10px] tracking-wider uppercase bg-[#9E7A63]/10 text-[#9E7A63] px-2 py-0.5 rounded-full font-bold">' + escapeHtml(it.tag) + '</span></div>' : '')
+          + (it.tag ? '<div class="mt-2"><span class="inline-block text-[10px] tracking-wider uppercase bg-[#4A4E55]/10 text-[#4A4E55] px-2 py-0.5 rounded-full font-bold">' + escapeHtml(it.tag) + '</span></div>' : '')
           + '</div>'
           + '</div>'
           + '</a>';
@@ -7332,7 +7331,7 @@
         const cur = Number(c.current) || 0;
         const tgt = Number(c.target) || 0;
         const pct = tgt > 0 ? Math.min(100, Math.round((cur / tgt) * 100)) : 0;
-        const barColor = pct >= 100 ? '#8BA894' : pct >= 60 ? '#B5927C' : pct >= 20 ? '#C9B79C' : '#D9D4CC';
+        const barColor = pct >= 100 ? '#7A9080' : pct >= 60 ? '#8B95A1' : pct >= 20 ? '#B8A878' : '#CED1D6';
         return '<div class="rounded-xl border border-gray-200 p-3 bg-white/60">'
           + '<div class="flex items-center justify-between gap-3 mb-2">'
           + '<div class="font-bold text-calm-ink text-sm flex-1 min-w-0 truncate">' + escapeHtml(c.title || '') + '</div>'
