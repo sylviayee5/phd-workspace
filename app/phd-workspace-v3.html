@@ -4,6 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Shu's PhD Studio</title>
+  <!-- PWA -->
+  <link rel="manifest" href="../assets/manifest.json" />
+  <meta name="theme-color" content="#B8755A" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="PhD Workspace" />
+  <link rel="apple-touch-icon" href="../assets/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="../assets/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="../assets/icon-512.png" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -8924,6 +8933,16 @@
       document.body.appendChild(card);
     }
     document.addEventListener('DOMContentLoaded', init);
+  </script>
+  <script>
+    // PWA Service Worker 注册
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('[PWA] Service worker registered, scope:', reg.scope))
+          .catch(err => console.warn('[PWA] Service worker 注册失败（本地 file:// 协议下属正常）:', err));
+      });
+    }
   </script>
 </body>
 </html>
