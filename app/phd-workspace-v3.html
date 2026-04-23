@@ -105,17 +105,18 @@
         0 1px 0 rgba(255,255,255,.8) inset,
         0 32px 70px -26px rgba(10,40,70,.22);
     }
-    /* 玻璃药片侧栏 */
+    /* 玻璃药片侧栏 · 暖灰 tint（给内部白玻璃胶囊一个对比画布） */
     .glass-pill {
-      background: rgba(255,255,255,.45);
+      background:
+        linear-gradient(180deg, rgba(214,204,190,.48) 0%, rgba(200,190,176,.52) 100%);
       backdrop-filter: blur(32px) saturate(180%);
       -webkit-backdrop-filter: blur(32px) saturate(180%);
-      border: 1px solid rgba(255,255,255,.7);
+      border: 1px solid rgba(255,255,255,.55);
       border-radius: 36px;
       box-shadow:
-        0 1px 0 rgba(255,255,255,.8) inset,
-        0 -1px 0 rgba(255,255,255,.4) inset,
-        0 30px 70px -28px rgba(10,40,70,.22);
+        0 1px 0 rgba(255,255,255,.7) inset,
+        0 -1px 0 rgba(255,255,255,.3) inset,
+        0 30px 70px -28px rgba(70,55,40,.22);
     }
     /* 顶部多巴胺色条 → 左侧 4px 细色签 */
     .soft-card[class*="border-dopamine-"] {
@@ -172,14 +173,37 @@
     .nav-group-label:first-child { padding-top: 6px; }
     .nav-btn {
       position: relative;
-      transition: transform .18s ease, background-color .18s ease, color .18s ease, box-shadow .18s ease;
+      overflow: hidden;
+      transition: transform .2s ease, background .2s ease, box-shadow .2s ease, color .2s ease;
       border-radius: 16px;
       color: #3C4148;
+      background: transparent;
+    }
+    /* landing Begin Today 同款双层渐变描边 */
+    .nav-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1.2px;
+      background: linear-gradient(180deg,
+        rgba(255,255,255,0.55) 0%,
+        rgba(255,255,255,0.18) 22%,
+        rgba(255,255,255,0) 45%,
+        rgba(255,255,255,0) 55%,
+        rgba(255,255,255,0.18) 78%,
+        rgba(255,255,255,0.55) 100%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+              mask-composite: exclude;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .22s ease;
     }
     .nav-btn::before {
       content: '';
       position: absolute;
-      left: 4px;
+      left: 6px;
       top: 50%;
       transform: translateY(-50%) scaleY(0);
       width: 2px;
@@ -187,24 +211,31 @@
       background: linear-gradient(180deg, #B5927C, #9E7A63);
       border-radius: 2px;
       transition: transform .22s ease;
+      z-index: 2;
     }
     .nav-btn:hover {
-      background: rgba(255,255,255,.55);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      background: rgba(255,255,255,.4);
+      backdrop-filter: blur(14px) saturate(160%);
+      -webkit-backdrop-filter: blur(14px) saturate(160%);
+      box-shadow:
+        inset 0 1px 1px rgba(255,255,255,.55),
+        0 4px 14px -8px rgba(80,65,50,.25);
       transform: translateX(2px);
+      color: #0A2638;
     }
+    .nav-btn:hover::after { opacity: .7; }
     .nav-btn.active {
-      background: rgba(255,255,255,.78);
-      backdrop-filter: blur(18px) saturate(1.6);
-      -webkit-backdrop-filter: blur(18px) saturate(1.6);
+      background: rgba(255,255,255,.82);
+      backdrop-filter: blur(22px) saturate(1.7);
+      -webkit-backdrop-filter: blur(22px) saturate(1.7);
       color: #0A2638;
       box-shadow:
-        inset 0 0 0 1px rgba(255,255,255,.9),
-        inset 0 -1px 0 rgba(10,38,56,.04),
-        0 6px 16px -10px rgba(60,65,72,.18),
-        0 1px 2px rgba(60,65,72,.04);
+        inset 0 1px 1.5px rgba(255,255,255,.95),
+        inset 0 -1px 0 rgba(80,65,50,.06),
+        0 10px 24px -14px rgba(80,65,50,.35),
+        0 2px 4px -2px rgba(80,65,50,.12);
     }
+    .nav-btn.active::after { opacity: 1; }
     .nav-btn.active::before {
       transform: translateY(-50%) scaleY(1);
     }
