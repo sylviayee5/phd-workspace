@@ -1389,46 +1389,69 @@
         </section>
 
         <section id="resources-section" data-watermark="Resources." class="section">
-          <div class="soft-card p-6 md:p-8 space-y-6">
-            <div class="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-4">
+          <div class="soft-card p-6 md:p-8">
+            <!-- 顶部标题 -->
+            <div class="flex items-start justify-between gap-4 mb-5">
               <div>
-                <h2 id="resourcesTitle" class="text-2xl font-black mb-1">文献与资源</h2>
+                <h2 id="resourcesTitle" class="text-2xl font-black mb-1 flex items-center gap-3"><i class="fa-solid fa-bookmark text-[#9E7A63]"></i> 文献与资源</h2>
                 <p id="resourcesSubtitle" class="text-sm text-calm-mute leading-6 max-w-2xl">常用期刊、会议、灵感与工具网站。按分类收藏，一键打开；数据保存于本地浏览器。</p>
               </div>
-              <div class="flex items-center gap-2 flex-wrap">
-                <div id="resourceTabs" class="inline-flex p-1 rounded-2xl bg-white/50 border border-white/70 backdrop-blur">
-                  <button class="res-tab px-3.5 py-1.5 rounded-xl text-sm font-bold text-[#1F2937] bg-white shadow-sm" data-cat="journals"><i class="fa-solid fa-book-open-reader mr-1.5 text-xs opacity-60"></i><span id="resTabJournals">期刊</span></button>
-                  <button class="res-tab px-3.5 py-1.5 rounded-xl text-sm font-bold text-calm-mute hover:text-[#1F2937]" data-cat="conferences"><i class="fa-solid fa-users mr-1.5 text-xs opacity-60"></i><span id="resTabConferences">会议</span></button>
-                  <button class="res-tab px-3.5 py-1.5 rounded-xl text-sm font-bold text-calm-mute hover:text-[#1F2937]" data-cat="inspiration"><i class="fa-solid fa-lightbulb mr-1.5 text-xs opacity-60"></i><span id="resTabInspiration">灵感</span></button>
-                  <button class="res-tab px-3.5 py-1.5 rounded-xl text-sm font-bold text-calm-mute hover:text-[#1F2937]" data-cat="tools"><i class="fa-solid fa-toolbox mr-1.5 text-xs opacity-60"></i><span id="resTabTools">工具</span></button>
-                </div>
-              </div>
+              <button id="resToggleFormBtn" class="shrink-0 px-4 py-2 rounded-xl bg-[#9E7A63] text-white text-sm font-bold hover:bg-[#8A6851] transition inline-flex items-center gap-2">
+                <i class="fa-solid fa-plus text-xs"></i><span id="resToggleFormLabel">添加资源</span>
+              </button>
             </div>
 
-            <!-- 添加表单 -->
-            <div class="rounded-2xl bg-white/50 border border-white/70 backdrop-blur p-4">
+            <!-- Tab 分段导航（带数量） -->
+            <div id="resourceTabs" class="flex flex-wrap gap-2 border-b border-gray-200 mb-5 pb-0">
+              <button class="res-tab px-4 py-2.5 text-sm font-bold inline-flex items-center gap-2 border-b-2 border-[#9E7A63] text-calm-ink -mb-px" data-cat="journals">
+                <i class="fa-solid fa-book-open-reader text-xs opacity-70"></i>
+                <span id="resTabJournals">期刊</span>
+                <span class="res-count text-[10px] px-1.5 py-0.5 rounded-full bg-[#9E7A63]/15 text-[#9E7A63] font-black" data-count-cat="journals">0</span>
+              </button>
+              <button class="res-tab px-4 py-2.5 text-sm font-bold inline-flex items-center gap-2 border-b-2 border-transparent text-calm-mute hover:text-calm-ink -mb-px" data-cat="conferences">
+                <i class="fa-solid fa-users text-xs opacity-70"></i>
+                <span id="resTabConferences">会议</span>
+                <span class="res-count text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-calm-mute font-black" data-count-cat="conferences">0</span>
+              </button>
+              <button class="res-tab px-4 py-2.5 text-sm font-bold inline-flex items-center gap-2 border-b-2 border-transparent text-calm-mute hover:text-calm-ink -mb-px" data-cat="inspiration">
+                <i class="fa-solid fa-lightbulb text-xs opacity-70"></i>
+                <span id="resTabInspiration">灵感</span>
+                <span class="res-count text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-calm-mute font-black" data-count-cat="inspiration">0</span>
+              </button>
+              <button class="res-tab px-4 py-2.5 text-sm font-bold inline-flex items-center gap-2 border-b-2 border-transparent text-calm-mute hover:text-calm-ink -mb-px" data-cat="tools">
+                <i class="fa-solid fa-toolbox text-xs opacity-70"></i>
+                <span id="resTabTools">工具</span>
+                <span class="res-count text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-calm-mute font-black" data-count-cat="tools">0</span>
+              </button>
+            </div>
+
+            <!-- 添加表单（默认隐藏，点击「添加资源」展开） -->
+            <div id="resFormPanel" class="hidden rounded-2xl bg-[#FAF7F2] border border-[#E8DFD2] p-4 mb-5">
               <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
-                <div class="md:col-span-3">
-                  <label id="resLabelName" class="text-[11px] uppercase tracking-wider text-calm-mute font-bold mb-1 block">名称</label>
-                  <input id="resName" type="text" placeholder="例如：Journal of Architecture" class="w-full px-3 py-2.5 rounded-xl bg-white border border-gray-200 text-sm focus:outline-none focus:border-gray-400">
+                <div class="md:col-span-4">
+                  <label id="resLabelName" class="text-[10px] uppercase tracking-widest text-calm-mute font-black mb-1 block">名称</label>
+                  <input id="resName" type="text" placeholder="例如：Journal of Architecture" class="w-full px-3 py-2.5 rounded-lg bg-white border border-gray-200 text-sm focus:outline-none focus:border-[#9E7A63]">
                 </div>
-                <div class="md:col-span-5">
-                  <label id="resLabelUrl" class="text-[11px] uppercase tracking-wider text-calm-mute font-bold mb-1 block">网址</label>
-                  <input id="resUrl" type="url" placeholder="https://..." class="w-full px-3 py-2.5 rounded-xl bg-white border border-gray-200 text-sm focus:outline-none focus:border-gray-400">
-                </div>
-                <div class="md:col-span-2">
-                  <label id="resLabelTag" class="text-[11px] uppercase tracking-wider text-calm-mute font-bold mb-1 block">标签</label>
-                  <input id="resTag" type="text" placeholder="可选" class="w-full px-3 py-2.5 rounded-xl bg-white border border-gray-200 text-sm focus:outline-none focus:border-gray-400">
+                <div class="md:col-span-4">
+                  <label id="resLabelUrl" class="text-[10px] uppercase tracking-widest text-calm-mute font-black mb-1 block">网址</label>
+                  <input id="resUrl" type="url" placeholder="https://..." class="w-full px-3 py-2.5 rounded-lg bg-white border border-gray-200 text-sm focus:outline-none focus:border-[#9E7A63]">
                 </div>
                 <div class="md:col-span-2">
-                  <button id="resAddBtn" class="w-full px-4 py-2.5 rounded-xl bg-[#1F2937] text-white text-sm font-bold hover:bg-[#0F1722] transition"><i class="fa-solid fa-plus mr-1.5"></i><span id="resLabelAdd">添加到当前分类</span></button>
+                  <label id="resLabelTag" class="text-[10px] uppercase tracking-widest text-calm-mute font-black mb-1 block">标签</label>
+                  <input id="resTag" type="text" placeholder="可选" class="w-full px-3 py-2.5 rounded-lg bg-white border border-gray-200 text-sm focus:outline-none focus:border-[#9E7A63]">
+                </div>
+                <div class="md:col-span-2">
+                  <button id="resAddBtn" class="w-full px-4 py-2.5 rounded-lg bg-[#9E7A63] text-white text-sm font-bold hover:bg-[#8A6851] transition"><i class="fa-solid fa-check mr-1.5"></i><span id="resLabelAdd">添加</span></button>
                 </div>
               </div>
             </div>
 
-            <!-- 资源列表（按分类渲染） -->
+            <!-- 资源列表 -->
             <div id="resourcesList" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></div>
-            <div id="resourcesEmpty" class="hidden text-center py-12 text-calm-mute text-sm">还没有收藏。使用上方表单添加第一个。</div>
+            <div id="resourcesEmpty" class="hidden text-center py-16 text-calm-mute text-sm">
+              <i class="fa-regular fa-folder-open text-4xl mb-3 block opacity-30"></i>
+              <span>还没有收藏。点击右上角「添加资源」开始。</span>
+            </div>
           </div>
         </section>
 
@@ -2302,7 +2325,8 @@
         resLabelName: '名称',
         resLabelUrl: '网址',
         resLabelTag: '标签',
-        resLabelAdd: '添加到当前分类',
+        resLabelAdd: '添加',
+        resToggleFormLabel: '添加资源',
         sidebarSnapshotTitle: '今日快照',
         sbFocusLabel: '专注时长',
         sbTaskLabel: '进行中任务',
@@ -2434,7 +2458,8 @@
         resLabelName: 'Name',
         resLabelUrl: 'URL',
         resLabelTag: 'Tag',
-        resLabelAdd: 'Add to current category',
+        resLabelAdd: 'Save',
+        resToggleFormLabel: 'Add resource',
         sidebarSnapshotTitle: 'Today Snapshot',
         sbFocusLabel: 'Focus Time',
         sbTaskLabel: 'Current Task',
@@ -2575,6 +2600,7 @@
         ['resLabelUrl', 'resLabelUrl'],
         ['resLabelTag', 'resLabelTag'],
         ['resLabelAdd', 'resLabelAdd'],
+        ['resToggleFormLabel', 'resToggleFormLabel'],
         ['sidebarSnapshotTitle', 'sidebarSnapshotTitle'],
         ['sbFocusLabel', 'sbFocusLabel'],
         ['sbTaskLabel', 'sbTaskLabel'],
@@ -7107,13 +7133,23 @@
       if (!list) return;
       const data = loadResources();
       const items = data[currentResCat] || [];
-      // Tabs 激活态
+      // Tabs 激活态 + 计数徽章
       document.querySelectorAll('.res-tab').forEach(btn => {
-        const active = btn.dataset.cat === currentResCat;
-        btn.classList.toggle('bg-white', active);
-        btn.classList.toggle('shadow-sm', active);
+        const cat = btn.dataset.cat;
+        const active = cat === currentResCat;
+        btn.classList.toggle('border-[#9E7A63]', active);
         btn.classList.toggle('text-calm-ink', active);
+        btn.classList.toggle('border-transparent', !active);
         btn.classList.toggle('text-calm-mute', !active);
+        const badge = btn.querySelector('.res-count');
+        if (badge) {
+          const n = (data[cat] || []).length;
+          badge.textContent = n;
+          badge.classList.toggle('bg-[#9E7A63]/15', active);
+          badge.classList.toggle('text-[#9E7A63]', active);
+          badge.classList.toggle('bg-gray-100', !active);
+          badge.classList.toggle('text-calm-mute', !active);
+        }
       });
       if (!items.length) {
         list.innerHTML = '';
@@ -7121,16 +7157,24 @@
         return;
       }
       if (empty) empty.classList.add('hidden');
-      list.innerHTML = items.map((it, idx) => `
-        <div class="soft-card rounded-2xl p-4 flex flex-col gap-2">
-          <div class="flex items-start justify-between gap-2">
-            <a href="${escapeHtml(it.url)}" target="_blank" rel="noopener noreferrer" class="font-bold text-calm-ink hover:underline break-words">${escapeHtml(it.name)}</a>
-            <button data-del-idx="${idx}" class="text-xs text-calm-mute hover:text-rose-500 shrink-0" title="删除"><i class="fa-solid fa-xmark"></i></button>
-          </div>
-          <div class="text-xs text-calm-mute break-all">${escapeHtml(it.url)}</div>
-          ${it.tag ? `<div><span class="inline-block text-[10px] tracking-wider uppercase bg-gray-100 text-calm-mute px-2 py-0.5 rounded-full">${escapeHtml(it.tag)}</span></div>` : ''}
-        </div>
-      `).join('');
+      // 从 URL 提取 domain 作为小标签
+      const getDomain = (u) => {
+        try { return new URL(u).hostname.replace(/^www\./, ''); } catch (e) { return u; }
+      };
+      list.innerHTML = items.map((it, idx) => {
+        const domain = getDomain(it.url);
+        return '<a href="' + escapeHtml(it.url) + '" target="_blank" rel="noopener noreferrer" class="group block rounded-2xl border border-gray-200 bg-white/70 hover:bg-white hover:border-[#9E7A63]/40 hover:shadow-md p-4 transition relative overflow-hidden">'
+          + '<button data-del-idx="' + idx + '" class="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/80 border border-gray-200 text-calm-mute hover:text-rose-500 hover:border-rose-300 opacity-0 group-hover:opacity-100 transition z-10 text-xs" title="删除" onclick="event.preventDefault(); event.stopPropagation();"><i class="fa-solid fa-xmark"></i></button>'
+          + '<div class="flex items-start gap-3">'
+          + '<div class="shrink-0 w-9 h-9 rounded-lg bg-[#9E7A63]/10 text-[#9E7A63] flex items-center justify-center text-sm"><i class="fa-solid fa-link"></i></div>'
+          + '<div class="flex-1 min-w-0">'
+          + '<div class="font-bold text-calm-ink text-sm leading-tight mb-1 pr-6 truncate">' + escapeHtml(it.name) + '</div>'
+          + '<div class="text-[11px] text-calm-mute truncate">' + escapeHtml(domain) + '</div>'
+          + (it.tag ? '<div class="mt-2"><span class="inline-block text-[10px] tracking-wider uppercase bg-[#9E7A63]/10 text-[#9E7A63] px-2 py-0.5 rounded-full font-bold">' + escapeHtml(it.tag) + '</span></div>' : '')
+          + '</div>'
+          + '</div>'
+          + '</a>';
+      }).join('');
     }
     function addResource() {
       const nameEl = document.getElementById('resName');
@@ -7148,6 +7192,9 @@
       saveResources(data);
       nameEl.value = ''; urlEl.value = ''; if (tagEl) tagEl.value = '';
       renderResources();
+      // 添加后自动收起表单
+      const panel = document.getElementById('resFormPanel');
+      if (panel) panel.classList.add('hidden');
     }
     function deleteResource(idx) {
       const data = loadResources();
@@ -7168,11 +7215,24 @@
       });
       const addBtn = document.getElementById('resAddBtn');
       if (addBtn) addBtn.addEventListener('click', addResource);
+      const toggleBtn = document.getElementById('resToggleFormBtn');
+      const panel = document.getElementById('resFormPanel');
+      if (toggleBtn && panel) {
+        toggleBtn.addEventListener('click', () => {
+          const hidden = panel.classList.toggle('hidden');
+          if (!hidden) {
+            const n = document.getElementById('resName');
+            if (n) setTimeout(() => n.focus(), 50);
+          }
+        });
+      }
       const list = document.getElementById('resourcesList');
       if (list) {
         list.addEventListener('click', (e) => {
           const t = e.target.closest('[data-del-idx]');
           if (!t) return;
+          e.preventDefault();
+          e.stopPropagation();
           const idx = parseInt(t.dataset.delIdx, 10);
           if (!isNaN(idx)) deleteResource(idx);
         });
