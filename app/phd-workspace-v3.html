@@ -1919,6 +1919,23 @@
     </div>
   </div>
 
+  <!-- 通用输入框 Modal -->
+  <div id="inputModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-lg p-4" style="display:none;">
+    <div class="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl w-full max-w-md">
+      <div class="px-6 py-4 border-b border-gray-100">
+        <div id="inputModalTitle" class="text-lg font-black text-calm-ink">输入</div>
+        <div id="inputModalDesc" class="text-xs text-calm-mute mt-1"></div>
+      </div>
+      <div class="p-6">
+        <input id="inputModalInput" type="text" class="w-full px-3 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-dopamine-sky text-sm font-mono" placeholder="">
+      </div>
+      <div class="px-6 pb-6 flex justify-end gap-2">
+        <button id="inputModalCancelBtn" class="px-4 py-2 rounded-xl bg-gray-100 text-calm-ink text-sm font-bold">取消</button>
+        <button id="inputModalOkBtn" class="px-4 py-2 rounded-xl bg-dopamine-sky text-white text-sm font-black">确认</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 饮食记录编辑 Modal -->
   <div id="foodEditModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-lg p-4" style="display:none">
     <div class="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl w-full max-w-md">
@@ -5229,13 +5246,45 @@
       const sleepBadge = document.getElementById('sleepTargetBadge');
       if (sleepBadge) { sleepBadge.style.cursor = 'pointer'; sleepBadge.title = localeText('点击修改目标时间', 'Click to edit target time'); sleepBadge.addEventListener('click', () => editSleepTarget()); }
       document.querySelectorAll('.period-btn').forEach(btn => {
-        btn.addEventListener('click', () => handlePeriodAction(btn.dataset.period, btn.dataset.action));
+        btn.addEventListener('click', async () => handlePeriodAction(btn.dataset.period, btn.dataset.action));
       });
       document.getElementById('addLeaveBtn').addEventListener('click', addLeave);
       document.getElementById('calPrev').addEventListener('click', () => { calendarCursor.setMonth(calendarCursor.getMonth()-1); renderAttendanceCalendar(); });
       document.getElementById('calNext').addEventListener('click', () => { calendarCursor.setMonth(calendarCursor.getMonth()+1); renderAttendanceCalendar(); });
     }
-    function handlePeriodAction(period, action) {
+    // 通用输入框 Modal（替代原生 prompt）
+    function showInputModal(title, desc, defaultValue = '') {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('inputModal');
+        const titleEl = document.getElementById('inputModalTitle');
+        const descEl = document.getElementById('inputModalDesc');
+        const inputEl = document.getElementById('inputModalInput');
+        const okBtn = document.getElementById('inputModalOkBtn');
+        const cancelBtn = document.getElementById('inputModalCancelBtn');
+        
+        titleEl.textContent = title;
+        descEl.textContent = desc;
+        inputEl.value = defaultValue;
+        modal.style.display = 'flex';
+        inputEl.focus();
+        inputEl.select();
+        
+        const cleanup = () => {
+          modal.style.display = 'none';
+          okBtn.removeEventListener('click', onOk);
+          cancelBtn.removeEventListener('click', onCancel);
+          inputEl.removeEventListener('keydown', onKeydown);
+        };
+        const onOk = () => { cleanup(); resolve(inputEl.value); };
+        const onCancel = () => { cleanup(); resolve(null); };
+        const onKeydown = (e) => { if (e.key === 'Enter') onOk(); if (e.key === 'Escape') onCancel(); };
+        
+        okBtn.addEventListener('click', onOk);
+        cancelBtn.addEventListener('click', onCancel);
+        inputEl.addEventListener('keydown', onKeydown);
+      });
+    }
+    async function handlePeriodAction(period, action) {
       const day = getDayAttendance();
       if (day.leave) { alert(uiLocale === 'en' ? 'Today is marked as leave. Remove leave record before attendance check-in.' : '今日已请假，若要打卡请先删除请假记录。'); return; }
       const slot = day.periods[period];
@@ -5244,7 +5293,7 @@
         if (slot.activeStart) { alert(uiLocale === 'en' ? 'This period is already in progress.' : '这一时段已经在进行中。'); return; }
         // 支持补录：输入真实开始时间
         const preset = timeNow();
-        const input = prompt(localeText(`请输入${label}真实开始时间（HH:MM）`, `Enter actual ${label} start time (HH:MM)`), preset);
+        const input = await showInputModal(localeText('输入开始时间', 'Start Time'), localeText(`${label}真实开始时间（HH:MM）`, `Enter actual ${label} start time (HH:MM)`), preset);
         if (input === null) return;
         const hm = normalizeHM(input);
         if (!hm) { alert(localeText('时间格式应为 HH:MM', 'Invalid time format, use HH:MM')); return; }
@@ -5254,11 +5303,11 @@
           // 没有活跃开始：允许补录一整段（开始 + 结束）
           const confirmFill = confirm(localeText(`尚未记录${label}开始时间。是否一次性补录一整段（开始 + 结束）？`, `No active ${label} start recorded. Backfill a full segment (start + end)?`));
           if (!confirmFill) return;
-          const startInput = prompt(localeText(`${label}开始时间（HH:MM）`, `${label} start time (HH:MM)`), timeNow());
+          const startInput = await showInputModal(localeText('输入开始时间', 'Start Time'), localeText(`${label}开始时间（HH:MM）`, `${label} start time (HH:MM)`), timeNow());
           if (startInput === null) return;
           const startHM = normalizeHM(startInput);
           if (!startHM) { alert(localeText('时间格式应为 HH:MM', 'Invalid time format, use HH:MM')); return; }
-          const endInput = prompt(localeText(`${label}结束时间（HH:MM）`, `${label} end time (HH:MM)`), timeNow());
+          const endInput = await showInputModal(localeText('输入结束时间', 'End Time'), localeText(`${label}结束时间（HH:MM）`, `${label} end time (HH:MM)`), timeNow());
           if (endInput === null) return;
           const endHM = normalizeHM(endInput);
           if (!endHM) { alert(localeText('时间格式应为 HH:MM', 'Invalid time format, use HH:MM')); return; }
@@ -5268,7 +5317,7 @@
           return;
         }
         // 已有活跃开始：输入真实结束时间
-        const endInput = prompt(localeText(`请输入${label}真实结束时间（HH:MM）`, `Enter actual ${label} end time (HH:MM)`), timeNow());
+        const endInput = await showInputModal(localeText('输入结束时间', 'End Time'), localeText(`${label}真实结束时间（HH:MM）`, `Enter actual ${label} end time (HH:MM)`), timeNow());
         if (endInput === null) return;
         const endHM = normalizeHM(endInput);
         if (!endHM) { alert(localeText('时间格式应为 HH:MM', 'Invalid time format, use HH:MM')); return; }
