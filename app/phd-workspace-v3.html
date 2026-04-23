@@ -8196,24 +8196,10 @@
       const today = todayStr();
       const upcoming = list.filter(m => m.date && m.date >= today).sort((a,b) => a.date.localeCompare(b.date));
       const past = list.filter(m => !m.date || m.date < today).sort((a,b) => (b.date||'').localeCompare(a.date||''));
-      // Upcoming 卡片（详情展开）
-      function meetingDetailsHtml(m) {
-        const actions = Array.isArray(m.actionItems) ? m.actionItems : [];
-        const supervisorBadges = (m.supervisors||[]).map(s=>`<span class="mini-badge bg-sky-50 text-dopamine-sky">${escapeHtml(s)}</span>`).join('');
-        const actionHtml = actions.length ? actions.map(a=>`<div class="flex items-start gap-2"><input type="checkbox" ${a.done?'checked':''} onchange="toggleMeetingActionItem('${m.id}','${a.id}',this.checked)" class="mt-1 w-4 h-4 shrink-0"><div class="flex-1 text-sm ${a.done?'line-through text-calm-mute':'text-calm-ink'}">${escapeHtml(a.text)}</div><button onclick="removeMeetingActionItem('${m.id}','${a.id}')" class="text-xs text-rose-500 shrink-0">${localeText('删除','Delete')}</button></div>`).join('') : `<div class="text-sm text-calm-mute">${localeText('暂无事项','No action items yet')}</div>`;
-        const title = m.title ? escapeHtml(m.title) : localeText('未命名会议','Untitled meeting');
-        const timeRange = (m.startTime && m.endTime) ? ` · ${escapeHtml(m.startTime)}–${escapeHtml(m.endTime)}` : '';
-        const durationStr = Number(m.duration) > 0 ? ` · ${Number(m.duration)} ${localeText('分钟','min')}` : '';
-        const pendingCount = actions.filter(a => !a.done).length;
-        const pendingBadge = pendingCount > 0 ? `<span class="mini-badge bg-orange-50 text-dopamine-orange">${pendingCount} ${localeText('待办','pending')}</span>` : '';
-        const summaryInner = `<div class="flex items-start justify-between gap-3 w-full flex-wrap"><div class="min-w-0 flex-1"><div class="font-black text-base">${title}</div><div class="text-xs text-calm-mute mt-0.5">${escapeHtml(m.date || '')}${timeRange}${durationStr}</div><div class="flex gap-2 mt-2 flex-wrap">${supervisorBadges}${pendingBadge}</div></div><i class="fa-solid fa-chevron-down text-calm-mute meeting-chevron transition-transform"></i></div>`;
-        const detailHtml = `<div class="mt-4 pt-4 border-t border-gray-100 space-y-3"><div class="flex items-center gap-2 justify-end"><button onclick="event.stopPropagation(); editMeeting('${m.id}')" class="px-3 py-1.5 text-sm font-bold bg-sky-50 text-dopamine-sky border border-sky-200 rounded-xl">${localeText('修改','Edit')}</button><button onclick="event.stopPropagation(); deleteMeeting('${m.id}')" class="px-3 py-1.5 text-sm font-bold bg-rose-50 text-rose-600 border border-rose-200 rounded-xl">${localeText('删除','Delete')}</button></div>${m.agenda?`<div class="text-sm text-calm-ink whitespace-pre-line">${escapeHtml(m.agenda)}</div>`:''}${m.notes?`<div class="text-sm text-calm-mute italic">${escapeHtml(m.notes)}</div>`:''}<div class="rounded-xl border border-gray-100 bg-gray-50 p-3"><div class="font-bold text-sm mb-2">Action Items</div><div class="space-y-2 mb-3">${actionHtml}</div><div class="flex gap-2"><input id="newAct-${m.id}" type="text" placeholder="${localeText('新增事项','Add action item')}" class="flex-1 px-3 py-2 rounded-xl border border-gray-200 text-sm" onclick="event.stopPropagation()"><button onclick="event.stopPropagation(); addMeetingActionItem('${m.id}','newAct-${m.id}')" class="px-3 py-2 rounded-xl bg-white border border-gray-200 text-sm font-bold">${localeText('添加','Add')}</button></div></div></div>`;
-        return `<details open id="jump-meeting-${m.id}" class="bg-white rounded-2xl border border-gray-100 p-4 meeting-card group"><summary class="list-none cursor-pointer select-none">${summaryInner}</summary>${detailHtml}</details>`;
-      }
-      // Past 卡片（紧凑块状，按内容自适应高度）
+      // 英式日期格式 DD MMM YYYY
       const MONTH_ABBR = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
       function formatMeetingDate(d) {
-        if (!d) return '—';
+        if (!d) return '';
         const parts = d.split('-');
         if (parts.length !== 3) return d;
         const [y, mo, dd] = parts;
@@ -8221,25 +8207,31 @@
         if (mi < 0 || mi > 11) return d;
         return `${dd} ${MONTH_ABBR[mi]} ${y}`;
       }
-      function meetingGridCardHtml(m) {
-        const title = m.title ? escapeHtml(m.title) : localeText('未命名会议','Untitled meeting');
-        const timeRange = (m.startTime && m.endTime) ? `${escapeHtml(m.startTime)}–${escapeHtml(m.endTime)}` : '';
-        const supervisorBadges = (m.supervisors||[]).slice(0,2).map(s=>`<span class="mini-badge bg-sky-50 text-dopamine-sky text-[10px] py-0.5 px-1.5">${escapeHtml(s)}</span>`).join('');
+      // 统一卡片渲染：默认展开（Upcoming）或折叠（Past），点击标题展开全部
+      function meetingDetailsHtml(m, opts = {}) {
         const actions = Array.isArray(m.actionItems) ? m.actionItems : [];
-        const pendingCount = actions.filter(a => !a.done).length;
-        const pendingBadge = pendingCount > 0 ? `<span class="mini-badge bg-orange-50 text-dopamine-orange text-[10px] py-0.5 px-1.5">${pendingCount}</span>` : '';
+        const supervisorBadges = (m.supervisors||[]).map(s=>`<span class="mini-badge bg-sky-50 text-dopamine-sky">${escapeHtml(s)}</span>`).join('');
+        const actionHtml = actions.length ? actions.map(a=>`<div class="flex items-start gap-2"><input type="checkbox" ${a.done?'checked':''} onchange="toggleMeetingActionItem('${m.id}','${a.id}',this.checked)" class="mt-1 w-4 h-4 shrink-0"><div class="flex-1 text-sm ${a.done?'line-through text-calm-mute':'text-calm-ink'}">${escapeHtml(a.text)}</div><button onclick="removeMeetingActionItem('${m.id}','${a.id}')" class="text-xs text-rose-500 shrink-0">${localeText('删除','Delete')}</button></div>`).join('') : `<div class="text-sm text-calm-mute">${localeText('暂无事项','No action items yet')}</div>`;
+        const title = m.title ? escapeHtml(m.title) : localeText('未命名会议','Untitled meeting');
         const dateLabel = formatMeetingDate(m.date);
-        const metaLine = [dateLabel, timeRange].filter(Boolean).join(' · ');
-        const supervisorRow = supervisorBadges ? `<div class="flex gap-1 mt-2 flex-wrap">${supervisorBadges}</div>` : '';
-        return `<button id="jump-meeting-${m.id}" onclick="editMeeting('${m.id}')" class="text-left bg-white hover:shadow-md hover:border-dopamine-sky transition rounded-2xl border border-gray-100 p-3 flex flex-col gap-1.5"><div class="flex items-start justify-between gap-2"><div class="font-black text-sm text-calm-ink line-clamp-2 flex-1">${title}</div>${pendingBadge}</div><div class="text-[11px] text-calm-mute">${metaLine}</div>${supervisorRow}</button>`;
+        const timeRange = (m.startTime && m.endTime) ? ` · ${escapeHtml(m.startTime)}–${escapeHtml(m.endTime)}` : '';
+        const durationStr = Number(m.duration) > 0 ? ` · ${Number(m.duration)} ${localeText('分钟','min')}` : '';
+        const pendingCount = actions.filter(a => !a.done).length;
+        const pendingBadge = pendingCount > 0 ? `<span class="mini-badge bg-orange-50 text-dopamine-orange">${pendingCount} ${localeText('待办','pending')}</span>` : '';
+        const titleSize = opts.compact ? 'text-sm' : 'text-base';
+        const paddingClass = opts.compact ? 'p-3' : 'p-4';
+        const summaryInner = `<div class="flex items-start justify-between gap-3 w-full flex-wrap"><div class="min-w-0 flex-1"><div class="font-black ${titleSize}">${title}</div><div class="text-xs text-calm-mute mt-0.5">${dateLabel}${timeRange}${durationStr}</div><div class="flex gap-2 mt-2 flex-wrap">${supervisorBadges}${pendingBadge}</div></div><i class="fa-solid fa-chevron-down text-calm-mute meeting-chevron transition-transform"></i></div>`;
+        const detailHtml = `<div class="mt-4 pt-4 border-t border-gray-100 space-y-3"><div class="flex items-center gap-2 justify-end"><button onclick="event.stopPropagation(); editMeeting('${m.id}')" class="px-3 py-1.5 text-sm font-bold bg-sky-50 text-dopamine-sky border border-sky-200 rounded-xl">${localeText('修改','Edit')}</button><button onclick="event.stopPropagation(); deleteMeeting('${m.id}')" class="px-3 py-1.5 text-sm font-bold bg-rose-50 text-rose-600 border border-rose-200 rounded-xl">${localeText('删除','Delete')}</button></div>${m.agenda?`<div class="text-sm text-calm-ink whitespace-pre-line">${escapeHtml(m.agenda)}</div>`:''}${m.notes?`<div class="text-sm text-calm-mute italic">${escapeHtml(m.notes)}</div>`:''}<div class="rounded-xl border border-gray-100 bg-gray-50 p-3"><div class="font-bold text-sm mb-2">Action Items</div><div class="space-y-2 mb-3">${actionHtml}</div><div class="flex gap-2"><input id="newAct-${m.id}" type="text" placeholder="${localeText('新增事项','Add action item')}" class="flex-1 px-3 py-2 rounded-xl border border-gray-200 text-sm" onclick="event.stopPropagation()"><button onclick="event.stopPropagation(); addMeetingActionItem('${m.id}','newAct-${m.id}')" class="px-3 py-2 rounded-xl bg-white border border-gray-200 text-sm font-bold">${localeText('添加','Add')}</button></div></div></div>`;
+        const openAttr = opts.defaultOpen ? 'open' : '';
+        return `<details ${openAttr} id="jump-meeting-${m.id}" class="bg-white rounded-2xl border border-gray-100 ${paddingClass} meeting-card group"><summary class="list-none cursor-pointer select-none">${summaryInner}</summary>${detailHtml}</details>`;
       }
       const sectionHeader = (labelZh, labelEn, count) =>
         `<div class="flex items-center gap-2 mt-4 mb-2 first:mt-0"><span class="text-sm font-black text-calm-ink">${localeText(labelZh, labelEn)}</span><span class="mini-badge bg-[#F2F3F4] text-[#6B6F76] border border-[#CED1D6]">${count}</span></div>`;
       const upcomingHtml = upcoming.length
-        ? sectionHeader('即将进行', 'Upcoming', upcoming.length) + `<div class="space-y-3">${upcoming.map(meetingDetailsHtml).join('')}</div>`
+        ? sectionHeader('即将进行', 'Upcoming', upcoming.length) + `<div class="space-y-3">${upcoming.map(m => meetingDetailsHtml(m, { defaultOpen: true, compact: false })).join('')}</div>`
         : '';
       const pastHtml = past.length
-        ? sectionHeader('历史会议', 'Past Meetings', past.length) + `<div class="grid grid-cols-2 md:grid-cols-3 gap-3">${past.map(meetingGridCardHtml).join('')}</div>`
+        ? sectionHeader('历史会议', 'Past Meetings', past.length) + `<div class="space-y-3">${past.map(m => meetingDetailsHtml(m, { defaultOpen: false, compact: true })).join('')}</div>`
         : '';
       document.getElementById('meetingList').innerHTML = upcomingHtml + pastHtml;
     }
