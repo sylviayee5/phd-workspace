@@ -1628,6 +1628,25 @@
             </div>
             <div class="xl:col-span-2 space-y-5">
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="meetingStats"></div>
+              <!-- 会议日历 -->
+              <div class="soft-card p-6">
+                <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+                  <h2 class="text-2xl font-black flex items-center gap-3"><i class="fa-regular fa-calendar text-dopamine-sky"></i> <span>会议日历 / Meeting Calendar</span></h2>
+                  <div class="flex items-center gap-2">
+                    <div class="inline-flex rounded-xl bg-gray-100 p-1">
+                      <button id="meetingCalMonthBtn" class="px-3 py-1.5 rounded-lg text-sm font-bold bg-white shadow-sm text-calm-ink">月</button>
+                      <button id="meetingCalWeekBtn" class="px-3 py-1.5 rounded-lg text-sm font-bold text-calm-mute">周</button>
+                    </div>
+                    <button id="meetingCalPrev" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 transition flex items-center justify-center"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+                    <span id="meetingCalLabel" class="font-black text-calm-ink text-sm min-w-[90px] text-center"></span>
+                    <button id="meetingCalNext" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 transition flex items-center justify-center"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+                  </div>
+                </div>
+                <div class="grid grid-cols-7 text-center text-[11px] text-calm-mute mb-1 font-bold">
+                  <div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div><div>日</div>
+                </div>
+                <div id="meetingCalGrid" class="grid grid-cols-7 gap-1.5"></div>
+              </div>
               <div class="soft-card p-6">
                 <h2 class="text-2xl font-black mb-4 flex items-center gap-3"><i class="fa-regular fa-calendar-check text-dopamine-sky"></i> <span id="meetingsListTitle">会议记录</span></h2>
                 <div id="meetingList" class="space-y-4"></div>
@@ -1933,6 +1952,20 @@
         <button id="inputModalCancelBtn" class="px-4 py-2 rounded-xl bg-gray-100 text-calm-ink text-sm font-bold">取消</button>
         <button id="inputModalOkBtn" class="px-4 py-2 rounded-xl bg-dopamine-sky text-white text-sm font-black">确认</button>
       </div>
+    </div>
+  </div>
+
+  <!-- 会议当日详情 Modal -->
+  <div id="meetingDayModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-lg p-4" style="display:none;">
+    <div class="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col">
+      <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+        <div>
+          <div id="meetingDayTitle" class="text-lg font-black text-calm-ink">当日会议</div>
+          <div id="meetingDaySubtitle" class="text-xs text-calm-mute mt-0.5"></div>
+        </div>
+        <button id="meetingDayCloseBtn" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition"><i class="fa-solid fa-xmark text-sm text-calm-mute"></i></button>
+      </div>
+      <div id="meetingDayList" class="overflow-y-auto p-6 space-y-3 flex-1"></div>
     </div>
   </div>
 
@@ -7895,6 +7928,122 @@
         if (el) el.addEventListener('input', updatePreview);
       });
       bindMeetingEditModal();
+      bindMeetingCalendar();
+      bindMeetingDayModal();
+    }
+    // —— 会议日历 ——
+    const meetingCalState = { view: 'month', cursor: new Date() };
+    function bindMeetingCalendar() {
+      document.getElementById('meetingCalMonthBtn').addEventListener('click', () => { meetingCalState.view = 'month'; renderMeetingCalendar(); });
+      document.getElementById('meetingCalWeekBtn').addEventListener('click', () => { meetingCalState.view = 'week'; renderMeetingCalendar(); });
+      document.getElementById('meetingCalPrev').addEventListener('click', () => {
+        const c = meetingCalState.cursor;
+        if (meetingCalState.view === 'month') c.setMonth(c.getMonth()-1);
+        else c.setDate(c.getDate()-7);
+        renderMeetingCalendar();
+      });
+      document.getElementById('meetingCalNext').addEventListener('click', () => {
+        const c = meetingCalState.cursor;
+        if (meetingCalState.view === 'month') c.setMonth(c.getMonth()+1);
+        else c.setDate(c.getDate()+7);
+        renderMeetingCalendar();
+      });
+    }
+    function renderMeetingCalendar() {
+      const label = document.getElementById('meetingCalLabel');
+      const grid = document.getElementById('meetingCalGrid');
+      const monthBtn = document.getElementById('meetingCalMonthBtn');
+      const weekBtn = document.getElementById('meetingCalWeekBtn');
+      if (!label || !grid) return;
+      // 切换按钮样式
+      if (meetingCalState.view === 'month') {
+        monthBtn.classList.add('bg-white','shadow-sm','text-calm-ink'); monthBtn.classList.remove('text-calm-mute');
+        weekBtn.classList.remove('bg-white','shadow-sm','text-calm-ink'); weekBtn.classList.add('text-calm-mute');
+      } else {
+        weekBtn.classList.add('bg-white','shadow-sm','text-calm-ink'); weekBtn.classList.remove('text-calm-mute');
+        monthBtn.classList.remove('bg-white','shadow-sm','text-calm-ink'); monthBtn.classList.add('text-calm-mute');
+      }
+      // 按日期分组会议
+      const byDate = {};
+      (state.meetings || []).forEach(m => {
+        if (!m.date) return;
+        (byDate[m.date] = byDate[m.date] || []).push(m);
+      });
+      const todayStr_ = todayStr();
+      const cursor = meetingCalState.cursor;
+      if (meetingCalState.view === 'month') {
+        const y = cursor.getFullYear(), mo = cursor.getMonth();
+        label.textContent = `${y}年${mo+1}月`;
+        const first = new Date(y, mo, 1);
+        // 周一为 0
+        let offset = first.getDay() - 1; if (offset < 0) offset = 6;
+        const daysInMonth = new Date(y, mo+1, 0).getDate();
+        const cells = [];
+        for (let i = 0; i < offset; i++) cells.push({ empty: true });
+        for (let d = 1; d <= daysInMonth; d++) {
+          const ds = `${y}-${pad(mo+1)}-${pad(d)}`;
+          cells.push({ date: ds, day: d, meetings: byDate[ds] || [] });
+        }
+        grid.innerHTML = cells.map(c => {
+          if (c.empty) return `<div></div>`;
+          return meetingCalCell(c, todayStr_);
+        }).join('');
+      } else {
+        // 周视图：周一到周日
+        const c = new Date(cursor);
+        let offset = c.getDay() - 1; if (offset < 0) offset = 6;
+        const monday = new Date(c); monday.setDate(c.getDate() - offset);
+        const sunday = new Date(monday); sunday.setDate(monday.getDate()+6);
+        label.textContent = `${monday.getMonth()+1}/${monday.getDate()} - ${sunday.getMonth()+1}/${sunday.getDate()}`;
+        const cells = [];
+        for (let i = 0; i < 7; i++) {
+          const d = new Date(monday); d.setDate(monday.getDate()+i);
+          const ds = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+          cells.push({ date: ds, day: d.getDate(), meetings: byDate[ds] || [], isWeekView: true });
+        }
+        grid.innerHTML = cells.map(c => meetingCalCell(c, todayStr_)).join('');
+      }
+      // 绑定点击
+      grid.querySelectorAll('[data-meeting-day]').forEach(el => {
+        el.addEventListener('click', () => openMeetingDayModal(el.dataset.meetingDay));
+      });
+    }
+    function meetingCalCell(c, todayStr_) {
+      const isToday = c.date === todayStr_;
+      const count = c.meetings.length;
+      const heightClass = c.isWeekView ? 'min-h-[90px]' : 'min-h-[56px]';
+      const todayRing = isToday ? 'ring-2 ring-dopamine-sky' : '';
+      const hoverBg = count ? 'hover:bg-sky-50 cursor-pointer' : 'opacity-60';
+      const dots = count
+        ? `<div class="flex flex-wrap gap-0.5 mt-1">${c.meetings.slice(0,4).map(()=>'<span class="w-1.5 h-1.5 rounded-full bg-dopamine-sky"></span>').join('')}${count > 4 ? `<span class="text-[9px] text-dopamine-sky font-bold ml-0.5">+${count-4}</span>` : ''}</div>`
+        : '';
+      const titles = c.isWeekView && count
+        ? `<div class="mt-1 space-y-0.5 text-left">${c.meetings.slice(0,2).map(m=>`<div class="text-[10px] truncate text-dopamine-sky font-bold">${escapeHtml(m.title || localeText('未命名','Untitled'))}</div>`).join('')}${count>2?`<div class="text-[10px] text-calm-mute">+${count-2}</div>`:''}</div>`
+        : '';
+      return `<div ${count?`data-meeting-day="${c.date}"`:''} class="relative rounded-xl border border-gray-100 bg-white p-1.5 ${heightClass} ${todayRing} ${hoverBg} transition flex flex-col items-center"><div class="text-xs font-bold ${isToday?'text-dopamine-sky':'text-calm-ink'}">${c.day}</div>${dots}${titles}</div>`;
+    }
+    function bindMeetingDayModal() {
+      document.getElementById('meetingDayCloseBtn').addEventListener('click', closeMeetingDayModal);
+      document.getElementById('meetingDayModal').addEventListener('click', (e) => {
+        if (e.target.id === 'meetingDayModal') closeMeetingDayModal();
+      });
+    }
+    function openMeetingDayModal(date) {
+      const modal = document.getElementById('meetingDayModal');
+      const list = (state.meetings || []).filter(m => m.date === date).sort((a,b) => (a.startTime||'').localeCompare(b.startTime||''));
+      document.getElementById('meetingDayTitle').textContent = date;
+      document.getElementById('meetingDaySubtitle').textContent = `${list.length} ${localeText('场会议','meetings')}`;
+      document.getElementById('meetingDayList').innerHTML = list.map(m => {
+        const timeRange = (m.startTime && m.endTime) ? `${escapeHtml(m.startTime)}–${escapeHtml(m.endTime)}` : '';
+        const supervisors = (m.supervisors||[]).map(s=>`<span class="mini-badge bg-sky-50 text-dopamine-sky">${escapeHtml(s)}</span>`).join('');
+        const pendingCount = (m.actionItems||[]).filter(a=>!a.done).length;
+        const pendingBadge = pendingCount ? `<span class="mini-badge bg-orange-50 text-dopamine-orange">${pendingCount} ${localeText('待办','pending')}</span>` : '';
+        return `<button onclick="closeMeetingDayModal(); editMeeting('${m.id}')" class="w-full text-left bg-white hover:bg-sky-50 border border-gray-100 rounded-2xl p-4 transition"><div class="font-black text-base text-calm-ink mb-1">${escapeHtml(m.title || localeText('未命名会议','Untitled meeting'))}</div><div class="text-xs text-calm-mute mb-2">${timeRange}</div><div class="flex gap-1.5 flex-wrap">${supervisors}${pendingBadge}</div></button>`;
+      }).join('') || `<div class="text-sm text-calm-mute text-center py-6">${localeText('暂无会议','No meetings')}</div>`;
+      modal.style.display = 'flex';
+    }
+    function closeMeetingDayModal() {
+      document.getElementById('meetingDayModal').style.display = 'none';
     }
     function addMeeting() {
       const date = document.getElementById('meetingDate').value;
@@ -8039,6 +8188,7 @@
         <div class="bg-white rounded-2xl border border-gray-100 p-4"><div class="text-calm-mute text-sm">${localeText('总会议次数','Total Meetings')}</div><div class="text-3xl font-black text-dopamine-sky">${list.length}</div></div>
         <div class="bg-white rounded-2xl border border-gray-100 p-4"><div class="text-calm-mute text-sm">${localeText('本月会议','This Month')}</div><div class="text-3xl font-black text-dopamine-orange">${thisMonth}</div></div>
         <div class="bg-white rounded-2xl border border-gray-100 p-4"><div class="text-calm-mute text-sm">${localeText('待完成事项','Pending Action Items')}</div><div class="text-3xl font-black text-dopamine-pink">${pendingActions}</div></div>`;
+      renderMeetingCalendar();
       if (!list.length) {
         document.getElementById('meetingList').innerHTML = `<div class="text-sm text-calm-mute">${localeText('还没有会议记录。','No meeting logs yet.')}</div>`;
         return;
@@ -8046,8 +8196,8 @@
       const today = todayStr();
       const upcoming = list.filter(m => m.date && m.date >= today).sort((a,b) => a.date.localeCompare(b.date));
       const past = list.filter(m => !m.date || m.date < today).sort((a,b) => (b.date||'').localeCompare(a.date||''));
-      // 单条卡片渲染：Upcoming 默认展开；Past 默认折叠
-      function meetingDetailsHtml(m, opts = {}) {
+      // Upcoming 卡片（详情展开）
+      function meetingDetailsHtml(m) {
         const actions = Array.isArray(m.actionItems) ? m.actionItems : [];
         const supervisorBadges = (m.supervisors||[]).map(s=>`<span class="mini-badge bg-sky-50 text-dopamine-sky">${escapeHtml(s)}</span>`).join('');
         const actionHtml = actions.length ? actions.map(a=>`<div class="flex items-start gap-2"><input type="checkbox" ${a.done?'checked':''} onchange="toggleMeetingActionItem('${m.id}','${a.id}',this.checked)" class="mt-1 w-4 h-4 shrink-0"><div class="flex-1 text-sm ${a.done?'line-through text-calm-mute':'text-calm-ink'}">${escapeHtml(a.text)}</div><button onclick="removeMeetingActionItem('${m.id}','${a.id}')" class="text-xs text-rose-500 shrink-0">${localeText('删除','Delete')}</button></div>`).join('') : `<div class="text-sm text-calm-mute">${localeText('暂无事项','No action items yet')}</div>`;
@@ -8056,20 +8206,28 @@
         const durationStr = Number(m.duration) > 0 ? ` · ${Number(m.duration)} ${localeText('分钟','min')}` : '';
         const pendingCount = actions.filter(a => !a.done).length;
         const pendingBadge = pendingCount > 0 ? `<span class="mini-badge bg-orange-50 text-dopamine-orange">${pendingCount} ${localeText('待办','pending')}</span>` : '';
-        const agendaPreview = opts.compact && m.agenda ? `<div class="text-sm text-calm-mute mt-1 line-clamp-1">${escapeHtml(m.agenda)}</div>` : '';
-        const summaryInner = `<div class="flex items-start justify-between gap-3 w-full flex-wrap"><div class="min-w-0 flex-1"><div class="font-black ${opts.compact ? 'text-sm' : 'text-base'}">${title}</div><div class="text-xs text-calm-mute mt-0.5">${escapeHtml(m.date || '')}${timeRange}${durationStr}</div>${agendaPreview}<div class="flex gap-2 mt-2 flex-wrap">${supervisorBadges}${pendingBadge}</div></div><i class="fa-solid fa-chevron-down text-calm-mute meeting-chevron transition-transform"></i></div>`;
+        const summaryInner = `<div class="flex items-start justify-between gap-3 w-full flex-wrap"><div class="min-w-0 flex-1"><div class="font-black text-base">${title}</div><div class="text-xs text-calm-mute mt-0.5">${escapeHtml(m.date || '')}${timeRange}${durationStr}</div><div class="flex gap-2 mt-2 flex-wrap">${supervisorBadges}${pendingBadge}</div></div><i class="fa-solid fa-chevron-down text-calm-mute meeting-chevron transition-transform"></i></div>`;
         const detailHtml = `<div class="mt-4 pt-4 border-t border-gray-100 space-y-3"><div class="flex items-center gap-2 justify-end"><button onclick="event.stopPropagation(); editMeeting('${m.id}')" class="px-3 py-1.5 text-sm font-bold bg-sky-50 text-dopamine-sky border border-sky-200 rounded-xl">${localeText('修改','Edit')}</button><button onclick="event.stopPropagation(); deleteMeeting('${m.id}')" class="px-3 py-1.5 text-sm font-bold bg-rose-50 text-rose-600 border border-rose-200 rounded-xl">${localeText('删除','Delete')}</button></div>${m.agenda?`<div class="text-sm text-calm-ink whitespace-pre-line">${escapeHtml(m.agenda)}</div>`:''}${m.notes?`<div class="text-sm text-calm-mute italic">${escapeHtml(m.notes)}</div>`:''}<div class="rounded-xl border border-gray-100 bg-gray-50 p-3"><div class="font-bold text-sm mb-2">Action Items</div><div class="space-y-2 mb-3">${actionHtml}</div><div class="flex gap-2"><input id="newAct-${m.id}" type="text" placeholder="${localeText('新增事项','Add action item')}" class="flex-1 px-3 py-2 rounded-xl border border-gray-200 text-sm" onclick="event.stopPropagation()"><button onclick="event.stopPropagation(); addMeetingActionItem('${m.id}','newAct-${m.id}')" class="px-3 py-2 rounded-xl bg-white border border-gray-200 text-sm font-bold">${localeText('添加','Add')}</button></div></div></div>`;
-        const openAttr = opts.defaultOpen ? 'open' : '';
-        const paddingClass = opts.compact ? 'p-3' : 'p-4';
-        return `<details ${openAttr} id="jump-meeting-${m.id}" class="bg-white rounded-2xl border border-gray-100 ${paddingClass} meeting-card group"><summary class="list-none cursor-pointer select-none">${summaryInner}</summary>${detailHtml}</details>`;
+        return `<details open id="jump-meeting-${m.id}" class="bg-white rounded-2xl border border-gray-100 p-4 meeting-card group"><summary class="list-none cursor-pointer select-none">${summaryInner}</summary>${detailHtml}</details>`;
+      }
+      // Past 卡片（网格紧凑块）
+      function meetingGridCardHtml(m) {
+        const title = m.title ? escapeHtml(m.title) : localeText('未命名会议','Untitled meeting');
+        const timeRange = (m.startTime && m.endTime) ? `${escapeHtml(m.startTime)}–${escapeHtml(m.endTime)}` : '';
+        const supervisorBadges = (m.supervisors||[]).slice(0,2).map(s=>`<span class="mini-badge bg-sky-50 text-dopamine-sky text-[10px] py-0.5 px-1.5">${escapeHtml(s)}</span>`).join('');
+        const actions = Array.isArray(m.actionItems) ? m.actionItems : [];
+        const pendingCount = actions.filter(a => !a.done).length;
+        const pendingBadge = pendingCount > 0 ? `<span class="mini-badge bg-orange-50 text-dopamine-orange text-[10px] py-0.5 px-1.5">${pendingCount}</span>` : '';
+        const dateShort = m.date ? m.date.slice(5).replace('-','/') : '—';
+        return `<button id="jump-meeting-${m.id}" onclick="editMeeting('${m.id}')" class="text-left bg-white hover:shadow-md hover:border-dopamine-sky transition rounded-2xl border border-gray-100 p-3 flex flex-col aspect-square min-h-[140px]"><div class="flex items-start justify-between mb-2"><span class="text-xs font-black text-dopamine-sky bg-sky-50 px-2 py-0.5 rounded-lg">${dateShort}</span>${pendingBadge}</div><div class="font-black text-sm text-calm-ink line-clamp-3 flex-1">${title}</div><div class="text-[10px] text-calm-mute mt-1">${timeRange}</div><div class="flex gap-1 mt-1.5 flex-wrap">${supervisorBadges}</div></button>`;
       }
       const sectionHeader = (labelZh, labelEn, count) =>
-        `<div class="flex items-center gap-2 mt-2 mb-2 first:mt-0"><span class="text-sm font-black text-calm-ink">${localeText(labelZh, labelEn)}</span><span class="mini-badge bg-[#F2F3F4] text-[#6B6F76] border border-[#CED1D6]">${count}</span></div>`;
+        `<div class="flex items-center gap-2 mt-4 mb-2 first:mt-0"><span class="text-sm font-black text-calm-ink">${localeText(labelZh, labelEn)}</span><span class="mini-badge bg-[#F2F3F4] text-[#6B6F76] border border-[#CED1D6]">${count}</span></div>`;
       const upcomingHtml = upcoming.length
-        ? sectionHeader('即将进行', 'Upcoming', upcoming.length) + upcoming.map(m => meetingDetailsHtml(m, { defaultOpen: true, compact: false })).join('')
+        ? sectionHeader('即将进行', 'Upcoming', upcoming.length) + `<div class="space-y-3">${upcoming.map(meetingDetailsHtml).join('')}</div>`
         : '';
       const pastHtml = past.length
-        ? sectionHeader('历史会议', 'Past Meetings', past.length) + past.map(m => meetingDetailsHtml(m, { defaultOpen: false, compact: true })).join('')
+        ? sectionHeader('历史会议', 'Past Meetings', past.length) + `<div class="grid grid-cols-2 md:grid-cols-3 gap-3">${past.map(meetingGridCardHtml).join('')}</div>`
         : '';
       document.getElementById('meetingList').innerHTML = upcomingHtml + pastHtml;
     }
