@@ -587,12 +587,89 @@
     }
     .cal-month-cell .mc-more { font-size: 10px; color: #8C8F94; font-weight: 700; }
 
+    /* ========== 手机端响应式（<1024px） ========== */
+    /* 汉堡按钮：小屏可见，大屏隐藏 */
+    .mobile-menu-btn {
+      display: none;
+      position: fixed;
+      top: 14px; left: 14px;
+      z-index: 60;
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.9);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(0,0,0,.06);
+      box-shadow: 0 4px 16px rgba(0,0,0,.08);
+      align-items: center; justify-content: center;
+      cursor: pointer;
+      color: #1F2328;
+      font-size: 18px;
+    }
+    /* 侧栏遮罩 */
+    .mobile-backdrop {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.4);
+      backdrop-filter: blur(6px);
+      z-index: 55;
+      opacity: 0;
+      transition: opacity .2s ease;
+    }
+    .mobile-backdrop.show { display: block; opacity: 1; }
+
+    @media (max-width: 1023px) {
+      .mobile-menu-btn { display: inline-flex; }
+      body {
+        padding-top: 58px; /* 给悬浮汉堡按钮留位置 */
+      }
+      /* 侧栏变抽屉 */
+      aside.app-sidebar {
+        position: fixed;
+        top: 0; left: 0;
+        height: 100vh;
+        width: min(84vw, 340px);
+        z-index: 58;
+        transform: translateX(-105%);
+        transition: transform .25s ease;
+        overflow-y: auto;
+        padding: 14px;
+      }
+      aside.app-sidebar.open { transform: translateX(0); }
+      aside.app-sidebar > div.glass-pill {
+        position: static !important; /* 取消 sticky */
+        min-height: calc(100vh - 28px);
+      }
+      /* 主内容区整体挪开一点，避免悬浮按钮挡住标题 */
+      main { margin-top: 0; }
+      /* 外层 grid 在小屏直接不用 grid，让 main 全宽 */
+      .app-shell-grid {
+        display: block;
+      }
+      /* 卡片间距收紧 */
+      .soft-card { padding: 18px !important; }
+      /* 超宽水印在小屏隐藏 */
+      section[data-watermark]::before,
+      section[data-watermark]::after { display: none !important; }
+    }
+
+    @media (max-width: 640px) {
+      body { padding-left: 0; padding-right: 0; }
+      main { padding-left: 0 !important; padding-right: 0 !important; }
+      h2.serif-title, h2[style*="Instrument Serif"] {
+        font-size: 2.25rem !important;
+      }
+    }
+
   </style>
 </head>
 <body class="font-sans text-calm-ink">
+  <button id="mobileMenuBtn" class="mobile-menu-btn" aria-label="菜单 / Menu">
+    <i class="fa-solid fa-bars"></i>
+  </button>
+  <div id="mobileBackdrop" class="mobile-backdrop"></div>
   <div class="mx-auto px-5 py-6 lg:px-8 xl:px-10" style="max-width: 1840px;">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-7">
-      <aside class="lg:col-span-3 xl:col-span-2">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-7 app-shell-grid">
+      <aside class="app-sidebar lg:col-span-3 xl:col-span-2">
         <div class="glass-pill p-5 sticky top-4">
           <div class="mb-6">
             <a href="index.html" class="flex items-center gap-3 mb-3 group rounded-2xl -mx-1 px-1 py-1 hover:bg-white/40 transition" title="返回首页 / Back to landing">
@@ -8943,6 +9020,36 @@
           .catch(err => console.warn('[PWA] Service worker 注册失败（本地 file:// 协议下属正常）:', err));
       });
     }
+  </script>
+  <script>
+    // 手机端侧栏抽屉
+    (function() {
+      const btn = document.getElementById('mobileMenuBtn');
+      const aside = document.querySelector('aside.app-sidebar');
+      const backdrop = document.getElementById('mobileBackdrop');
+      if (!btn || !aside || !backdrop) return;
+      function open() {
+        aside.classList.add('open');
+        backdrop.classList.add('show');
+      }
+      function close() {
+        aside.classList.remove('open');
+        backdrop.classList.remove('show');
+      }
+      btn.addEventListener('click', () => {
+        aside.classList.contains('open') ? close() : open();
+      });
+      backdrop.addEventListener('click', close);
+      // 点导航按钮后自动收起抽屉（只在小屏时）
+      aside.addEventListener('click', (e) => {
+        if (window.innerWidth >= 1024) return;
+        if (e.target.closest('.nav-btn')) close();
+      });
+      // ESC 关闭
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && aside.classList.contains('open')) close();
+      });
+    })();
   </script>
 </body>
 </html>
