@@ -117,6 +117,49 @@
         0 -1px 0 rgba(255,255,255,.4) inset,
         0 30px 70px -28px rgba(10,40,70,.22);
     }
+    /* 顶部多巴胺色条 → 左侧 4px 细色签 */
+    .soft-card[class*="border-dopamine-"] {
+      border-top-width: 0 !important;
+      position: relative;
+      overflow: hidden;
+    }
+    .soft-card[class*="border-dopamine-"]::before {
+      content: '';
+      position: absolute;
+      left: 14px;
+      top: 22px;
+      width: 3px;
+      height: 36px;
+      border-radius: 999px;
+      background: currentColor;
+      opacity: .55;
+    }
+    .soft-card.border-dopamine-orange { color: #C49B8A; }
+    .soft-card.border-dopamine-pink   { color: #A87360; }
+    .soft-card.border-dopamine-yellow { color: #C9A94F; }
+    .soft-card.border-dopamine-mint   { color: #A8B5A0; }
+    .soft-card.border-dopamine-sky    { color: #B8A78C; }
+    .soft-card.border-dopamine-purple { color: #8A6F5C; }
+    .soft-card.border-dopamine-coral  { color: #B88A73; }
+
+    /* 板块水印大字（GlassPro 风）用 ::before 注入 */
+    .section { position: relative; }
+    .section::before {
+      content: attr(data-watermark);
+      display: block;
+      font-family: 'Inter', sans-serif;
+      font-weight: 900;
+      font-size: clamp(40px, 5.2vw, 84px);
+      line-height: 0.95;
+      letter-spacing: -0.025em;
+      text-transform: uppercase;
+      color: rgba(10, 38, 56, 0.06);
+      pointer-events: none;
+      user-select: none;
+      margin: -8px 0 -28px 6px;
+    }
+    .section:not([data-watermark])::before { content: none; }
+
     /* 导航项：玻璃 hover + 当前项胶囊 */
     .nav-btn {
       transition: transform .18s ease, background-color .18s ease, color .18s ease;
@@ -342,7 +385,7 @@
       </aside>
 
       <main class="lg:col-span-9 xl:col-span-10 space-y-6">
-        <section id="dashboard-section" class="section active space-y-5">
+        <section id="dashboard-section" data-watermark="Studio." class="section active space-y-5">
           <div class="soft-card p-6 md:p-8 overflow-hidden relative">
             <div class="absolute -right-12 -top-12 w-40 h-40 rounded-full bg-white/40 blur-3xl"></div>
             <div class="absolute right-20 bottom-0 w-48 h-48 rounded-full bg-[#A8B5A0]/15 blur-3xl"></div>
@@ -503,7 +546,7 @@
           </div>
         </section>
 
-        <section id="attendance-section" class="section">
+        <section id="attendance-section" data-watermark="Rituals." class="section">
           <div id="attendanceHistoryStrip" class="soft-card p-5 mb-5"></div>
           <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
             <div class="xl:col-span-2 soft-card p-6">
@@ -621,7 +664,7 @@
           </div>
         </section>
 
-        <section id="calendar-section" class="section">
+        <section id="calendar-section" data-watermark="Calendar." class="section">
           <div class="grid grid-cols-1 xl:grid-cols-5 gap-6">
             <div class="xl:col-span-2 soft-card p-6">
               <h2 class="text-2xl font-black mb-5 flex items-center gap-3"><i class="fa-regular fa-calendar text-dopamine-purple"></i> 时间块日历</h2>
@@ -671,7 +714,7 @@
           </div>
         </section>
 
-        <section id="focus-section" class="section">
+        <section id="focus-section" data-watermark="Focus." class="section">
           <div id="focusHistoryStrip" class="soft-card p-5 mb-5"></div>
           <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
             <div class="xl:col-span-1 soft-card p-6">
@@ -743,7 +786,7 @@
           </div>
         </section>
 
-        <section id="lifestyle-section" class="section">
+        <section id="lifestyle-section" data-watermark="Habits." class="section">
           <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
             <div class="soft-card p-6">
               <div class="flex items-center justify-between mb-4">
@@ -812,7 +855,7 @@
           </div>
         </section>
 
-        <section id="mind-section" class="section">
+        <section id="mind-section" data-watermark="Inner Weather." class="section">
           <!-- 社交触点 + 能量检查 -->
           <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-5">
             <div class="soft-card p-5 border-t-4 border-dopamine-coral">
@@ -903,7 +946,7 @@
           </div>
         </section>
 
-        <section id="phone-section" class="section">
+        <section id="phone-section" data-watermark="Restraint." class="section">
           <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
             <div class="xl:col-span-1 soft-card p-6">
               <h2 class="text-2xl font-black mb-4 flex items-center gap-3"><i class="fa-solid fa-mobile-screen-button text-dopamine-purple"></i> 手机克制</h2>
@@ -930,7 +973,7 @@
           </div>
         </section>
 
-        <section id="submission-section" class="section">
+        <section id="submission-section" data-watermark="Submissions." class="section">
           <div class="grid grid-cols-1 xl:grid-cols-5 gap-6">
             <div class="xl:col-span-2 soft-card p-6">
               <h2 class="text-2xl font-black mb-4 flex items-center gap-3"><i class="fa-regular fa-paper-plane text-dopamine-sky"></i> 新增投稿项目</h2>
@@ -1054,7 +1097,7 @@
           </div>
         </section>
 
-        <section id="milestones-section" class="section">
+        <section id="milestones-section" data-watermark="Milestones." class="section">
           <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
             <div class="xl:col-span-4 soft-card p-6">
               <div class="mb-5">
@@ -1132,7 +1175,7 @@
           </div>
         </section>
 
-        <section id="fieldwork-section" class="section">
+        <section id="fieldwork-section" data-watermark="Fieldwork." class="section">
           <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
             <div class="xl:col-span-1 soft-card p-6">
               <h2 class="text-2xl font-black mb-4 flex items-center gap-3"><i class="fa-solid fa-seedling text-dopamine-mint"></i> <span id="fieldworkAddTitle">新建田野记录</span></h2>
@@ -1185,7 +1228,7 @@
           </div>
         </section>
 
-        <section id="writing-section" class="section">
+        <section id="writing-section" data-watermark="Writing." class="section">
           <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
             <div class="xl:col-span-1 space-y-5">
               <div class="soft-card p-6">
@@ -1246,7 +1289,7 @@
           </div>
         </section>
 
-        <section id="meetings-section" class="section">
+        <section id="meetings-section" data-watermark="Supervision." class="section">
           <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
             <div class="xl:col-span-1 soft-card p-6">
               <h2 class="text-2xl font-black mb-4 flex items-center gap-3"><i class="fa-solid fa-users text-dopamine-sky"></i> <span id="meetingsAddTitle">新建会议记录</span></h2>
@@ -1292,7 +1335,7 @@
           </div>
         </section>
 
-        <section id="settings-section" class="section">
+        <section id="settings-section" data-watermark="Settings." class="section">
           <div class="soft-card p-6 md:p-8 space-y-6">
             <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
               <div>
@@ -1425,7 +1468,7 @@
           </div>
         </section>
 
-        <section id="analytics-section" class="section">
+        <section id="analytics-section" data-watermark="Insights." class="section">
           <div class="soft-card p-6 mb-6">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-5">
               <div>
