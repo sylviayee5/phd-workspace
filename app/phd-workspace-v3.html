@@ -18,34 +18,38 @@
       theme: {
         extend: {
           colors: {
-            // 中性石墨 · 雾蓝方案：所有 dopamine-*/calm-* 旧类名兼容映射到新中性色
+            // 石墨结构色 + Notion 式低饱和点缀色装饰系统
             dopamine: {
-              orange: '#4A4E55',   // primary graphite（主色）
-              pink:   '#2D3138',   // primary hover / deep graphite
-              yellow: '#B8A878',   // warn · 褪色土黄（语义保留）
-              mint:   '#7A9080',   // success · 鼠尾草绿（语义保留）
-              sky:    '#8B95A1',   // accent · 雾蓝点缀
-              purple: '#6B6F76',   // mid graphite
-              coral:  '#A87878',   // danger · 烟灰红（语义保留）
-              lime:   '#8B95A1'    // accent 同款
+              orange: '#B8846B',   // warm clay · 写作调动
+              pink:   '#B88888',   // dusty rose · 任务/情感
+              yellow: '#C4A670',   // muted mustard · 等待/成就
+              mint:   '#7A9080',   // sage · 完成/结束
+              sky:    '#7A9AB2',   // dusty blue · 时间线/计时
+              purple: '#9A8AA0',   // dusty lilac · 日历/观心
+              coral:  '#C49080',   // soft peach · 生活
+              lime:   '#A8B89A'    // light sage · 微词
             },
             calm: {
-              blue:  '#8B95A1',    // accent mist
-              lilac: '#6B6F76',
-              peach: '#E5E7EB',    // cloud
+              blue:  '#7A9AB2',
+              lilac: '#9A8AA0',
+              peach: '#F2E5DD',
               green: '#7A9080',
-              sand:  '#E5E7EB',
-              rose:  '#A87878',
-              ink:   '#1F2328',
+              sand:  '#E9DEC2',
+              rose:  '#B88888',
+              ink:   '#2A2E33',    // 软一点的纯黑
               mute:  '#8C8F94',
               bg:    '#F7F7F6'
             },
-            // 中性化 Tailwind 覆盖（保留类名兼容）
-            orange: { 50:'#F2F3F4', 100:'#E5E7EB', 200:'#CED1D6', 500:'#4A4E55', 600:'#2D3138' },
-            rose:   { 50:'#F3F1F1', 100:'#E8E5E5', 200:'#D4CECE', 500:'#A87878', 600:'#8A5858' },
-            pink:   { 50:'#F3F1F1', 100:'#E8E5E5', 200:'#D4CECE', 500:'#A87878', 600:'#8A5858' },
-            yellow: { 50:'#F4F2EA', 100:'#E8E2CD', 200:'#D4C9A3', 500:'#B8A878', 600:'#8A7A4A' },
-            amber:  { 50:'#F4F2EA', 100:'#E8E2CD', 200:'#D4C9A3', 500:'#B8A878', 600:'#8A7A4A' }
+            // Tailwind 方色系统全量低饱和覆盖
+            orange: { 50:'#F5EFE7', 100:'#EADDC9', 200:'#D4BFA0', 500:'#B8846B', 600:'#8A5A42' },
+            rose:   { 50:'#F3EDED', 100:'#E4D6D6', 200:'#D4B8B8', 500:'#B88888', 600:'#8A5858' },
+            pink:   { 50:'#F3EDED', 100:'#E4D6D6', 200:'#D4B8B8', 500:'#B88888', 600:'#8A5858' },
+            yellow: { 50:'#F5F0E3', 100:'#E9DEC2', 200:'#D4BF90', 500:'#C4A670', 600:'#8A7040' },
+            amber:  { 50:'#F5F0E3', 100:'#E9DEC2', 200:'#D4BF90', 500:'#C4A670', 600:'#8A7040' },
+            sky:    { 50:'#EDF1F4', 100:'#D9E1E8', 200:'#B8C6D4', 500:'#7A9AB2', 600:'#4A6A82' },
+            blue:   { 50:'#EDF1F4', 100:'#D9E1E8', 200:'#B8C6D4', 500:'#7A9AB2', 600:'#4A6A82' },
+            purple: { 50:'#EFECF0', 100:'#DDD6E0', 200:'#BEB0C5', 500:'#9A8AA0', 600:'#6A5A70' },
+            green:  { 50:'#EBEFEB', 100:'#D4DDD4', 200:'#B0C0B0', 500:'#7A9080', 600:'#4A6050' }
           },
           boxShadow: {
             soft: '0 12px 30px -12px rgba(0,0,0,.12)',
@@ -396,6 +400,169 @@
       padding-right: 2.5rem;
     }
     select::-ms-expand { display: none; }
+
+    /* ==== Apple 风时间块日历 ==== */
+    .cal-toolbar {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      flex-wrap: wrap; margin-bottom: 14px;
+    }
+    .cal-view-switch {
+      display: inline-flex; padding: 3px; border-radius: 12px;
+      background: rgba(0,0,0,.04); gap: 2px;
+    }
+    .cal-view-btn {
+      padding: 6px 14px; font-size: 12px; font-weight: 700; border-radius: 9px;
+      color: #6B6F76; cursor: pointer; background: transparent; border: none;
+      transition: all .18s ease;
+    }
+    .cal-view-btn:hover { color: #2A2E33; }
+    .cal-view-btn.active {
+      background: #fff; color: #2A2E33;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 0 0 .5px rgba(0,0,0,.04);
+    }
+    .cal-nav-btn {
+      width: 32px; height: 32px; border-radius: 10px; border: 1px solid rgba(0,0,0,.06);
+      background: rgba(255,255,255,.6); color: #4A4E55; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: all .15s ease;
+    }
+    .cal-nav-btn:hover { background: #fff; }
+    .cal-today-btn {
+      padding: 6px 14px; font-size: 12px; font-weight: 700; border-radius: 10px;
+      border: 1px solid rgba(0,0,0,.08); background: rgba(255,255,255,.6); color: #4A4E55;
+      cursor: pointer;
+    }
+    .cal-today-btn:hover { background: #fff; }
+    .cal-range-label {
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-size: 22px; color: #2A2E33; letter-spacing: -.01em;
+    }
+
+    /* 日 / 周视图时间轴容器 */
+    .cal-scroll {
+      max-height: 640px; overflow-y: auto;
+      border-radius: 16px;
+      background: rgba(255,255,255,.4);
+      border: 1px solid rgba(0,0,0,.05);
+    }
+    .cal-scroll::-webkit-scrollbar { width: 8px; }
+    .cal-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,.1); border-radius: 4px; }
+
+    .cal-grid {
+      display: grid; position: relative;
+      /* grid-template-columns 动态设置：日视图 56px + 1fr；周视图 56px + 7x1fr */
+    }
+    .cal-axis {
+      position: relative;
+      border-right: 1px solid rgba(0,0,0,.05);
+    }
+    .cal-axis .hr-tick {
+      height: 56px; font-size: 10px; color: #8C8F94; font-weight: 700;
+      padding: 2px 6px 0; text-align: right; letter-spacing: .04em;
+    }
+    .cal-col {
+      position: relative;
+      border-right: 1px solid rgba(0,0,0,.04);
+    }
+    .cal-col:last-child { border-right: none; }
+    .cal-col-header {
+      position: sticky; top: 0; z-index: 3;
+      padding: 10px 8px; text-align: center;
+      background: rgba(250,250,249,.92);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0,0,0,.06);
+      font-size: 11px; font-weight: 700; color: #6B6F76; letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .cal-col-header .day-num {
+      display: inline-flex; width: 28px; height: 28px; border-radius: 50%;
+      align-items: center; justify-content: center;
+      font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 800;
+      color: #2A2E33; margin-top: 4px;
+    }
+    .cal-col-header.is-today .day-num {
+      background: #B8846B; color: #fff;
+    }
+    .cal-hour-line {
+      height: 56px;
+      border-bottom: 1px dashed rgba(0,0,0,.05);
+    }
+    .cal-hour-line.half::before {
+      content: ''; display: block; height: 28px;
+      border-bottom: 1px dashed rgba(0,0,0,.035);
+    }
+    .cal-block {
+      position: absolute; left: 4px; right: 4px;
+      border-radius: 8px; padding: 5px 8px;
+      font-size: 11px; line-height: 1.25; cursor: pointer;
+      overflow: hidden;
+      backdrop-filter: blur(8px) saturate(1.2);
+      -webkit-backdrop-filter: blur(8px) saturate(1.2);
+      transition: transform .15s ease, box-shadow .15s ease;
+      z-index: 2;
+    }
+    .cal-block:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px -6px rgba(0,0,0,.2);
+      z-index: 5;
+    }
+    .cal-block .b-title {
+      font-weight: 800; color: #1F2328;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .cal-block .b-time {
+      font-size: 10px; opacity: .75; margin-top: 2px; font-weight: 600;
+    }
+    .cal-now-line {
+      position: absolute; left: 0; right: 0;
+      height: 2px; background: #B8846B;
+      z-index: 4; pointer-events: none;
+    }
+    .cal-now-line::before {
+      content: ''; position: absolute; left: -5px; top: -4px;
+      width: 10px; height: 10px; border-radius: 50%; background: #B8846B;
+    }
+
+    /* 月视图 */
+    .cal-month {
+      display: grid; grid-template-columns: repeat(7, 1fr);
+      background: rgba(255,255,255,.4); border: 1px solid rgba(0,0,0,.05);
+      border-radius: 16px; overflow: hidden;
+    }
+    .cal-month-head {
+      padding: 10px; text-align: center;
+      font-size: 11px; font-weight: 800; color: #6B6F76; letter-spacing: .1em;
+      text-transform: uppercase;
+      background: rgba(250,250,249,.9);
+      border-bottom: 1px solid rgba(0,0,0,.06);
+    }
+    .cal-month-cell {
+      min-height: 100px; padding: 6px 6px 4px;
+      border-right: 1px solid rgba(0,0,0,.04);
+      border-bottom: 1px solid rgba(0,0,0,.04);
+      cursor: pointer; transition: background .15s ease;
+      position: relative;
+    }
+    .cal-month-cell:hover { background: rgba(255,255,255,.6); }
+    .cal-month-cell.other-month { opacity: .35; }
+    .cal-month-cell .mc-date {
+      font-size: 12px; font-weight: 700; color: #6B6F76;
+      display: inline-flex; width: 22px; height: 22px; border-radius: 50%;
+      align-items: center; justify-content: center;
+    }
+    .cal-month-cell.is-today .mc-date {
+      background: #B8846B; color: #fff;
+    }
+    .cal-month-cell .mc-blocks {
+      margin-top: 4px; display: flex; flex-direction: column; gap: 2px;
+    }
+    .cal-month-cell .mc-block {
+      font-size: 10px; padding: 1px 5px; border-radius: 4px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      font-weight: 600; color: #1F2328;
+    }
+    .cal-month-cell .mc-more { font-size: 10px; color: #8C8F94; font-weight: 700; }
 
   </style>
 </head>
@@ -778,14 +945,23 @@
               </div>
             </div>
             <div class="xl:col-span-3 soft-card p-6">
-              <div class="flex items-center justify-between mb-5">
-                <div>
-                  <h3 class="text-2xl font-black">当日日程</h3>
-                  <p class="text-calm-mute text-sm">按时间顺序展示你当天的时间块。</p>
+              <div class="cal-toolbar">
+                <div class="flex items-center gap-3">
+                  <div class="cal-view-switch" id="calViewSwitch">
+                    <button class="cal-view-btn active" data-view="day"><span id="calViewDayLabel">日</span></button>
+                    <button class="cal-view-btn" data-view="week"><span id="calViewWeekLabel">周</span></button>
+                    <button class="cal-view-btn" data-view="month"><span id="calViewMonthLabel">月</span></button>
+                  </div>
+                  <button class="cal-today-btn" id="calTodayBtn"><span id="calTodayLabel">今天</span></button>
                 </div>
-                <div id="blockSummary" class="text-sm font-bold text-dopamine-purple"></div>
+                <div class="flex items-center gap-2">
+                  <button class="cal-nav-btn" id="calPrevBtn" title="上一个"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+                  <div class="cal-range-label" id="calRangeLabel">—</div>
+                  <button class="cal-nav-btn" id="calNextBtn" title="下一个"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+                </div>
+                <div id="blockSummary" class="text-sm font-bold text-calm-mute"></div>
               </div>
-              <div id="blockTimeline" class="relative border-l-2 border-purple-100 ml-3 pl-6 space-y-5"></div>
+              <div id="calView"></div>
             </div>
           </div>
         </section>
@@ -2092,23 +2268,23 @@
       { id: 'habit_mind', name: '观心记录', icon: '🫶' }
     ];
     const PERIOD_META = {
-      morning: { labelZh: '上午', labelEn: 'Morning', startStandard: '08:00', color: '#4A4E55' },
-      afternoon: { labelZh: '下午', labelEn: 'Afternoon', startStandard: '14:00', color: '#8B95A1' },
-      evening: { labelZh: '晚上', labelEn: 'Evening', startStandard: '19:00', color: '#6B6F76' }
+      morning: { labelZh: '上午', labelEn: 'Morning', startStandard: '08:00', color: '#D4A87A' },
+      afternoon: { labelZh: '下午', labelEn: 'Afternoon', startStandard: '14:00', color: '#7A9AB2' },
+      evening: { labelZh: '晚上', labelEn: 'Evening', startStandard: '19:00', color: '#9A8AA0' }
     };
     const SUBMISSION_COLUMNS = ['选题中','写作中','待投稿','已投稿','审稿中','返修中','已接收','搁置/拒稿'];
     const SUBMISSION_STAGE_COLOR = {
-      '选题中':'#6B6F76','写作中':'#4A4E55','内审/合作者':'#B8A878','待投稿':'#8B95A1','已投稿':'#7A9080','审稿中':'#8B95A1','返修中':'#A87878','已接收':'#7A9080','搁置/拒稿':'#9ca3af'
+      '选题中':'#9A8AA0','写作中':'#B8846B','内审/合作者':'#C4A670','待投稿':'#C4A670','已投稿':'#7A9AB2','审稿中':'#8B95A1','返修中':'#C49080','已接收':'#7A9080','搁置/拒稿':'#9ca3af'
     };
     const CATEGORY_META = {
-      study: { label: '学习', icon: '📖', color: '#9fbcdb' },
-      research: { label: '科研', icon: '🧪', color: '#bbaecc' },
-      writing: { label: '写作', icon: '✍️', color: '#4A4E55' },
+      study: { label: '学习', icon: '📖', color: '#7A9AB2' },
+      research: { label: '科研', icon: '🧪', color: '#9A8AA0' },
+      writing: { label: '写作', icon: '✍️', color: '#B8846B' },
       meeting: { label: '会议', icon: '👥', color: '#8B95A1' },
       exercise: { label: '运动', icon: '🏃', color: '#7A9080' },
-      meal: { label: '饮食', icon: '🍽️', color: '#7A9080' },
-      rest: { label: '休息', icon: '🛌', color: '#B8A878' },
-      life: { label: '生活', icon: '🧹', color: '#A87878' }
+      meal: { label: '饮食', icon: '🍽️', color: '#C4A670' },
+      rest: { label: '休息', icon: '🛌', color: '#A8B89A' },
+      life: { label: '生活', icon: '🧹', color: '#C49080' }
     };
 
     const SHU_PHD_DATES = {
@@ -5023,6 +5199,23 @@
 
     function bindTimeBlocks() {
       document.getElementById('addBlockBtn').addEventListener('click', addTimeBlock);
+      // 视图切换
+      document.querySelectorAll('#calViewSwitch .cal-view-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          calState.view = btn.dataset.view;
+          renderCalendarSection();
+        });
+      });
+      document.getElementById('calPrevBtn').addEventListener('click', () => shiftCalCursor(-1));
+      document.getElementById('calNextBtn').addEventListener('click', () => shiftCalCursor(+1));
+      document.getElementById('calTodayBtn').addEventListener('click', () => {
+        calState.cursor = todayStr();
+        calState.view = 'day';
+        // 同步左侧输入日期
+        const inp = document.getElementById('blockDate');
+        if (inp) inp.value = todayStr();
+        renderCalendarSection();
+      });
     }
     function addTimeBlock() {
       const date = document.getElementById('blockDate').value || todayStr();
@@ -5038,27 +5231,242 @@
       saveState();
       document.getElementById('blockTitle').value = '';
       document.getElementById('blockNotes').value = '';
+      // 添加后把日历光标同步到该日期，并切到日视图，用户能立刻看到
+      calState.cursor = date;
+      if (calState.view === 'month') calState.view = 'day';
       renderCalendarSection();
     }
     function removeTimeBlock(id, date) {
       state.timeBlocks[date] = (state.timeBlocks[date] || []).filter(x => x.id !== id);
       saveState(); renderCalendarSection();
     }
-    function renderCalendarSection() {
-      const date = document.getElementById('blockDate').value || todayStr();
-      document.getElementById('blockDate').value = date;
-      const blocks = [...(state.timeBlocks[date] || [])].sort((a,b)=>a.start.localeCompare(b.start));
-      document.getElementById('blockSummary').textContent = blocks.length
-        ? (uiLocale === 'en'
-          ? `${blocks.length} blocks · ${formatMinutes(blocks.reduce((a,b)=>a+b.minutes,0))}`
-          : `共 ${blocks.length} 个时间块 · ${formatMinutes(blocks.reduce((a,b)=>a+b.minutes,0))}`)
-        : (uiLocale === 'en' ? 'No schedule yet' : '暂无安排');
-      document.getElementById('blockTimeline').innerHTML = blocks.length ? blocks.map(b => {
-        const meta = CATEGORY_META[b.category] || CATEGORY_META.study;
-        const categoryLabel = uiLocale === 'en' ? localeOptionLabel(`${meta.icon} ${meta.label}`).replace(`${meta.icon} `, '') : meta.label;
-        return `<div class="relative"><div class="absolute -left-[33px] top-2 w-4 h-4 rounded-full" style="background:${meta.color}"></div><div class="bg-white rounded-2xl border border-gray-100 p-4"><div class="flex items-start justify-between gap-3"><div><div class="font-black">${meta.icon} ${escapeHtml(b.title)}</div><div class="text-sm text-calm-mute mt-1">${b.start} - ${b.end} · ${categoryLabel} · ${formatMinutes(b.minutes)}</div>${b.notes ? `<div class="text-sm mt-2 text-calm-ink">${escapeHtml(b.notes)}</div>` : ''}</div><button onclick="editTimeBlock('${b.id}','${b.date}')" class="text-dopamine-sky text-sm font-bold">${localeText('修改', 'Edit')}</button></div></div></div>`;
-      }).join('') : `<div class="text-calm-mute text-sm">${localeText('这一天还没有时间块，先添加一个吧。', 'No time blocks for this date yet, add the first one.')}</div>`;
+    // ========= Apple 风日历视图 =========
+    const CAL_HOUR_START = 6;   // 6am 起
+    const CAL_HOUR_END = 23;    // 11pm 止
+    const CAL_HOUR_PX = 56;
+    const calState = { view: 'day', cursor: null };
+
+    function parseDateStr(s) {
+      // 'YYYY-MM-DD' 当作本地日期，避免时区偏移
+      const [y, m, d] = s.split('-').map(Number);
+      return new Date(y, m - 1, d);
     }
+    function fmtDateStr(d) {
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    }
+    function startOfWeek(d) {
+      // 周一起
+      const dt = new Date(d);
+      const day = dt.getDay();
+      const diff = day === 0 ? -6 : 1 - day;
+      dt.setDate(dt.getDate() + diff);
+      return dt;
+    }
+    function shiftCalCursor(dir) {
+      const d = parseDateStr(calState.cursor || todayStr());
+      if (calState.view === 'day') d.setDate(d.getDate() + dir);
+      else if (calState.view === 'week') d.setDate(d.getDate() + 7 * dir);
+      else d.setMonth(d.getMonth() + dir);
+      calState.cursor = fmtDateStr(d);
+      renderCalendarSection();
+    }
+    function minutesToTop(hhmm) {
+      const [h, m] = hhmm.split(':').map(Number);
+      return ((h - CAL_HOUR_START) * 60 + m) / 60 * CAL_HOUR_PX;
+    }
+    function hexToRgba(hex, a) {
+      const h = hex.replace('#','');
+      const r = parseInt(h.slice(0,2),16), g = parseInt(h.slice(2,4),16), b = parseInt(h.slice(4,6),16);
+      return `rgba(${r},${g},${b},${a})`;
+    }
+    function weekdayShort(i, lang) {
+      const zh = ['周一','周二','周三','周四','周五','周六','周日'];
+      const en = ['MON','TUE','WED','THU','FRI','SAT','SUN'];
+      return (lang === 'en' ? en : zh)[i];
+    }
+    function monthLabel(d, lang) {
+      if (lang === 'en') return d.toLocaleDateString('en-US', { year:'numeric', month:'long' });
+      return `${d.getFullYear()}年${d.getMonth()+1}月`;
+    }
+
+    function renderCalendarSection() {
+      if (!calState.cursor) calState.cursor = document.getElementById('blockDate').value || todayStr();
+      // 保持左侧输入日期与 day 视图同步
+      if (calState.view === 'day') {
+        document.getElementById('blockDate').value = calState.cursor;
+      }
+      // 视图按钮状态
+      document.querySelectorAll('#calViewSwitch .cal-view-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.view === calState.view);
+      });
+      // 标签
+      const L = { day:['日','Day'], week:['周','Week'], month:['月','Month'] };
+      document.getElementById('calViewDayLabel').textContent = L.day[uiLocale==='en'?1:0];
+      document.getElementById('calViewWeekLabel').textContent = L.week[uiLocale==='en'?1:0];
+      document.getElementById('calViewMonthLabel').textContent = L.month[uiLocale==='en'?1:0];
+      document.getElementById('calTodayLabel').textContent = uiLocale==='en' ? 'Today' : '今天';
+
+      const cursor = parseDateStr(calState.cursor);
+      const rangeLabel = document.getElementById('calRangeLabel');
+      const host = document.getElementById('calView');
+      const summary = document.getElementById('blockSummary');
+
+      if (calState.view === 'day') {
+        rangeLabel.textContent = uiLocale==='en'
+          ? cursor.toLocaleDateString('en-US', { month:'short', day:'numeric', weekday:'short' })
+          : `${cursor.getMonth()+1}月${cursor.getDate()}日 ${weekdayShort((cursor.getDay()+6)%7,'zh')}`;
+        const blocks = [...(state.timeBlocks[calState.cursor] || [])].sort((a,b)=>a.start.localeCompare(b.start));
+        summary.textContent = blocks.length
+          ? (uiLocale === 'en'
+            ? `${blocks.length} blocks · ${formatMinutes(blocks.reduce((a,b)=>a+b.minutes,0))}`
+            : `${blocks.length} 个 · ${formatMinutes(blocks.reduce((a,b)=>a+b.minutes,0))}`)
+          : (uiLocale === 'en' ? 'Empty' : '空');
+        host.innerHTML = renderDayOrWeek([{ date: calState.cursor, blocks, dateObj: cursor }], 'day');
+        autoScrollToNow(host);
+      } else if (calState.view === 'week') {
+        const weekStart = startOfWeek(cursor);
+        const days = [];
+        for (let i = 0; i < 7; i++) {
+          const d = new Date(weekStart); d.setDate(weekStart.getDate()+i);
+          const ds = fmtDateStr(d);
+          days.push({ date: ds, blocks: [...(state.timeBlocks[ds] || [])].sort((a,b)=>a.start.localeCompare(b.start)), dateObj: d });
+        }
+        const total = days.reduce((a,d)=>a+d.blocks.length,0);
+        const totalMin = days.reduce((a,d)=>a+d.blocks.reduce((x,b)=>x+b.minutes,0),0);
+        rangeLabel.textContent = uiLocale==='en'
+          ? `${weekStart.toLocaleDateString('en-US',{month:'short',day:'numeric'})} – ${days[6].dateObj.toLocaleDateString('en-US',{month:'short',day:'numeric'})}`
+          : `${weekStart.getMonth()+1}月${weekStart.getDate()}日 – ${days[6].dateObj.getMonth()+1}月${days[6].dateObj.getDate()}日`;
+        summary.textContent = total
+          ? (uiLocale==='en' ? `${total} blocks · ${formatMinutes(totalMin)}` : `${total} 个 · ${formatMinutes(totalMin)}`)
+          : (uiLocale==='en' ? 'Empty week' : '本周空');
+        host.innerHTML = renderDayOrWeek(days, 'week');
+        autoScrollToNow(host);
+      } else {
+        // month
+        rangeLabel.textContent = monthLabel(cursor, uiLocale);
+        summary.textContent = '';
+        host.innerHTML = renderMonthView(cursor);
+        // 月视图点格子 → 切到 day
+        host.querySelectorAll('.cal-month-cell[data-date]').forEach(cell => {
+          cell.addEventListener('click', () => {
+            calState.cursor = cell.dataset.date;
+            calState.view = 'day';
+            renderCalendarSection();
+          });
+        });
+      }
+
+      // 块点击编辑（日/周视图）
+      host.querySelectorAll('.cal-block[data-bid]').forEach(el => {
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          editTimeBlock(el.dataset.bid, el.dataset.bdate);
+        });
+      });
+    }
+
+    function autoScrollToNow(host) {
+      const scroll = host.querySelector('.cal-scroll');
+      if (!scroll) return;
+      const now = new Date();
+      const nowMin = now.getHours()*60 + now.getMinutes();
+      const topPx = Math.max(0, (nowMin - CAL_HOUR_START*60) / 60 * CAL_HOUR_PX - 120);
+      scroll.scrollTop = topPx;
+    }
+
+    function renderDayOrWeek(days, mode) {
+      const hourCount = CAL_HOUR_END - CAL_HOUR_START + 1;
+      const todayS = todayStr();
+      const now = new Date();
+      const nowMin = now.getHours()*60 + now.getMinutes();
+      const nowTopPx = (nowMin - CAL_HOUR_START*60) / 60 * CAL_HOUR_PX;
+      const colTemplate = mode === 'day' ? '56px 1fr' : `56px repeat(${days.length}, 1fr)`;
+
+      // 左侧小时刻度
+      let axisHtml = '<div class="cal-axis">';
+      axisHtml += '<div class="cal-col-header" style="visibility:hidden;">h</div>';
+      for (let h = CAL_HOUR_START; h <= CAL_HOUR_END; h++) {
+        axisHtml += `<div class="hr-tick" style="height:${CAL_HOUR_PX}px;">${pad(h)}:00</div>`;
+      }
+      axisHtml += '</div>';
+
+      // 日列
+      let colsHtml = '';
+      days.forEach(day => {
+        const isToday = day.date === todayS;
+        const dObj = day.dateObj;
+        const headerText = uiLocale==='en'
+          ? `${weekdayShort((dObj.getDay()+6)%7,'en')}`
+          : `${weekdayShort((dObj.getDay()+6)%7,'zh')}`;
+        let col = `<div class="cal-col ${isToday?'is-today':''}" data-date="${day.date}">`;
+        col += mode === 'week'
+          ? `<div class="cal-col-header ${isToday?'is-today':''}"><div>${headerText}</div><div class="day-num">${dObj.getDate()}</div></div>`
+          : `<div class="cal-col-header" style="visibility:hidden;">h</div>`;
+        col += `<div style="position:relative;">`;
+        // 小时格线
+        for (let h = CAL_HOUR_START; h <= CAL_HOUR_END; h++) {
+          col += `<div class="cal-hour-line" style="height:${CAL_HOUR_PX}px;"></div>`;
+        }
+        // 半透明色块
+        day.blocks.forEach(b => {
+          const meta = CATEGORY_META[b.category] || CATEGORY_META.study;
+          const top = minutesToTop(b.start);
+          const height = Math.max(20, b.minutes / 60 * CAL_HOUR_PX - 2);
+          const bg = hexToRgba(meta.color, 0.18);
+          const border = hexToRgba(meta.color, 0.9);
+          col += `<div class="cal-block" data-bid="${b.id}" data-bdate="${b.date}" `
+              + `style="top:${top}px;height:${height}px;background:${bg};border-left:3px solid ${border};color:${meta.color};">`
+              + `<div class="b-title">${meta.icon} ${escapeHtml(b.title || '')}</div>`
+              + `<div class="b-time">${b.start} – ${b.end}</div>`
+              + `</div>`;
+        });
+        // 今天的 now 线
+        if (isToday && nowMin >= CAL_HOUR_START*60 && nowMin <= CAL_HOUR_END*60) {
+          col += `<div class="cal-now-line" style="top:${nowTopPx}px;"></div>`;
+        }
+        col += `</div></div>`;
+        colsHtml += col;
+      });
+
+      return `<div class="cal-scroll"><div class="cal-grid" style="grid-template-columns:${colTemplate};">${axisHtml}${colsHtml}</div></div>`;
+    }
+
+    function renderMonthView(cursor) {
+      const year = cursor.getFullYear(), month = cursor.getMonth();
+      const first = new Date(year, month, 1);
+      const gridStart = startOfWeek(first);
+      const todayS = todayStr();
+      const headDays = uiLocale==='en'
+        ? ['MON','TUE','WED','THU','FRI','SAT','SUN']
+        : ['一','二','三','四','五','六','日'];
+      let html = '<div class="cal-month">';
+      headDays.forEach(d => { html += `<div class="cal-month-head">${d}</div>`; });
+      for (let i = 0; i < 42; i++) {
+        const d = new Date(gridStart); d.setDate(gridStart.getDate() + i);
+        const ds = fmtDateStr(d);
+        const inMonth = d.getMonth() === month;
+        const isToday = ds === todayS;
+        const blocks = [...(state.timeBlocks[ds] || [])].sort((a,b)=>a.start.localeCompare(b.start));
+        const shown = blocks.slice(0, 3);
+        const more = blocks.length - shown.length;
+        let cell = `<div class="cal-month-cell ${inMonth?'':'other-month'} ${isToday?'is-today':''}" data-date="${ds}">`;
+        cell += `<div class="mc-date">${d.getDate()}</div>`;
+        if (shown.length) {
+          cell += '<div class="mc-blocks">';
+          shown.forEach(b => {
+            const meta = CATEGORY_META[b.category] || CATEGORY_META.study;
+            cell += `<div class="mc-block" style="background:${hexToRgba(meta.color,0.22)};border-left:2px solid ${meta.color};">${b.start} ${escapeHtml(b.title||'')}</div>`;
+          });
+          if (more > 0) cell += `<div class="mc-more">+${more}</div>`;
+          cell += '</div>';
+        }
+        cell += '</div>';
+        html += cell;
+      }
+      html += '</div>';
+      return html;
+    }
+    // ========= end 日历 =========
 
     function bindFocus() {
       document.getElementById('addTaskBtn').addEventListener('click', addTask);
