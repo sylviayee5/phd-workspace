@@ -161,6 +161,15 @@
     .section:not([data-watermark])::before { content: none; }
 
     /* 导航项：玻璃 hover + 当前项胶囊 */
+    .nav-group-label {
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(60, 65, 72, 0.45);
+      font-weight: 700;
+      padding: 14px 12px 4px;
+    }
+    .nav-group-label:first-child { padding-top: 6px; }
     .nav-btn {
       transition: transform .18s ease, background-color .18s ease, color .18s ease;
       border-radius: 18px;
@@ -350,24 +359,33 @@
             <div id="currentDateTime" class="text-xs text-calm-mute bg-white/40 rounded-xl px-3 py-2 border border-white/60 leading-relaxed"></div>
             <div class="mt-2 flex items-center justify-between">
               <span id="localeHint" class="text-[11px] uppercase tracking-wider text-calm-mute">Language</span>
-              <button id="localeToggleBtn" class="px-2.5 py-1 rounded-lg bg-white/60 backdrop-blur border border-white/80 text-xs font-bold text-[#0A2638] hover:bg-white/80">EN</button>
+              <div class="flex items-center gap-1.5">
+                <button id="localeToggleBtn" class="px-2.5 py-1 rounded-lg bg-white/60 backdrop-blur border border-white/80 text-xs font-bold text-[#0A2638] hover:bg-white/80">EN</button>
+                <button id="settingsIconBtn" data-target="settings-section" class="nav-btn w-8 h-7 rounded-lg bg-white/60 backdrop-blur border border-white/80 flex items-center justify-center text-[#0A2638] hover:bg-white/80" title="设置 / Settings"><i class="fa-solid fa-gear text-xs"></i></button>
+              </div>
             </div>
           </div>
 
-          <nav class="space-y-2">
+          <nav class="space-y-1.5">
             <button class="nav-btn active w-full text-left px-4 py-3 rounded-2xl font-bold flex items-center justify-between" data-target="dashboard-section"><span id="navDashboard">总览首页</span><i class="fa-solid fa-house"></i></button>
+
+            <div class="nav-group-label" id="navGroupLife">Life · 自律</div>
             <button class="nav-btn w-full text-left px-4 py-3 rounded-2xl font-bold hover:bg-gray-50 flex items-center justify-between" data-target="attendance-section"><span id="navAttendance">起居与考勤</span><i class="fa-regular fa-clock"></i></button>
             <button class="nav-btn w-full text-left px-4 py-3 rounded-2xl font-bold hover:bg-gray-50 flex items-center justify-between" data-target="calendar-section"><span id="navCalendar">时间块日历</span><i class="fa-regular fa-calendar"></i></button>
             <button class="nav-btn w-full text-left px-4 py-3 rounded-2xl font-bold hover:bg-gray-50 flex items-center justify-between" data-target="focus-section"><span id="navFocus">专注与任务</span><i class="fa-solid fa-bullseye"></i></button>
             <button class="nav-btn w-full text-left px-4 py-3 rounded-2xl font-bold hover:bg-gray-50 flex items-center justify-between" data-target="lifestyle-section"><span id="navLifestyle">习惯与饮食</span><i class="fa-solid fa-leaf"></i></button>
             <button class="nav-btn w-full text-left px-4 py-3 rounded-2xl font-bold hover:bg-gray-50 flex items-center justify-between" data-target="mind-section"><span id="navMind">情绪与观心</span><i class="fa-regular fa-heart"></i></button>
             <button class="nav-btn w-full text-left px-4 py-3 rounded-2xl font-bold hover:bg-gray-50 flex items-center justify-between" data-target="phone-section"><span id="navPhone">手机克制与成就</span><i class="fa-solid fa-shield-heart"></i></button>
+
+            <div class="nav-group-label" id="navGroupResearch">Research · 研究</div>
             <button class="nav-btn w-full text-left px-4 py-3 rounded-2xl font-bold hover:bg-gray-50 flex items-center justify-between" data-target="milestones-section"><span id="navMilestones">博士关键里程碑</span><i class="fa-solid fa-flag-checkered"></i></button>
-            <button class="nav-btn w-full text-left px-4 py-3 rounded-2xl font-bold hover:bg-gray-50 flex items-center justify-between" data-target="submission-section"><span id="navSubmission">投稿管理</span><i class="fa-regular fa-paper-plane"></i></button>
-            <button class="nav-btn w-full text-left px-4 py-3 rounded-2xl font-bold hover:bg-gray-50 flex items-center justify-between" data-target="meetings-section"><span id="navMeetings">导师会议</span><i class="fa-solid fa-users"></i></button>
             <button class="nav-btn w-full text-left px-4 py-3 rounded-2xl font-bold hover:bg-gray-50 flex items-center justify-between" data-target="writing-section"><span id="navWriting">写作进度</span><i class="fa-solid fa-pen-nib"></i></button>
             <button class="nav-btn w-full text-left px-4 py-3 rounded-2xl font-bold hover:bg-gray-50 flex items-center justify-between" data-target="fieldwork-section"><span id="navFieldwork">田野记录</span><i class="fa-solid fa-seedling"></i></button>
-            <button class="nav-btn w-full text-left px-4 py-3 rounded-2xl font-bold hover:bg-gray-50 flex items-center justify-between" data-target="settings-section"><span id="navSettings">设置 / 数据管理</span><i class="fa-solid fa-database"></i></button>
+            <button class="nav-btn w-full text-left px-4 py-3 rounded-2xl font-bold hover:bg-gray-50 flex items-center justify-between" data-target="meetings-section"><span id="navMeetings">导师会议</span><i class="fa-solid fa-users"></i></button>
+            <button class="nav-btn w-full text-left px-4 py-3 rounded-2xl font-bold hover:bg-gray-50 flex items-center justify-between" data-target="submission-section"><span id="navSubmission">投稿管理</span><i class="fa-regular fa-paper-plane"></i></button>
+            <button class="nav-btn w-full text-left px-4 py-3 rounded-2xl font-bold hover:bg-gray-50 flex items-center justify-between" data-target="resources-section"><span id="navResources">文献与资源</span><i class="fa-solid fa-bookmark"></i></button>
+
+            <div class="nav-group-label" id="navGroupInsights">Insights · 分析</div>
             <button class="nav-btn w-full text-left px-4 py-3 rounded-2xl font-bold hover:bg-gray-50 flex items-center justify-between" data-target="analytics-section"><span id="navAnalytics">数据看板</span><i class="fa-solid fa-chart-line"></i></button>
           </nav>
 
@@ -1335,6 +1353,50 @@
           </div>
         </section>
 
+        <section id="resources-section" data-watermark="Resources." class="section">
+          <div class="soft-card p-6 md:p-8 space-y-6">
+            <div class="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-4">
+              <div>
+                <h2 id="resourcesTitle" class="text-2xl font-black mb-1">文献与资源</h2>
+                <p id="resourcesSubtitle" class="text-sm text-calm-mute leading-6 max-w-2xl">常用期刊、会议、灵感与工具网站。按分类收藏，一键打开；数据保存于本地浏览器。</p>
+              </div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <div id="resourceTabs" class="inline-flex p-1 rounded-2xl bg-white/50 border border-white/70 backdrop-blur">
+                  <button class="res-tab px-3.5 py-1.5 rounded-xl text-sm font-bold text-[#1F2937] bg-white shadow-sm" data-cat="journals"><i class="fa-solid fa-book-open-reader mr-1.5 text-xs opacity-60"></i><span id="resTabJournals">期刊</span></button>
+                  <button class="res-tab px-3.5 py-1.5 rounded-xl text-sm font-bold text-calm-mute hover:text-[#1F2937]" data-cat="conferences"><i class="fa-solid fa-users mr-1.5 text-xs opacity-60"></i><span id="resTabConferences">会议</span></button>
+                  <button class="res-tab px-3.5 py-1.5 rounded-xl text-sm font-bold text-calm-mute hover:text-[#1F2937]" data-cat="inspiration"><i class="fa-solid fa-lightbulb mr-1.5 text-xs opacity-60"></i><span id="resTabInspiration">灵感</span></button>
+                  <button class="res-tab px-3.5 py-1.5 rounded-xl text-sm font-bold text-calm-mute hover:text-[#1F2937]" data-cat="tools"><i class="fa-solid fa-toolbox mr-1.5 text-xs opacity-60"></i><span id="resTabTools">工具</span></button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 添加表单 -->
+            <div class="rounded-2xl bg-white/50 border border-white/70 backdrop-blur p-4">
+              <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+                <div class="md:col-span-3">
+                  <label id="resLabelName" class="text-[11px] uppercase tracking-wider text-calm-mute font-bold mb-1 block">名称</label>
+                  <input id="resName" type="text" placeholder="例如：Journal of Architecture" class="w-full px-3 py-2.5 rounded-xl bg-white border border-gray-200 text-sm focus:outline-none focus:border-gray-400">
+                </div>
+                <div class="md:col-span-5">
+                  <label id="resLabelUrl" class="text-[11px] uppercase tracking-wider text-calm-mute font-bold mb-1 block">网址</label>
+                  <input id="resUrl" type="url" placeholder="https://..." class="w-full px-3 py-2.5 rounded-xl bg-white border border-gray-200 text-sm focus:outline-none focus:border-gray-400">
+                </div>
+                <div class="md:col-span-2">
+                  <label id="resLabelTag" class="text-[11px] uppercase tracking-wider text-calm-mute font-bold mb-1 block">标签</label>
+                  <input id="resTag" type="text" placeholder="可选" class="w-full px-3 py-2.5 rounded-xl bg-white border border-gray-200 text-sm focus:outline-none focus:border-gray-400">
+                </div>
+                <div class="md:col-span-2">
+                  <button id="resAddBtn" class="w-full px-4 py-2.5 rounded-xl bg-[#1F2937] text-white text-sm font-bold hover:bg-[#0F1722] transition"><i class="fa-solid fa-plus mr-1.5"></i><span id="resLabelAdd">添加到当前分类</span></button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 资源列表（按分类渲染） -->
+            <div id="resourcesList" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></div>
+            <div id="resourcesEmpty" class="hidden text-center py-12 text-calm-mute text-sm">还没有收藏。使用上方表单添加第一个。</div>
+          </div>
+        </section>
+
         <section id="settings-section" data-watermark="Settings." class="section">
           <div class="soft-card p-6 md:p-8 space-y-6">
             <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
@@ -2184,6 +2246,20 @@
         meetingSupervisorsLabel: '参会导师',
         navSettings: '设置 / 数据管理',
         navAnalytics: '数据看板',
+        navResources: '文献与资源',
+        navGroupLife: 'Life · 自律',
+        navGroupResearch: 'Research · 研究',
+        navGroupInsights: 'Insights · 分析',
+        resourcesTitle: '文献与资源',
+        resourcesSubtitle: '常用期刊、会议、灵感与工具网站。按分类收藏，一键打开；数据保存于本地浏览器。',
+        resTabJournals: '期刊',
+        resTabConferences: '会议',
+        resTabInspiration: '灵感',
+        resTabTools: '工具',
+        resLabelName: '名称',
+        resLabelUrl: '网址',
+        resLabelTag: '标签',
+        resLabelAdd: '添加到当前分类',
         sidebarSnapshotTitle: '今日快照',
         sbFocusLabel: '专注时长',
         sbTaskLabel: '进行中任务',
@@ -2295,6 +2371,20 @@
         meetingSupervisorsLabel: 'Supervisors Present',
         navSettings: 'Settings / Data',
         navAnalytics: 'Analytics',
+        navResources: 'Resources',
+        navGroupLife: 'Life',
+        navGroupResearch: 'Research',
+        navGroupInsights: 'Insights',
+        resourcesTitle: 'Resources',
+        resourcesSubtitle: 'Bookmarked journals, conferences, inspiration and tools. Grouped by category, click to open; data stays in your browser.',
+        resTabJournals: 'Journals',
+        resTabConferences: 'Conferences',
+        resTabInspiration: 'Inspiration',
+        resTabTools: 'Tools',
+        resLabelName: 'Name',
+        resLabelUrl: 'URL',
+        resLabelTag: 'Tag',
+        resLabelAdd: 'Add to current category',
         sidebarSnapshotTitle: 'Today Snapshot',
         sbFocusLabel: 'Focus Time',
         sbTaskLabel: 'Current Task',
@@ -2414,6 +2504,20 @@
         ['meetingSupervisorsLabel', 'meetingSupervisorsLabel'],
         ['navSettings', 'navSettings'],
         ['navAnalytics', 'navAnalytics'],
+        ['navResources', 'navResources'],
+        ['navGroupLife', 'navGroupLife'],
+        ['navGroupResearch', 'navGroupResearch'],
+        ['navGroupInsights', 'navGroupInsights'],
+        ['resourcesTitle', 'resourcesTitle'],
+        ['resourcesSubtitle', 'resourcesSubtitle'],
+        ['resTabJournals', 'resTabJournals'],
+        ['resTabConferences', 'resTabConferences'],
+        ['resTabInspiration', 'resTabInspiration'],
+        ['resTabTools', 'resTabTools'],
+        ['resLabelName', 'resLabelName'],
+        ['resLabelUrl', 'resLabelUrl'],
+        ['resLabelTag', 'resLabelTag'],
+        ['resLabelAdd', 'resLabelAdd'],
         ['sidebarSnapshotTitle', 'sidebarSnapshotTitle'],
         ['sbFocusLabel', 'sbFocusLabel'],
         ['sbTaskLabel', 'sbTaskLabel'],
@@ -6887,6 +6991,144 @@
     window.editWritingDoc = editWritingDoc;
     window.deleteSocialContact = deleteSocialContact;
 
+    // =====================
+    // 文献与资源（Resources）
+    // =====================
+    const RESOURCES_KEY = 'phd_resources_v3';
+    const RES_CATS = ['journals', 'conferences', 'inspiration', 'tools'];
+    const RES_PRESETS = {
+      journals: [
+        { name: 'The Journal of Architecture', url: 'https://www.thejournalofarchitecture.com/', tag: 'RIBA' },
+        { name: 'Urban Studies', url: 'https://journals.sagepub.com/home/usj', tag: 'Sage' },
+        { name: 'Landscape and Urban Planning', url: 'https://www.sciencedirect.com/journal/landscape-and-urban-planning', tag: 'Elsevier' },
+        { name: 'Journal of Architectural Education (JAE)', url: 'https://www.jaeonline.org/', tag: 'ACSA' },
+        { name: 'Places Journal', url: 'https://placesjournal.org/', tag: '公共学术' }
+      ],
+      conferences: [
+        { name: 'AESOP Annual Congress', url: 'https://aesop-planning.eu/', tag: '规划' },
+        { name: 'ARCC Conference', url: 'https://www.arcc-arch.org/', tag: '建筑研究' },
+        { name: 'Architecture Connects (AAE)', url: 'https://architectureconnects.online/', tag: '教育' }
+      ],
+      inspiration: [
+        { name: 'Places Journal', url: 'https://placesjournal.org/', tag: '深度' },
+        { name: 'Failed Architecture', url: 'https://failedarchitecture.com/', tag: '批评' },
+        { name: 'Domus', url: 'https://www.domusweb.it/', tag: '当代' }
+      ],
+      tools: [
+        { name: 'Zotero', url: 'https://www.zotero.org/', tag: '文献管理' },
+        { name: 'Google Scholar', url: 'https://scholar.google.com/', tag: '搜索' },
+        { name: 'Semantic Scholar', url: 'https://www.semanticscholar.org/', tag: 'AI 搜索' },
+        { name: 'DeepL', url: 'https://www.deepl.com/translator', tag: '翻译' }
+      ]
+    };
+    let currentResCat = 'journals';
+
+    function loadResources() {
+      try {
+        const raw = localStorage.getItem(RESOURCES_KEY);
+        if (!raw) {
+          // 首次加载：种子预设
+          localStorage.setItem(RESOURCES_KEY, JSON.stringify(RES_PRESETS));
+          return JSON.parse(JSON.stringify(RES_PRESETS));
+        }
+        const obj = JSON.parse(raw);
+        RES_CATS.forEach(c => { if (!Array.isArray(obj[c])) obj[c] = []; });
+        return obj;
+      } catch (e) {
+        return JSON.parse(JSON.stringify(RES_PRESETS));
+      }
+    }
+    function saveResources(data) {
+      localStorage.setItem(RESOURCES_KEY, JSON.stringify(data));
+    }
+    function escapeHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m]));
+    }
+    function renderResources() {
+      const list = document.getElementById('resourcesList');
+      const empty = document.getElementById('resourcesEmpty');
+      if (!list) return;
+      const data = loadResources();
+      const items = data[currentResCat] || [];
+      // Tabs 激活态
+      document.querySelectorAll('.res-tab').forEach(btn => {
+        const active = btn.dataset.cat === currentResCat;
+        btn.classList.toggle('bg-white', active);
+        btn.classList.toggle('shadow-sm', active);
+        btn.classList.toggle('text-calm-ink', active);
+        btn.classList.toggle('text-calm-mute', !active);
+      });
+      if (!items.length) {
+        list.innerHTML = '';
+        if (empty) empty.classList.remove('hidden');
+        return;
+      }
+      if (empty) empty.classList.add('hidden');
+      list.innerHTML = items.map((it, idx) => `
+        <div class="soft-card rounded-2xl p-4 flex flex-col gap-2">
+          <div class="flex items-start justify-between gap-2">
+            <a href="${escapeHtml(it.url)}" target="_blank" rel="noopener noreferrer" class="font-bold text-calm-ink hover:underline break-words">${escapeHtml(it.name)}</a>
+            <button data-del-idx="${idx}" class="text-xs text-calm-mute hover:text-rose-500 shrink-0" title="删除"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <div class="text-xs text-calm-mute break-all">${escapeHtml(it.url)}</div>
+          ${it.tag ? `<div><span class="inline-block text-[10px] tracking-wider uppercase bg-gray-100 text-calm-mute px-2 py-0.5 rounded-full">${escapeHtml(it.tag)}</span></div>` : ''}
+        </div>
+      `).join('');
+    }
+    function addResource() {
+      const nameEl = document.getElementById('resName');
+      const urlEl = document.getElementById('resUrl');
+      const tagEl = document.getElementById('resTag');
+      if (!nameEl || !urlEl) return;
+      const name = nameEl.value.trim();
+      let url = urlEl.value.trim();
+      const tag = tagEl ? tagEl.value.trim() : '';
+      if (!name || !url) return;
+      if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+      const data = loadResources();
+      if (!Array.isArray(data[currentResCat])) data[currentResCat] = [];
+      data[currentResCat].push({ name, url, tag });
+      saveResources(data);
+      nameEl.value = ''; urlEl.value = ''; if (tagEl) tagEl.value = '';
+      renderResources();
+    }
+    function deleteResource(idx) {
+      const data = loadResources();
+      const arr = data[currentResCat] || [];
+      arr.splice(idx, 1);
+      data[currentResCat] = arr;
+      saveResources(data);
+      renderResources();
+    }
+    function bindResources() {
+      document.querySelectorAll('.res-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const c = btn.dataset.cat;
+          if (!c || !RES_CATS.includes(c)) return;
+          currentResCat = c;
+          renderResources();
+        });
+      });
+      const addBtn = document.getElementById('resAddBtn');
+      if (addBtn) addBtn.addEventListener('click', addResource);
+      const list = document.getElementById('resourcesList');
+      if (list) {
+        list.addEventListener('click', (e) => {
+          const t = e.target.closest('[data-del-idx]');
+          if (!t) return;
+          const idx = parseInt(t.dataset.delIdx, 10);
+          if (!isNaN(idx)) deleteResource(idx);
+        });
+      }
+      // 回车快速添加
+      ['resName', 'resUrl', 'resTag'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addResource(); } });
+      });
+      renderResources();
+    }
+    window.deleteResource = deleteResource;
+
     function init() {
       initDefaults();
       initDatePickers();
@@ -6905,6 +7147,7 @@
       bindFieldwork();
       bindCountdowns();
       bindSocialManage();
+      bindResources();
       bindSync();
       autoSyncOnLoad(); // 自动同步开启时，页面加载后静默检查云端更新
       const qRefBtn = document.getElementById('quoteRefreshBtn');
