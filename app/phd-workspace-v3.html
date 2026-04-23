@@ -170,9 +170,9 @@
       transform: translateX(2px);
     }
     .nav-btn.active {
-      background: linear-gradient(90deg, #C49B8A, #A87360);
+      background: linear-gradient(90deg, #6E8AA8, #4A6685);
       color: #fff;
-      box-shadow: 0 10px 22px -12px rgba(168,115,96,.55);
+      box-shadow: 0 10px 22px -12px rgba(74,102,133,.55);
     }
     /* section 切换淡入 */
     .section { display: none; }
@@ -371,39 +371,14 @@
             <button class="nav-btn w-full text-left px-4 py-3 rounded-2xl font-bold hover:bg-gray-50 flex items-center justify-between" data-target="analytics-section"><span id="navAnalytics">数据看板</span><i class="fa-solid fa-chart-line"></i></button>
           </nav>
 
-          <div class="mt-6 border-t border-white/40 pt-5">
-            <h3 id="sidebarSnapshotTitle" class="text-[10px] tracking-[0.24em] uppercase text-calm-mute font-bold mb-4">Today · 今日快照</h3>
-            <div class="space-y-3">
-              <div>
-                <div class="flex items-baseline justify-between">
-                  <span id="sbFocusLabel" class="text-[11px] uppercase tracking-wider text-calm-mute">Focus</span>
-                  <span id="sbFocus" class="serif-title text-2xl text-[#0A2638] leading-none">0′</span>
-                </div>
-              </div>
-              <div>
-                <div class="flex items-baseline justify-between">
-                  <span id="sbTaskLabel" class="text-[11px] uppercase tracking-wider text-calm-mute">In Progress</span>
-                  <span id="sbTask" class="text-xs font-medium truncate max-w-[110px] text-[#0A2638]">—</span>
-                </div>
-              </div>
-              <div>
-                <div class="flex items-baseline justify-between">
-                  <span id="sbPhoneLabel" class="text-[11px] uppercase tracking-wider text-calm-mute">Restraint</span>
-                  <span id="sbPhone" class="serif-title text-2xl text-[#0A2638] leading-none">0</span>
-                </div>
-              </div>
-              <div>
-                <div class="flex items-baseline justify-between">
-                  <span id="sbHabitLabel" class="text-[11px] uppercase tracking-wider text-calm-mute">Habits</span>
-                  <span id="sbHabit" class="serif-title text-2xl text-[#0A2638] leading-none">0%</span>
-                </div>
-              </div>
-              <div>
-                <div class="flex items-baseline justify-between">
-                  <span id="sbSubmissionsLabel" class="text-[11px] uppercase tracking-wider text-calm-mute">Submissions</span>
-                  <span id="sbSubmissions" class="serif-title text-2xl text-[#0A2638] leading-none">0</span>
-                </div>
-              </div>
+          <div class="mt-6 border-t border-gray-100 pt-5">
+            <h3 id="sidebarSnapshotTitle" class="text-xs tracking-[0.2em] uppercase text-calm-mute font-black mb-3">今日快照</h3>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between"><span id="sbFocusLabel" class="text-calm-mute">专注时长</span><span id="sbFocus" class="font-bold text-dopamine-orange">0 分钟</span></div>
+              <div class="flex justify-between"><span id="sbTaskLabel" class="text-calm-mute">进行中任务</span><span id="sbTask" class="font-bold truncate max-w-[120px]">无</span></div>
+              <div class="flex justify-between"><span id="sbPhoneLabel" class="text-calm-mute">手机克制</span><span id="sbPhone" class="font-bold text-dopamine-purple">0 次</span></div>
+              <div class="flex justify-between"><span id="sbHabitLabel" class="text-calm-mute">习惯完成度</span><span id="sbHabit" class="font-bold text-dopamine-mint">0%</span></div>
+              <div class="flex justify-between"><span id="sbSubmissionsLabel" class="text-calm-mute">投稿进行中</span><span id="sbSubmissions" class="font-bold text-dopamine-sky">0</span></div>
             </div>
           </div>
         </div>
@@ -419,22 +394,22 @@
                 <h2 class="text-5xl md:text-6xl tracking-tight mb-2 text-[#0A2638]" style="font-family: 'Instrument Serif', Georgia, serif; font-weight: 400;">Shu<sup class="text-base align-super opacity-50">®</sup></h2>
                 <p id="dashboardSubtitle" class="text-calm-mute max-w-3xl leading-7">Shu's PhD Studio · 田野 · 写作 · 投稿</p>
               </div>
-              <div class="grid grid-cols-2 xl:grid-cols-4 gap-5 min-w-[420px]">
-                <div class="text-right xl:text-left">
-                  <div id="heroFocusLabel" class="text-[10px] tracking-[0.24em] uppercase text-calm-mute mb-1">Focus Today</div>
-                  <div id="heroFocus" class="serif-title text-4xl text-[#0A2638] leading-none">0′</div>
+              <div class="grid grid-cols-2 gap-3 min-w-[300px]">
+                <div class="bg-white rounded-2xl p-4 shadow-soft border border-orange-50">
+                  <div id="heroFocusLabel" class="text-sm text-calm-mute mb-1">今日专注</div>
+                  <div id="heroFocus" class="text-3xl font-black text-dopamine-orange">0 分钟</div>
                 </div>
-                <div class="text-right xl:text-left">
-                  <div id="heroAttendanceLabel" class="text-[10px] tracking-[0.24em] uppercase text-calm-mute mb-1">Attendance</div>
-                  <div id="heroAttendance" class="serif-title text-4xl text-[#0A2638] leading-none">0</div>
+                <div class="bg-white rounded-2xl p-4 shadow-soft border border-purple-50">
+                  <div id="heroAttendanceLabel" class="text-sm text-calm-mute mb-1">今日出勤段数</div>
+                  <div id="heroAttendance" class="text-3xl font-black text-dopamine-purple">0</div>
                 </div>
-                <div class="text-right xl:text-left">
-                  <div id="heroTasksLabel" class="text-[10px] tracking-[0.24em] uppercase text-calm-mute mb-1">Tasks Done</div>
-                  <div id="heroTasks" class="serif-title text-4xl text-[#0A2638] leading-none">0</div>
+                <div class="bg-white rounded-2xl p-4 shadow-soft border border-green-50">
+                  <div id="heroTasksLabel" class="text-sm text-calm-mute mb-1">已完成任务</div>
+                  <div id="heroTasks" class="text-3xl font-black text-dopamine-mint">0</div>
                 </div>
-                <div class="text-right xl:text-left">
-                  <div id="heroSubsLabel" class="text-[10px] tracking-[0.24em] uppercase text-calm-mute mb-1">Submissions</div>
-                  <div id="heroSubs" class="serif-title text-4xl text-[#0A2638] leading-none">0</div>
+                <div class="bg-white rounded-2xl p-4 shadow-soft border border-sky-50">
+                  <div id="heroSubsLabel" class="text-sm text-calm-mute mb-1">投稿项目</div>
+                  <div id="heroSubs" class="text-3xl font-black text-dopamine-sky">0</div>
                 </div>
               </div>
             </div>
