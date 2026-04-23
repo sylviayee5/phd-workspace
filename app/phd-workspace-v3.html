@@ -6697,6 +6697,10 @@
       el.style.color = kind === 'err' ? '#A8503A' : kind === 'ok' ? '#4A7A5E' : '';
     }
     async function obsWriteOrDownload(filename, content) {
+      return obsWriteOrDownloadWithAssets(filename, content, []);
+    }
+    // 扩展版：可选同时写入若干 PNG 到 assets/<assetDir>/<name>.png
+    async function obsWriteOrDownloadWithAssets(filename, content, assets = [], assetDir = '') {
       const handle = await obsLoadHandle();
       if (handle && window.showDirectoryPicker) {
         if (!(await obsEnsurePermission(handle))) {
@@ -6707,25 +6711,63 @@
             const writable = await fileHandle.createWritable();
             await writable.write(content);
             await writable.close();
-            setExportStatus('已写入：' + handle.name + '/' + filename, 'ok');
+            // 写入图表
+            let assetCount = 0;
+            if (assets.length && assetDir) {
+              const assetsRoot = await handle.getDirectoryHandle('assets', { create: true });
+              const subDir = await assetsRoot.getDirectoryHandle(assetDir, { create: true });
+              for (const a of assets) {
+                if (!a || !a.blob) continue;
+                const fh = await subDir.getFileHandle(a.name, { create: true });
+                const w = await fh.createWritable();
+                await w.write(a.blob);
+                await w.close();
+                assetCount++;
+              }
+            }
+            const extra = assetCount ? `（含 ${assetCount} 张图表）` : '';
+            setExportStatus('已写入：' + handle.name + '/' + filename + extra, 'ok');
             return;
           } catch (e) {
             setExportStatus('写入失败，改为下载：' + (e.message || e), 'err');
           }
         }
       }
-      // fallback：下载
+      // fallback：下载（仅 md，图表在下载模式下不可用）
       const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url; a.download = filename; a.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-      if (!handle) setExportStatus('未绑定文件夹，已下载到默认下载目录。', 'ok');
+      if (!handle) {
+        setExportStatus('未绑定文件夹，已下载到默认下载目录。' + (assets.length ? '（图表需先绑定文件夹才能导出）' : ''), 'ok');
+      }
+    }
+    // Chart.js canvas → PNG Blob
+    async function canvasToPngBlob(canvasId) {
+      const cvs = document.getElementById(canvasId);
+      if (!cvs || !cvs.toBlob) return null;
+      return new Promise(resolve => {
+        try {
+          cvs.toBlob(b => resolve(b), 'image/png');
+        } catch { resolve(null); }
+      });
+    }
+    // 保证 analytics 区的图表已渲染（Chart 实例存在）
+    async function ensureAnalyticsRendered() {
+      try {
+        if (typeof renderAnalytics === 'function') {
+          renderAnalytics();
+          // 给 Chart.js 一个 tick 去完成绘制
+          await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+        }
+      } catch {}
     }
 
     // —— 数据聚合：日报 ——
     function buildDailyMarkdown(date) {
       date = date || todayStr();
+      const MOOD_MAP = { sad: '😔 难过', tired: '😩 疲惫', neutral: '😐 平静', happy: '🙂 开心', great: '😄 很棒' };
       const lines = [];
       lines.push(`---`);
       lines.push(`date: ${date}`);
@@ -6736,51 +6778,112 @@
       lines.push(``);
       lines.push(`# ${date} 日报`);
       lines.push(``);
-      // 节假日
       const hol = typeof getHolidayInfo === 'function' ? getHolidayInfo(date) : null;
       if (hol) lines.push(`> ${hol.flag} ${hol.label}`, ``);
-      // 关键指标
+
+      // —— 关键指标 ——
       const focus = dayFocusMinutes(date);
-      const attSeg = countTodayAttendanceSegments(date);
-      const attMin = todayAttendanceMinutes(date);
-      const habitPct = dayHabitCompletion(date);
-      const phoneOk = (state.phoneLogs || []).filter(p => p.date === date && p.action === '克制成功').length;
-      const phoneLost = (state.phoneLogs || []).filter(p => p.date === date && p.action === '失守').length;
-      lines.push(`## 关键指标`);
-      lines.push(``);
+      const attSeg = (typeof countTodayAttendanceSegments === 'function') ? countTodayAttendanceSegments(date) : 0;
+      const attMin = (typeof todayAttendanceMinutes === 'function') ? todayAttendanceMinutes(date) : 0;
+      const habitPct = (typeof dayHabitCompletion === 'function') ? dayHabitCompletion(date) : 0;
+      const phoneLogs = (state.phone && state.phone.logs) || [];
+      const phoneOk = phoneLogs.filter(p => p.date === date && p.resisted).length;
+      const phoneLost = phoneLogs.filter(p => p.date === date && !p.resisted).length;
+      lines.push(`## 关键指标`, ``);
       lines.push(`- 专注时长：**${focus}** 分钟`);
       lines.push(`- 出勤：${attSeg} 段 / ${attMin} 分钟`);
       lines.push(`- 习惯完成度：${habitPct}%`);
       lines.push(`- 手机克制：成功 ${phoneOk} 次，失守 ${phoneLost} 次`);
       lines.push(``);
-      // 时间块
-      const blocks = [...(state.timeBlocks?.[date] || [])].sort((a,b)=>a.start.localeCompare(b.start));
-      lines.push(`## 时间块`);
-      lines.push(``);
+
+      // —— 时间块 ——
+      const blocks = [...(state.timeBlocks?.[date] || [])].sort((a,b)=>(a.start||'').localeCompare(b.start||''));
+      lines.push(`## 时间块`, ``);
       if (!blocks.length) {
         lines.push(`_当日无时间块记录。_`);
       } else {
         blocks.forEach(b => {
           const meta = CATEGORY_META[b.category] || { label: b.category, icon: '·' };
-          lines.push(`- \`${b.start} – ${b.end}\` ${meta.icon} **${b.title || '(未命名)'}** · ${meta.label} · ${b.minutes}min${b.notes ? `\n  > ${b.notes.replace(/\n/g, '\n  > ')}` : ''}`);
+          const mins = Number.isFinite(b.minutes) ? `${b.minutes}min` : '';
+          let row = `- \`${b.start} – ${b.end}\` ${meta.icon} **${b.title || '(未命名)'}** · ${meta.label}${mins ? ' · ' + mins : ''}`;
+          if (b.notes) row += `\n  > ${String(b.notes).replace(/\n/g, '\n  > ')}`;
+          lines.push(row);
         });
       }
       lines.push(``);
-      // 完成任务
+
+      // —— D4 出勤分段详情 ——
+      const att = (state.attendance || {})[date];
+      if (att && att.periods) {
+        const periodOrder = ['morning','afternoon','evening'];
+        const periodLabels = { morning: '上午', afternoon: '下午', evening: '晚间' };
+        const hasAny = periodOrder.some(k => (att.periods[k]?.segments || []).length);
+        if (hasAny) {
+          lines.push(`## 出勤分段`, ``);
+          periodOrder.forEach(k => {
+            const segs = att.periods[k]?.segments || [];
+            if (!segs.length) return;
+            lines.push(`### ${periodLabels[k]}`);
+            segs.forEach((s, i) => {
+              lines.push(`- 段 ${i+1}：\`${s.start || '--:--'} – ${s.end || '--:--'}\` · ${s.minutes || 0} 分钟`);
+            });
+          });
+          lines.push(``);
+        }
+      }
+
+      // —— D1 田野记录 ——
+      const fws = (state.fieldwork || []).filter(f => f.date === date);
+      if (fws.length) {
+        lines.push(`## 田野记录`, ``);
+        fws.forEach(f => {
+          lines.push(`### ${f.location || '未命名地点'}${f.weather ? ' · ' + f.weather : ''}`);
+          if (f.observations) lines.push(f.observations);
+          if (f.photoNotes) lines.push(``, `**照片笔记：** ${f.photoNotes}`);
+          if (f.theoryLinks) lines.push(``, `**理论联想：** ${f.theoryLinks}`);
+          lines.push(``);
+        });
+      }
+
+      // —— D2 饮食记录 ——
+      const mealOrder = ['早餐','午餐','晚餐','加餐','饮水'];
+      const todayFoods = (state.foods || []).filter(f => f.date === date);
+      if (todayFoods.length) {
+        lines.push(`## 饮食记录`, ``);
+        mealOrder.forEach(m => {
+          const items = todayFoods.filter(f => f.meal === m);
+          if (!items.length) return;
+          lines.push(`- **${m}**：${items.map(i => `${i.text}${i.time ? `（${i.time}）` : ''}`).join('；')}`);
+        });
+        lines.push(``);
+      }
+
+      // —— D3 习惯勾选清单 ——
+      const habitList = (state.habits && state.habits.list) || [];
+      const habitLogs = (state.habits && state.habits.logs && state.habits.logs[date]) || {};
+      if (habitList.length) {
+        lines.push(`## 习惯打卡`, ``);
+        habitList.forEach(h => {
+          const done = !!habitLogs[h.id];
+          lines.push(`- [${done ? 'x' : ' '}] ${h.icon || ''} ${h.name}`.replace(/  +/g, ' '));
+        });
+        lines.push(``);
+      }
+
+      // —— 完成任务 ——
       const doneToday = (state.tasks || []).filter(t => t.status === 'done' && (t.completedAt || '').startsWith(date));
       if (doneToday.length) {
-        lines.push(`## 今日完成任务`);
-        lines.push(``);
+        lines.push(`## 今日完成任务`, ``);
         doneToday.forEach(t => lines.push(`- [x] ${t.title}`));
         lines.push(``);
       }
-      // 情绪与能量
+
+      // —— 情绪与能量 ——
       const mood = (state.mood || {})[date];
       const energy = (state.energy || {})[date];
       if (mood || energy) {
-        lines.push(`## 情绪与能量`);
-        lines.push(``);
-        if (mood) lines.push(`- 心情：${mood.mood || '—'}${mood.note ? `（${mood.note}）` : ''}`);
+        lines.push(`## 情绪与能量`, ``);
+        if (mood) lines.push(`- 心情：${MOOD_MAP[mood.mood] || mood.mood || '—'}${mood.note ? `（${mood.note}）` : ''}`);
         if (energy) {
           const arr = [];
           if (energy.morning) arr.push(`早 ${energy.morning}`);
@@ -6790,14 +6893,28 @@
         }
         lines.push(``);
       }
-      // 观心
+
+      // —— 观心（四字段） ——
       const reflection = (state.reflections || {})[date];
-      if (reflection && reflection.text) {
-        lines.push(`## 观心`);
-        lines.push(``);
-        lines.push(reflection.text);
-        lines.push(``);
+      if (reflection && (reflection.proud || reflection.change || reflection.insight || reflection.gratitude)) {
+        lines.push(`## 观心`, ``);
+        if (reflection.proud) lines.push(`**今天让我骄傲的：** ${reflection.proud}`, ``);
+        if (reflection.change) lines.push(`**想要改变的：** ${reflection.change}`, ``);
+        if (reflection.insight) lines.push(`**新的觉察：** ${reflection.insight}`, ``);
+        if (reflection.gratitude) lines.push(`**感恩：** ${reflection.gratitude}`, ``);
       }
+
+      // —— D6 今日已解锁成就（总览） ——
+      try {
+        const achs = (typeof computeAchievements === 'function') ? computeAchievements() : [];
+        const unlocked = achs.filter(a => a.unlocked);
+        if (unlocked.length) {
+          lines.push(`## 已解锁成就（累计）`, ``);
+          unlocked.forEach(a => lines.push(`- 🏆 **${a.title}** — ${a.desc}`));
+          lines.push(``);
+        }
+      } catch {}
+
       lines.push(`---`);
       lines.push(`_自动生成于 phd-workspace，${dateTimeNow()}_`);
       return lines.join('\n');
@@ -6805,8 +6922,8 @@
 
     // —— 数据聚合：周报 ——
     function buildWeeklyMarkdown() {
+      const MOOD_MAP = { sad: '😔 难过', tired: '😩 疲惫', neutral: '😐 平静', happy: '🙂 开心', great: '😄 很棒' };
       const today = new Date();
-      // 本周一
       const day = today.getDay() === 0 ? 6 : today.getDay() - 1;
       const monday = new Date(today); monday.setDate(today.getDate() - day);
       const mondayStr = monday.toISOString().slice(0, 10);
@@ -6817,6 +6934,9 @@
         const d = new Date(monday); d.setDate(monday.getDate() + i);
         dates.push(d.toISOString().slice(0, 10));
       }
+      const inWeek = ds => ds >= mondayStr && ds <= sundayStr;
+      const wk = ['一','二','三','四','五','六','日'];
+      const assetDir = mondayStr.replace(/-/g, '') + '_weekly';
       const lines = [];
       lines.push(`---`);
       lines.push(`weekStart: ${mondayStr}`);
@@ -6828,25 +6948,26 @@
       lines.push(``);
       lines.push(`# ${mondayStr} ~ ${sundayStr} 周报`);
       lines.push(``);
-      // 专注总计 + 类别分布
+
+      // —— 总览 ——
       const totalFocus = dates.reduce((s, d) => s + dayFocusMinutes(d), 0);
       const catMin = {};
       dates.forEach(d => (state.timeBlocks?.[d] || []).forEach(b => {
         catMin[b.category] = (catMin[b.category] || 0) + (b.minutes || 0);
       }));
       const totalBlockMin = Object.values(catMin).reduce((a, b) => a + b, 0);
-      const phoneOk = (state.phoneLogs || []).filter(p => dates.includes(p.date) && p.action === '克制成功').length;
-      const phoneLost = (state.phoneLogs || []).filter(p => dates.includes(p.date) && p.action === '失守').length;
-      lines.push(`## 总览`);
-      lines.push(``);
+      const phoneLogs = (state.phone && state.phone.logs) || [];
+      const phoneOk = phoneLogs.filter(p => inWeek(p.date) && p.resisted).length;
+      const phoneLost = phoneLogs.filter(p => inWeek(p.date) && !p.resisted).length;
+      lines.push(`## 总览`, ``);
       lines.push(`- 专注总时长：**${totalFocus}** 分钟（日均 ${Math.round(totalFocus / 7)} 分钟）`);
       lines.push(`- 时间块总时长：${totalBlockMin} 分钟`);
       lines.push(`- 手机克制：成功 ${phoneOk} 次，失守 ${phoneLost} 次`);
       lines.push(``);
-      // 分类分布
+
+      // —— 类别分布 ——
       if (totalBlockMin > 0) {
-        lines.push(`## 时间块类别分布`);
-        lines.push(``);
+        lines.push(`## 时间块类别分布`, ``);
         Object.entries(catMin).sort((a, b) => b[1] - a[1]).forEach(([k, v]) => {
           const meta = CATEGORY_META[k] || { label: k, icon: '·' };
           const pct = Math.round(v / totalBlockMin * 100);
@@ -6854,55 +6975,236 @@
         });
         lines.push(``);
       }
-      // 逐日专注
-      lines.push(`## 每日专注`);
-      lines.push(``);
+
+      // —— 每日专注表 ——
+      lines.push(`## 每日专注`, ``);
       lines.push(`| 日期 | 星期 | 专注分钟 | 时间块 |`);
       lines.push(`|---|---|---|---|`);
-      const wk = ['一','二','三','四','五','六','日'];
       dates.forEach((d, i) => {
         const fm = dayFocusMinutes(d);
         const bc = (state.timeBlocks?.[d] || []).length;
         lines.push(`| ${d} | 周${wk[i]} | ${fm} | ${bc} |`);
       });
       lines.push(``);
-      // 投稿状态
+
+      // —— 图表引用（assets/ 子目录） ——
+      lines.push(`## 图表`, ``);
+      lines.push(`![每日专注](./assets/${assetDir}/focus.png)`, ``);
+      lines.push(`![工位出勤](./assets/${assetDir}/attendance.png)`, ``);
+      lines.push(`![手机克制](./assets/${assetDir}/phone.png)`, ``);
+      lines.push(`![习惯完成度](./assets/${assetDir}/habit.png)`, ``);
+      lines.push(`![每日写作字数](./assets/${assetDir}/writing-daily.png)`, ``);
+      lines.push(`![每日心情趋势](./assets/${assetDir}/mood-trend.png)`, ``);
+      lines.push(`![每日能量趋势](./assets/${assetDir}/energy-trend.png)`, ``);
+      lines.push(`![投稿阶段分布](./assets/${assetDir}/submissions.png)`, ``);
+
+      // —— B1 导师会议 ——
+      const meetings = (state.meetings || []).filter(m => inWeek(m.date)).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+      if (meetings.length) {
+        lines.push(`## 导师会议`, ``);
+        meetings.forEach(m => {
+          const sup = Array.isArray(m.supervisors) && m.supervisors.length ? m.supervisors.join(' / ') : '—';
+          const dur = m.duration ? `${m.duration} 分钟` : '—';
+          lines.push(`### ${m.date} · ${m.title || '(未命名)'}`);
+          lines.push(`- 导师：${sup}`);
+          lines.push(`- 时间：${m.startTime || '--:--'} – ${m.endTime || '--:--'}（${dur}）`);
+          if (m.agenda) lines.push(`- 议程：${m.agenda}`);
+          if (m.notes) {
+            lines.push(``, `**会议记录：**`, ``, m.notes.replace(/\n/g, '\n'), ``);
+          }
+          const items = Array.isArray(m.actionItems) ? m.actionItems : [];
+          if (items.length) {
+            lines.push(`**Action Items：**`);
+            items.forEach(it => lines.push(`- [${it.done ? 'x' : ' '}] ${it.text || ''}`));
+          }
+          lines.push(``);
+        });
+      }
+
+      // —— B2 田野记录 ——
+      const fws = (state.fieldwork || []).filter(f => inWeek(f.date)).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+      if (fws.length) {
+        lines.push(`## 田野记录`, ``);
+        fws.forEach(f => {
+          lines.push(`### ${f.date} · ${f.location || '未命名地点'}${f.weather ? ' · ' + f.weather : ''}`);
+          if (f.observations) lines.push(f.observations);
+          if (f.photoNotes) lines.push(``, `**照片笔记：** ${f.photoNotes}`);
+          if (f.theoryLinks) lines.push(``, `**理论联想：** ${f.theoryLinks}`);
+          lines.push(``);
+        });
+      }
+
+      // —— B3 写作进度 ——
+      const writingLogs = ((state.writing && state.writing.dailyLogs) || []).filter(l => inWeek(l.date));
+      if (writingLogs.length) {
+        const docs = (state.writing && state.writing.documents) || [];
+        const byDoc = {};
+        writingLogs.forEach(l => { byDoc[l.docId] = (byDoc[l.docId] || 0) + (Number(l.wordsAdded) || 0); });
+        const totalWords = writingLogs.reduce((s, l) => s + (Number(l.wordsAdded) || 0), 0);
+        lines.push(`## 写作进度`, ``);
+        lines.push(`- 本周累计字数：**${totalWords}** 字`);
+        lines.push(``);
+        lines.push(`| 文档 | 本周新增 | 当前 / 目标 |`);
+        lines.push(`|---|---|---|`);
+        Object.entries(byDoc).forEach(([docId, words]) => {
+          const d = docs.find(x => x.id === docId);
+          const title = d ? d.title : '(已删除)';
+          const cur = d ? (d.currentWords || 0) : '—';
+          const tgt = d ? (d.targetWords || 0) : '—';
+          lines.push(`| ${title} | ${words} | ${cur} / ${tgt} |`);
+        });
+        lines.push(``);
+      }
+
+      // —— B5 习惯打卡表格 ——
+      const habitList = (state.habits && state.habits.list) || [];
+      const habitLogs = (state.habits && state.habits.logs) || {};
+      if (habitList.length) {
+        lines.push(`## 习惯打卡`, ``);
+        const header = `| 日期 | 周 | ${habitList.map(h => h.name).join(' | ')} |`;
+        const sep = `|---|---|${habitList.map(() => '---').join('|')}|`;
+        lines.push(header);
+        lines.push(sep);
+        dates.forEach((d, i) => {
+          const logs = habitLogs[d] || {};
+          const cells = habitList.map(h => logs[h.id] ? '✓' : ' ');
+          lines.push(`| ${d} | ${wk[i]} | ${cells.join(' | ')} |`);
+        });
+        lines.push(``);
+      }
+
+      // —— B6 出勤明细 ——
+      const attData = state.attendance || {};
+      const hasAtt = dates.some(d => {
+        const a = attData[d];
+        return a && a.periods && ['morning','afternoon','evening'].some(k => (a.periods[k]?.segments || []).length);
+      });
+      if (hasAtt) {
+        lines.push(`## 出勤明细`, ``);
+        lines.push(`| 日期 | 周 | 上午段/分 | 下午段/分 | 晚间段/分 | 合计分钟 |`);
+        lines.push(`|---|---|---|---|---|---|`);
+        dates.forEach((d, i) => {
+          const a = attData[d];
+          const stat = k => {
+            const segs = a?.periods?.[k]?.segments || [];
+            const mins = segs.reduce((s, x) => s + (Number(x.minutes) || 0), 0);
+            return { n: segs.length, m: mins };
+          };
+          const mo = stat('morning'), af = stat('afternoon'), ev = stat('evening');
+          const total = mo.m + af.m + ev.m;
+          lines.push(`| ${d} | ${wk[i]} | ${mo.n}/${mo.m} | ${af.n}/${af.m} | ${ev.n}/${ev.m} | ${total} |`);
+        });
+        lines.push(``);
+      }
+
+      // —— B7 饮食记录 ——
+      const weekFoods = (state.foods || []).filter(f => inWeek(f.date));
+      if (weekFoods.length) {
+        lines.push(`## 饮食记录`, ``);
+        lines.push(`| 日期 | 早 | 午 | 晚 | 加餐 | 饮水 |`);
+        lines.push(`|---|---|---|---|---|---|`);
+        dates.forEach(d => {
+          const fs = weekFoods.filter(f => f.date === d);
+          const ok = m => fs.some(f => f.meal === m) ? '✓' : ' ';
+          const waterCount = fs.filter(f => f.meal === '饮水').length;
+          lines.push(`| ${d} | ${ok('早餐')} | ${ok('午餐')} | ${ok('晚餐')} | ${ok('加餐')} | ${waterCount || ' '} |`);
+        });
+        lines.push(``);
+      }
+
+      // —— B8 能量曲线 ——
+      const energyData = state.energy || {};
+      const hasEnergy = dates.some(d => energyData[d] && (energyData[d].morning || energyData[d].afternoon || energyData[d].evening));
+      if (hasEnergy) {
+        lines.push(`## 能量曲线`, ``);
+        lines.push(`| 日期 | 周 | 早 | 午 | 晚 |`);
+        lines.push(`|---|---|---|---|---|`);
+        const collect = [];
+        dates.forEach((d, i) => {
+          const e = energyData[d] || {};
+          lines.push(`| ${d} | ${wk[i]} | ${e.morning ?? ' '} | ${e.afternoon ?? ' '} | ${e.evening ?? ' '} |`);
+          [e.morning, e.afternoon, e.evening].forEach(v => { if (typeof v === 'number') collect.push(v); });
+        });
+        if (collect.length) {
+          const avg = (collect.reduce((a, b) => a + b, 0) / collect.length).toFixed(2);
+          lines.push(``, `- 本周能量平均：**${avg}**（${collect.length} 条记录）`);
+        }
+        lines.push(``);
+      }
+
+      // —— B9 观心记录 ——
+      const refs = state.reflections || {};
+      const weekRefs = dates.map(d => ({ date: d, r: refs[d] })).filter(x => x.r && (x.r.proud || x.r.change || x.r.insight || x.r.gratitude));
+      if (weekRefs.length) {
+        lines.push(`## 观心记录`, ``);
+        weekRefs.forEach(({ date, r }) => {
+          lines.push(`### ${date}`);
+          if (r.proud) lines.push(`- **今天让我骄傲的：** ${r.proud}`);
+          if (r.change) lines.push(`- **想要改变的：** ${r.change}`);
+          if (r.insight) lines.push(`- **新的觉察：** ${r.insight}`);
+          if (r.gratitude) lines.push(`- **感恩：** ${r.gratitude}`);
+          lines.push(``);
+        });
+      }
+
+      // —— 心情平均 ——
+      const moodScoreMap = { sad: 1, tired: 2, neutral: 3, happy: 4, great: 5 };
+      const moodVals = dates.map(d => (state.mood || {})[d]).filter(m => m && moodScoreMap[m.mood]);
+      if (moodVals.length) {
+        const avg = (moodVals.reduce((s, m) => s + moodScoreMap[m.mood], 0) / moodVals.length).toFixed(2);
+        lines.push(`## 心情`, ``);
+        lines.push(`- 本周有情绪记录 ${moodVals.length} 天，平均分 ${avg} / 5`);
+        moodVals.forEach(m => { /* noop */ });
+        lines.push(``);
+        dates.forEach(d => {
+          const m = (state.mood || {})[d];
+          if (m && m.mood) lines.push(`- ${d}：${MOOD_MAP[m.mood] || m.mood}${m.note ? `（${m.note}）` : ''}`);
+        });
+        lines.push(``);
+      }
+
+      // —— 投稿状态 ——
       const subs = state.submissions || [];
       if (subs.length) {
-        lines.push(`## 投稿状态`);
-        lines.push(``);
+        lines.push(`## 投稿状态`, ``);
         subs.forEach(s => {
           lines.push(`- **${s.title || '(未命名)'}** · ${s.venue || '—'} · _${s.stage || '—'}_${s.deadline ? ` · 截止 ${s.deadline}` : ''}`);
         });
         lines.push(``);
       }
-      // 里程碑
+
+      // —— 里程碑 ——
       const ms = state.milestones || [];
-      const dueSoon = ms.filter(m => m.dueDate && m.dueDate >= mondayStr && m.dueDate <= sundayStr);
-      const completedThisWeek = ms.filter(m => m.completedAt && m.completedAt.slice(0, 10) >= mondayStr && m.completedAt.slice(0, 10) <= sundayStr);
-      if (dueSoon.length || completedThisWeek.length) {
-        lines.push(`## 里程碑`);
-        lines.push(``);
-        if (completedThisWeek.length) {
-          lines.push(`### 本周已完成`);
-          completedThisWeek.forEach(m => lines.push(`- [x] ${m.title}（${m.completedAt.slice(0, 10)}）`));
+      const dueThisWeek = ms.filter(m => m.deadline && inWeek(m.deadline));
+      const submittedThisWeek = ms.filter(m => m.submittedAt && inWeek(String(m.submittedAt).slice(0, 10)));
+      if (dueThisWeek.length || submittedThisWeek.length) {
+        lines.push(`## 里程碑`, ``);
+        if (submittedThisWeek.length) {
+          lines.push(`### 本周已提交`);
+          submittedThisWeek.forEach(m => lines.push(`- [x] ${m.title}（${String(m.submittedAt).slice(0, 10)}）· 状态：${m.status || '—'}`));
           lines.push(``);
         }
-        if (dueSoon.length) {
+        if (dueThisWeek.length) {
           lines.push(`### 本周到期`);
-          dueSoon.forEach(m => lines.push(`- [ ] ${m.title}（${m.dueDate}）`));
+          dueThisWeek.forEach(m => {
+            const checked = m.status === '已完成' || m.submissionStatus === '审核通过';
+            lines.push(`- [${checked ? 'x' : ' '}] ${m.title}（截止 ${m.deadline}）· 状态：${m.status || '—'}`);
+          });
           lines.push(``);
         }
       }
-      // 情绪曲线
-      const moodVals = dates.map(d => (state.mood || {})[d]?.score || null).filter(v => v !== null);
-      if (moodVals.length) {
-        const avg = (moodVals.reduce((a, b) => a + b, 0) / moodVals.length).toFixed(2);
-        lines.push(`## 情绪`);
-        lines.push(``);
-        lines.push(`- 本周有情绪记录 ${moodVals.length} 天，平均分 ${avg} / 5`);
-        lines.push(``);
-      }
+
+      // —— B10 成就解锁（累计快照） ——
+      try {
+        const achs = (typeof computeAchievements === 'function') ? computeAchievements() : [];
+        const unlocked = achs.filter(a => a.unlocked);
+        if (unlocked.length) {
+          lines.push(`## 成就（累计已解锁）`, ``);
+          unlocked.forEach(a => lines.push(`- 🏆 **${a.title}** — ${a.desc}`));
+          lines.push(``);
+        }
+      } catch {}
+
       lines.push(`---`);
       lines.push(`_自动生成于 phd-workspace，${dateTimeNow()}_`);
       return lines.join('\n');
@@ -6919,8 +7221,28 @@
       const today = new Date();
       const day = today.getDay() === 0 ? 6 : today.getDay() - 1;
       const monday = new Date(today); monday.setDate(today.getDate() - day);
-      const filename = monday.toISOString().slice(0, 10).replace(/-/g, '') + '_weekly.md';
-      await obsWriteOrDownload(filename, md);
+      const mondayStr = monday.toISOString().slice(0, 10);
+      const filename = mondayStr.replace(/-/g, '') + '_weekly.md';
+      const assetDir = mondayStr.replace(/-/g, '') + '_weekly';
+      setExportStatus('正在渲染图表 ...', '');
+      await ensureAnalyticsRendered();
+      // 按 MD 中引用的 7 个 PNG 采集
+      const canvasMap = [
+        ['focusChart', 'focus.png'],
+        ['attendanceChart', 'attendance.png'],
+        ['phoneChart', 'phone.png'],
+        ['habitChart', 'habit.png'],
+        ['writingDailyChart', 'writing-daily.png'],
+        ['moodTrendChart', 'mood-trend.png'],
+        ['energyTrendChart', 'energy-trend.png'],
+        ['submissionChart', 'submissions.png']
+      ];
+      const assets = [];
+      for (const [cid, fname] of canvasMap) {
+        const blob = await canvasToPngBlob(cid);
+        if (blob) assets.push({ name: fname, blob });
+      }
+      await obsWriteOrDownloadWithAssets(filename, md, assets, assetDir);
     }
 
     async function bindObsidianExport() {
