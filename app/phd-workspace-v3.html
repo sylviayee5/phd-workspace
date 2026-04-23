@@ -658,6 +658,26 @@
       h2.serif-title, h2[style*="Instrument Serif"] {
         font-size: 2.25rem !important;
       }
+      /* Dashboard hero：数字卡小屏取消最小宽度，避免溢出 */
+      main .grid.grid-cols-2.gap-3.min-w-\[300px\],
+      main .grid.min-w-\[300px\] {
+        min-width: 0 !important;
+        width: 100%;
+      }
+      /* Hero 装饰圆斑缩小 */
+      section#dashboard-section .soft-card .absolute.blur-3xl { display: none; }
+      /* 数字卡字号收一档 */
+      .soft-card .text-3xl { font-size: 1.5rem; }
+      /* 段落/小标题收紧 */
+      section > .soft-card { padding: 16px !important; }
+      /* 弹窗内容高度限制，避免超过屏幕不能滚动 */
+      [id$="Modal"] > div:first-child,
+      [id$="modal"] > div:first-child {
+        max-height: calc(100vh - 32px);
+        overflow-y: auto;
+      }
+      /* 弹窗自身 padding 收紧 */
+      [id$="Modal"].fixed.inset-0 { padding: 12px !important; }
     }
 
   </style>
