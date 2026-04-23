@@ -1295,6 +1295,41 @@
             </div>
             <div class="xl:col-span-2 space-y-5">
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="writingStats"></div>
+
+              <div class="soft-card p-6">
+                <div class="flex items-start justify-between gap-4 mb-4">
+                  <div>
+                    <h2 class="text-2xl font-black flex items-center gap-3"><i class="fa-solid fa-sitemap text-dopamine-pink"></i> <span id="thesisOutlineTitle">论文结构</span></h2>
+                    <p id="thesisOutlineSubtitle" class="text-xs text-calm-mute mt-1">博士论文章节骨架与全局字数进度（80,000 words 上限）</p>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-[10px] tracking-widest uppercase text-calm-mute" id="thesisOutlineTotalLabel">整体进度</div>
+                    <div class="text-lg font-black text-calm-ink" id="thesisOutlineTotal">0 / 0</div>
+                  </div>
+                </div>
+                <div class="rounded-xl border border-gray-200 p-3 mb-3">
+                  <div class="grid grid-cols-1 md:grid-cols-12 gap-2 items-end">
+                    <div class="md:col-span-5">
+                      <label class="text-[10px] uppercase tracking-wider text-calm-mute font-bold mb-1 block" id="thesisChTitleLabel">章节标题</label>
+                      <input id="thesisChTitleInput" type="text" placeholder="如：Chapter 2 · Literature Review" class="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-gray-400">
+                    </div>
+                    <div class="md:col-span-3">
+                      <label class="text-[10px] uppercase tracking-wider text-calm-mute font-bold mb-1 block" id="thesisChTargetLabel">计划字数</label>
+                      <input id="thesisChTargetInput" type="number" placeholder="10000" class="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-gray-400">
+                    </div>
+                    <div class="md:col-span-2">
+                      <label class="text-[10px] uppercase tracking-wider text-calm-mute font-bold mb-1 block" id="thesisChCurrentLabel">已完成</label>
+                      <input id="thesisChCurrentInput" type="number" placeholder="0" class="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-gray-400">
+                    </div>
+                    <div class="md:col-span-2">
+                      <button id="thesisChAddBtn" class="w-full px-3 py-2 rounded-lg bg-[#9E7A63] text-white text-sm font-bold hover:bg-[#8A6851] transition"><i class="fa-solid fa-plus mr-1"></i><span id="thesisChAddLabel">添加章节</span></button>
+                    </div>
+                  </div>
+                </div>
+                <div id="thesisOutlineList" class="space-y-2"></div>
+                <div id="thesisOutlineEmpty" class="text-sm text-calm-mute text-center py-6 hidden" data-label-zh="还没有章节，先添加一个。" data-label-en="No chapters yet. Add one above.">还没有章节，先添加一个。</div>
+              </div>
+
               <div class="soft-card p-6">
                 <h2 class="text-2xl font-black mb-4 flex items-center gap-3"><i class="fa-solid fa-chart-bar text-dopamine-pink"></i> <span id="writingDocListTitle">文档进度</span></h2>
                 <div id="writingDocList" class="space-y-4"></div>
@@ -2187,6 +2222,7 @@
           writing: legacy.writing && typeof legacy.writing === 'object'
             ? { documents: Array.isArray(legacy.writing.documents) ? legacy.writing.documents : [], dailyLogs: Array.isArray(legacy.writing.dailyLogs) ? legacy.writing.dailyLogs : [] }
             : { documents: [], dailyLogs: [] },
+          thesisOutline: Array.isArray(legacy.thesisOutline) ? legacy.thesisOutline : [],
           fieldwork: Array.isArray(legacy.fieldwork) ? legacy.fieldwork : [],
           countdowns: Array.isArray(legacy.countdowns) ? legacy.countdowns : [],
           outings: Array.isArray(legacy.outings) ? legacy.outings : [],
@@ -2241,6 +2277,13 @@
         writingLogTitle: '记录今日字数',
         writingDocListTitle: '文档进度',
         writingRecentLogsTitle: '最近写作记录',
+        thesisOutlineTitle: '论文结构',
+        thesisOutlineSubtitle: '博士论文章节骨架与全局字数进度（80,000 words 上限）',
+        thesisOutlineTotalLabel: '整体进度',
+        thesisChTitleLabel: '章节标题',
+        thesisChTargetLabel: '计划字数',
+        thesisChCurrentLabel: '已完成',
+        thesisChAddLabel: '添加章节',
         meetingsAddTitle: '新建会议记录',
         meetingsListTitle: '会议记录',
         meetingSupervisorsLabel: '参会导师',
@@ -2366,6 +2409,13 @@
         writingLogTitle: "Log Today's Words",
         writingDocListTitle: 'Document Progress',
         writingRecentLogsTitle: 'Recent Writing Logs',
+        thesisOutlineTitle: 'Thesis Outline',
+        thesisOutlineSubtitle: 'Chapter skeleton and overall word count progress (80,000 words cap).',
+        thesisOutlineTotalLabel: 'Total progress',
+        thesisChTitleLabel: 'Chapter title',
+        thesisChTargetLabel: 'Target words',
+        thesisChCurrentLabel: 'Done',
+        thesisChAddLabel: 'Add chapter',
         meetingsAddTitle: 'Add Meeting Record',
         meetingsListTitle: 'Meeting Records',
         meetingSupervisorsLabel: 'Supervisors Present',
@@ -2499,6 +2549,13 @@
         ['writingLogTitle', 'writingLogTitle'],
         ['writingDocListTitle', 'writingDocListTitle'],
         ['writingRecentLogsTitle', 'writingRecentLogsTitle'],
+        ['thesisOutlineTitle', 'thesisOutlineTitle'],
+        ['thesisOutlineSubtitle', 'thesisOutlineSubtitle'],
+        ['thesisOutlineTotalLabel', 'thesisOutlineTotalLabel'],
+        ['thesisChTitleLabel', 'thesisChTitleLabel'],
+        ['thesisChTargetLabel', 'thesisChTargetLabel'],
+        ['thesisChCurrentLabel', 'thesisChCurrentLabel'],
+        ['thesisChAddLabel', 'thesisChAddLabel'],
         ['meetingsAddTitle', 'meetingsAddTitle'],
         ['meetingsListTitle', 'meetingsListTitle'],
         ['meetingSupervisorsLabel', 'meetingSupervisorsLabel'],
@@ -7129,6 +7186,103 @@
     }
     window.deleteResource = deleteResource;
 
+    // =====================
+    // 论文结构（Thesis Outline）
+    // =====================
+    function renderThesisOutline() {
+      const list = document.getElementById('thesisOutlineList');
+      const empty = document.getElementById('thesisOutlineEmpty');
+      const totalEl = document.getElementById('thesisOutlineTotal');
+      if (!list) return;
+      const arr = Array.isArray(state.thesisOutline) ? state.thesisOutline : [];
+      const sumCurrent = arr.reduce((s, c) => s + (Number(c.current) || 0), 0);
+      const sumTarget = arr.reduce((s, c) => s + (Number(c.target) || 0), 0);
+      if (totalEl) totalEl.textContent = sumCurrent.toLocaleString() + ' / ' + sumTarget.toLocaleString();
+      if (!arr.length) {
+        list.innerHTML = '';
+        if (empty) {
+          empty.classList.remove('hidden');
+          const zh = empty.getAttribute('data-label-zh') || '';
+          const en = empty.getAttribute('data-label-en') || '';
+          empty.textContent = (typeof uiLocale !== 'undefined' && uiLocale === 'en') ? en : zh;
+        }
+        return;
+      }
+      if (empty) empty.classList.add('hidden');
+      list.innerHTML = arr.map((c, idx) => {
+        const cur = Number(c.current) || 0;
+        const tgt = Number(c.target) || 0;
+        const pct = tgt > 0 ? Math.min(100, Math.round((cur / tgt) * 100)) : 0;
+        const barColor = pct >= 100 ? '#8BA894' : pct >= 60 ? '#B5927C' : pct >= 20 ? '#C9B79C' : '#D9D4CC';
+        return '<div class="rounded-xl border border-gray-200 p-3 bg-white/60">'
+          + '<div class="flex items-center justify-between gap-3 mb-2">'
+          + '<div class="font-bold text-calm-ink text-sm flex-1 min-w-0 truncate">' + escapeHtml(c.title || '') + '</div>'
+          + '<div class="text-xs text-calm-mute font-mono whitespace-nowrap">'
+          + '<input type="number" value="' + cur + '" data-th-cur="' + idx + '" class="w-16 px-1.5 py-0.5 rounded border border-gray-200 text-right text-xs mr-1 focus:outline-none focus:border-gray-400"> / '
+          + '<input type="number" value="' + tgt + '" data-th-tgt="' + idx + '" class="w-16 px-1.5 py-0.5 rounded border border-gray-200 text-right text-xs focus:outline-none focus:border-gray-400">'
+          + ' <span class="ml-2 font-bold" style="color:' + barColor + '">' + pct + '%</span>'
+          + ' <button data-th-del="' + idx + '" class="ml-2 text-calm-mute hover:text-rose-500" title="删除"><i class="fa-solid fa-xmark"></i></button>'
+          + '</div>'
+          + '</div>'
+          + '<div class="h-1.5 rounded-full bg-gray-100 overflow-hidden"><div style="width:' + pct + '%;background:' + barColor + ';" class="h-full rounded-full transition-all"></div></div>'
+          + '</div>';
+      }).join('');
+    }
+    function addThesisChapter() {
+      const tEl = document.getElementById('thesisChTitleInput');
+      const tgEl = document.getElementById('thesisChTargetInput');
+      const cEl = document.getElementById('thesisChCurrentInput');
+      if (!tEl) return;
+      const title = tEl.value.trim();
+      const target = parseInt(tgEl.value, 10) || 0;
+      const current = parseInt(cEl.value, 10) || 0;
+      if (!title) return;
+      if (!Array.isArray(state.thesisOutline)) state.thesisOutline = [];
+      state.thesisOutline.push({ id: 'ch_' + Date.now(), title, target, current });
+      saveState();
+      tEl.value = ''; tgEl.value = ''; cEl.value = '';
+      renderThesisOutline();
+    }
+    function updateThesisChapter(idx, field, value) {
+      const arr = state.thesisOutline || [];
+      if (!arr[idx]) return;
+      arr[idx][field] = Number(value) || 0;
+      saveState();
+      renderThesisOutline();
+    }
+    function deleteThesisChapter(idx) {
+      const arr = state.thesisOutline || [];
+      if (!arr[idx]) return;
+      if (!confirm(uiLocale === 'en' ? 'Delete this chapter?' : '删除此章节？')) return;
+      arr.splice(idx, 1);
+      saveState();
+      renderThesisOutline();
+    }
+    function bindThesisOutline() {
+      const addBtn = document.getElementById('thesisChAddBtn');
+      if (addBtn) addBtn.addEventListener('click', addThesisChapter);
+      const list = document.getElementById('thesisOutlineList');
+      if (list) {
+        list.addEventListener('click', (e) => {
+          const del = e.target.closest('[data-th-del]');
+          if (del) {
+            deleteThesisChapter(parseInt(del.dataset.thDel, 10));
+          }
+        });
+        list.addEventListener('change', (e) => {
+          const cur = e.target.closest('[data-th-cur]');
+          const tgt = e.target.closest('[data-th-tgt]');
+          if (cur) updateThesisChapter(parseInt(cur.dataset.thCur, 10), 'current', cur.value);
+          else if (tgt) updateThesisChapter(parseInt(tgt.dataset.thTgt, 10), 'target', tgt.value);
+        });
+      }
+      ['thesisChTitleInput', 'thesisChTargetInput', 'thesisChCurrentInput'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addThesisChapter(); } });
+      });
+      renderThesisOutline();
+    }
+
     function init() {
       initDefaults();
       initDatePickers();
@@ -7148,6 +7302,7 @@
       bindCountdowns();
       bindSocialManage();
       bindResources();
+      bindThesisOutline();
       bindSync();
       autoSyncOnLoad(); // 自动同步开启时，页面加载后静默检查云端更新
       const qRefBtn = document.getElementById('quoteRefreshBtn');
