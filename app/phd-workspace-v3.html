@@ -2419,7 +2419,8 @@
         social: [],
         energy: {},
         fieldworkPrep: { nextTripDate: '', items: [] },
-        socialContacts: []
+        socialContacts: [],
+        settings: { wakeTarget: '09:00', sleepTarget: '23:30' }
       };
     }
     function normalizeSubmission(raw = {}) {
@@ -2554,7 +2555,10 @@
             : [
                 { id: 'cagri',  zh: 'Cagri 导师', en: 'Cagri (Supervisor)', color: 'dopamine-sky' },
                 { id: 'cansu',  zh: 'Cansu 副导', en: 'Cansu (Co-supervisor)', color: 'dopamine-mint' }
-              ]
+              ],
+          settings: (legacy.settings && typeof legacy.settings === 'object')
+            ? { wakeTarget: legacy.settings.wakeTarget || '09:00', sleepTarget: legacy.settings.sleepTarget || '23:30' }
+            : { wakeTarget: '09:00', sleepTarget: '23:30' }
         };
       } catch (e) {
         console.error(e);
@@ -2919,10 +2923,9 @@
         ['attendanceDesc', 'attendanceDesc'],
         ['attendanceDataHint', 'attendanceDataHint'],
         ['wakeCardTitle', 'wakeCardTitle'],
-        ['wakeTargetBadge', 'wakeTargetBadge'],
+        // wakeTargetBadge / sleepTargetBadge 由 renderAttendance 动态写入（目标时间可配置）
         ['wakeRecordLabel', 'wakeRecordLabel'],
         ['sleepCardTitle', 'sleepCardTitle'],
-        ['sleepTargetBadge', 'sleepTargetBadge'],
         ['sleepRecordLabel', 'sleepRecordLabel'],
         ['periodMorningTitle', 'periodMorningTitle'],
         ['periodAfternoonTitle', 'periodAfternoonTitle'],
@@ -3569,8 +3572,10 @@
         return { id: l.id, date: l.date, addedWords: Number(l.wordsAdded) || 0, totalWords: running, note: l.note || '' };
       });
     }
-    function qualifiesWake(time) { return time && minutesBetween(time, '09:00') >= 0; }
-    function qualifiesSleep(time) { return time && minutesBetween(time, '23:30') <= 0; }
+    function getWakeTarget() { return (state.settings && state.settings.wakeTarget) || '09:00'; }
+    function getSleepTarget() { return (state.settings && state.settings.sleepTarget) || '23:30'; }
+    function qualifiesWake(time) { return time && minutesBetween(time, getWakeTarget()) >= 0; }
+    function qualifiesSleep(time) { return time && minutesBetween(time, getSleepTarget()) <= 0; }
     function clearWake(date = todayStr()) {
       const day = getDayAttendance(date);
       day.wake = null;
@@ -3614,6 +3619,24 @@
     }
     function editSleep(date = todayStr()) {
       openRecordActionDialog(`${localeText('睡觉记录', 'Sleep Record')} · ${date}`, () => doEditSleep(date), () => clearSleep(date), localeText('删除这条睡觉记录', 'Delete this sleep record'));
+    }
+    function editWakeTarget() {
+      if (!state.settings) state.settings = { wakeTarget: '09:00', sleepTarget: '23:30' };
+      const next = prompt(localeText('起床目标时间（HH:MM，早于此时间算达标）', 'Wake target time (HH:MM, earlier counts as on-time)'), getWakeTarget());
+      if (next === null) return;
+      const hm = normalizeHM(next);
+      if (!hm) { alert(localeText('时间格式应为 HH:MM', 'Invalid time format, use HH:MM')); return; }
+      state.settings.wakeTarget = hm;
+      saveState(); renderAll();
+    }
+    function editSleepTarget() {
+      if (!state.settings) state.settings = { wakeTarget: '09:00', sleepTarget: '23:30' };
+      const next = prompt(localeText('睡觉目标时间（HH:MM，早于此时间算达标）', 'Sleep target time (HH:MM, earlier counts as on-time)'), getSleepTarget());
+      if (next === null) return;
+      const hm = normalizeHM(next);
+      if (!hm) { alert(localeText('时间格式应为 HH:MM', 'Invalid time format, use HH:MM')); return; }
+      state.settings.sleepTarget = hm;
+      saveState(); renderAll();
     }
     function doEditAttendanceSegment(date, period, index) {
       const day = getDayAttendance(date);
@@ -5180,15 +5203,31 @@
 
     function bindAttendance() {
       document.getElementById('btnWake').addEventListener('click', () => {
-        getDayAttendance().wake = timeNow();
+        const day = getDayAttendance();
+        const preset = day.wake || timeNow();
+        const next = prompt(localeText('请输入真实起床时间（HH:MM，留空清空）', 'Enter actual wake-up time (HH:MM, blank to clear)'), preset);
+        if (next === null) return;
+        const hm = normalizeHM(next);
+        if (hm === null) { alert(localeText('时间格式应为 HH:MM', 'Invalid time format, use HH:MM')); return; }
+        day.wake = hm || null;
         saveState(); renderAll();
       });
       document.getElementById('btnSleep').addEventListener('click', () => {
-        getDayAttendance().sleep = timeNow();
+        const day = getDayAttendance();
+        const preset = day.sleep || timeNow();
+        const next = prompt(localeText('请输入真实睡觉时间（HH:MM，留空清空）', 'Enter actual sleep time (HH:MM, blank to clear)'), preset);
+        if (next === null) return;
+        const hm = normalizeHM(next);
+        if (hm === null) { alert(localeText('时间格式应为 HH:MM', 'Invalid time format, use HH:MM')); return; }
+        day.sleep = hm || null;
         saveState(); renderAll();
       });
       document.getElementById('clearWakeBtn').addEventListener('click', () => editWake());
       document.getElementById('clearSleepBtn').addEventListener('click', () => editSleep());
+      const wakeBadge = document.getElementById('wakeTargetBadge');
+      if (wakeBadge) { wakeBadge.style.cursor = 'pointer'; wakeBadge.title = localeText('点击修改目标时间', 'Click to edit target time'); wakeBadge.addEventListener('click', () => editWakeTarget()); }
+      const sleepBadge = document.getElementById('sleepTargetBadge');
+      if (sleepBadge) { sleepBadge.style.cursor = 'pointer'; sleepBadge.title = localeText('点击修改目标时间', 'Click to edit target time'); sleepBadge.addEventListener('click', () => editSleepTarget()); }
       document.querySelectorAll('.period-btn').forEach(btn => {
         btn.addEventListener('click', () => handlePeriodAction(btn.dataset.period, btn.dataset.action));
       });
@@ -5249,8 +5288,13 @@
       list.innerHTML = rows.join('');
       document.getElementById('attendanceCountToday').textContent = countTodayAttendanceSegments();
       document.getElementById('attendanceMinutesToday').textContent = formatMinutes(todayAttendanceMinutes());
-      document.getElementById('attendanceWakeStatus').textContent = day.wake ? (day.wake <= '09:00' ? tt('statusOnTime') : tt('statusLate')) : tt('statusNotRecorded');
-      document.getElementById('attendanceSleepStatus').textContent = day.sleep ? (day.sleep <= '23:30' ? tt('statusOnTime') : tt('statusLate')) : tt('statusNotRecorded');
+      document.getElementById('attendanceWakeStatus').textContent = day.wake ? (day.wake <= getWakeTarget() ? tt('statusOnTime') : tt('statusLate')) : tt('statusNotRecorded');
+      document.getElementById('attendanceSleepStatus').textContent = day.sleep ? (day.sleep <= getSleepTarget() ? tt('statusOnTime') : tt('statusLate')) : tt('statusNotRecorded');
+      // 动态更新 badge 文案
+      const wakeBadgeEl = document.getElementById('wakeTargetBadge');
+      if (wakeBadgeEl) wakeBadgeEl.textContent = localeText(`目标 ${getWakeTarget()} 前`, `Target before ${getWakeTarget()}`);
+      const sleepBadgeEl = document.getElementById('sleepTargetBadge');
+      if (sleepBadgeEl) sleepBadgeEl.textContent = localeText(`目标 ${getSleepTarget()} 前`, `Target before ${getSleepTarget()}`);
 
       const leaveEntries = Object.entries(state.attendance).filter(([,v]) => v.leave).sort((a,b)=>b[0].localeCompare(a[0]));
       document.getElementById('leaveList').innerHTML = leaveEntries.length ? leaveEntries.map(([date,v]) => `<div class="bg-white rounded-xl border border-gray-100 p-3 flex items-start justify-between gap-3"><div><div class="font-black">${date} · ${escapeHtml(v.leave.type)}</div><div class="text-sm text-calm-mute mt-1">${escapeHtml(v.leave.reason)}</div></div><button onclick="editLeave('${date}')" class="text-dopamine-sky text-sm font-bold">${tt('editBtn')}</button></div>`).join('') : `<div class="text-sm text-calm-mute">${tt('leaveListEmpty')}</div>`;
@@ -5271,8 +5315,8 @@
         const day = state.attendance[date];
         const isToday = date === todayStr();
         const segCount = day ? Object.values(day.periods).reduce((sum,p)=>sum+p.segments.length,0) : 0;
-        const wakeOk = day?.wake && day.wake <= '09:00';
-        const sleepOk = day?.sleep && day.sleep <= '23:30';
+        const wakeOk = day?.wake && day.wake <= getWakeTarget();
+        const sleepOk = day?.sleep && day.sleep <= getSleepTarget();
         const isLeave = !!day?.leave;
         html += `<div class="calendar-cell rounded-2xl p-2 border ${isToday ? 'border-dopamine-orange bg-orange-50' : 'border-gray-100 bg-white'}"><div class="font-black text-sm mb-2">${d}</div><div class="flex gap-1 flex-wrap">${wakeOk?'<span class="dot" style="background:#B8A878"></span>':''}${sleepOk?'<span class="dot" style="background:#6B6F76"></span>':''}${segCount>=2?'<span class="dot" style="background:#7A9080"></span>':''}${isLeave?'<span class="dot" style="background:#8B95A1"></span>':''}</div><div class="text-[11px] text-calm-mute mt-2">${isLeave ? escapeHtml(localeOptionLabel(day.leave.type)) : segCount ? (uiLocale === 'en' ? `${segCount} seg` : `${segCount}段`) : ''}</div></div>`;
       }
