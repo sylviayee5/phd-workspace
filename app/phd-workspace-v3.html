@@ -830,9 +830,11 @@
             <div class="absolute -right-12 -top-12 w-40 h-40 rounded-full bg-white/40 blur-3xl"></div>
             <div class="absolute right-20 bottom-0 w-48 h-48 rounded-full bg-[#7A9080]/15 blur-3xl"></div>
             <div class="relative flex flex-col xl:flex-row xl:items-center xl:justify-between gap-5">
-              <div>
-                <h2 class="text-5xl md:text-6xl tracking-tight mb-2 text-[#1F2328]" style="font-family: 'Instrument Serif', Georgia, serif; font-weight: 400;">Glean<span class="opacity-40">.</span></h2>
-                <p id="dashboardSubtitle" class="text-calm-mute max-w-3xl leading-7">A PhD Studio · 田野 · 写作 · 投稿</p>
+              <div class="max-w-[640px]">
+                <h2 class="text-5xl md:text-6xl tracking-tight text-[#1F2328]" style="font-family: 'Instrument Serif', Georgia, serif; font-weight: 400;">Glean<span class="opacity-40">.</span></h2>
+                <p id="dashboardSubtitle" class="text-[11px] tracking-[0.18em] uppercase text-calm-mute mt-1">A PhD Studio</p>
+                <div class="w-10 h-px bg-[#E5E5E5] my-6"></div>
+                <div id="dashboardEpigraph" class="space-y-4 text-[#1F2328]"></div>
               </div>
               <div class="grid grid-cols-2 gap-3 min-w-[300px]">
                 <div class="bg-white rounded-2xl p-4 shadow-soft border border-orange-50">
@@ -853,9 +855,7 @@
                 </div>
               </div>
             </div>
-            <div id="dashboardFootnote" class="relative mt-4 text-xs text-calm-mute/90 leading-5">
-              就是把自律、科研投稿放进同个工作台。这里整合了多巴胺、视觉、起居、考勤、时间块、专注、深度专注、饮食、情绪、抓手机克制、成就系统、统计看板以及新增的论文、会议投稿管理系统。所有数据默认保存在本地浏览器。
-            </div>
+            <div id="dashboardFootnote" class="hidden"></div>
           </div>
 
           <!-- 区域 2: 今日行动 -->
@@ -2961,6 +2961,16 @@
         leaveListEmpty: '暂无请假记录。',
         dashboardSubtitle: 'A PhD Studio · 田野 · 写作 · 投稿',
         dashboardFootnote: '把田野、阅读、写作、投稿、里程碑、导师会议放进同一个工作台。整合起居考勤、时间块、专注、饮食、情绪、手机克制、成就系统、数据看板和论文/会议投稿管理。所有数据默认保存在本地浏览器。',
+        dashboardEpigraphHtml: `
+          <p class="text-[15px] italic leading-relaxed text-[#8C8F94]" style="font-family:'Instrument Serif',Georgia,serif;">Glean &mdash; to gather grain left behind after the harvest.</p>
+          <p class="text-[20px] leading-[1.55] text-[#1F2328]" style="font-family:'Instrument Serif',Georgia,serif;">A PhD is rarely a single clean harvest. It is the slower work of returning to the field, again and again, picking up what others overlooked &mdash; a sentence, a specimen, a mood, a weathered surface.</p>
+          <p class="text-[14px] italic leading-relaxed text-[#8C8F94]" style="font-family:'Instrument Serif',Georgia,serif;">This studio keeps those gleanings in one place.</p>
+          <div class="pt-3 mt-2 border-t border-[#EDEDED] space-y-2 text-[12px] leading-[1.7] text-[#8C8F94]">
+            <p><em>拾穗，本指在收割之后的田里，拾起被遗落的谷粒。</em></p>
+            <p>博士从不是一次干净利落的丰收。它更像一次次回到田里，弯下腰，拾起别人略过的东西——一个句子，一件标本，一种情绪，一块风化的表面。</p>
+            <p><em>这个工作室，收存这些拾穗。</em></p>
+          </div>
+        `,
         countdownPanelTitle: '倒计时',
         countdownPanelHint: '自动汇总里程碑 · 投稿 · 会议 · 田野，并支持自定义',
         countdownAddBtn: '+ 添加',
@@ -3092,8 +3102,13 @@
         periodSegmentNoRecord: (label) => `No completed segment in ${label}`,
         periodSegmentTitle: (label, index) => `${label} segment ${index}`,
         leaveListEmpty: 'No leave records.',
-        dashboardSubtitle: 'A PhD Studio · Fieldwork · Writing · Submission',
+        dashboardSubtitle: 'A PhD Studio',
         dashboardFootnote: 'A single workspace for discipline, research, and submissions. It combines routines, attendance, time blocks, focus, diet, mood, phone restraint, achievements, analytics, and paper or conference submission tracking. All data is saved locally in your browser by default.',
+        dashboardEpigraphHtml: `
+          <p class="text-[15px] italic leading-relaxed text-[#8C8F94]" style="font-family:'Instrument Serif',Georgia,serif;">Glean &mdash; to gather grain left behind after the harvest.</p>
+          <p class="text-[20px] leading-[1.55] text-[#1F2328]" style="font-family:'Instrument Serif',Georgia,serif;">A PhD is rarely a single clean harvest. It is the slower work of returning to the field, again and again, picking up what others overlooked &mdash; a sentence, a specimen, a mood, a weathered surface.</p>
+          <p class="text-[14px] italic leading-relaxed text-[#8C8F94]" style="font-family:'Instrument Serif',Georgia,serif;">This studio keeps those gleanings in one place.</p>
+        `,
         countdownPanelTitle: 'Countdown',
         countdownPanelHint: 'Auto-aggregates milestones, submissions, meetings, fieldwork. Custom items supported.',
         countdownAddBtn: '+ Add',
@@ -3235,6 +3250,9 @@
         const el = document.getElementById(id);
         if (el) el.textContent = tt(key);
       });
+      // 卷首语：HTML 内容，单独处理
+      const epigraphEl = document.getElementById('dashboardEpigraph');
+      if (epigraphEl) epigraphEl.innerHTML = tt('dashboardEpigraphHtml') || '';
       document.documentElement.lang = uiLocale === 'en' ? 'en-GB' : 'zh-CN';
       document.querySelectorAll('input[type="date"]').forEach((el) => {
         el.setAttribute('lang', uiLocale === 'en' ? 'en-GB' : 'zh-CN');
