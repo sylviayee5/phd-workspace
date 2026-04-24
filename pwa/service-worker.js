@@ -6,7 +6,7 @@
 //
 // 升级说明：改 CACHE_VERSION 触发老缓存清理
 
-const CACHE_VERSION = 'v11-2026-04-24-reload-btn';
+const CACHE_VERSION = 'v12-2026-04-24-tagline';
 const APP_CACHE = `phd-app-${CACHE_VERSION}`;
 const CDN_CACHE = `phd-cdn-${CACHE_VERSION}`;
 const API_CACHE = `phd-api-${CACHE_VERSION}`;
