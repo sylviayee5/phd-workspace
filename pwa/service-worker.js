@@ -6,7 +6,7 @@
 //
 // 升级说明：改 CACHE_VERSION 触发老缓存清理
 
-const CACHE_VERSION = 'v1-2026-04-23';
+const CACHE_VERSION = 'v2-2026-04-24';
 const APP_CACHE = `phd-app-${CACHE_VERSION}`;
 const CDN_CACHE = `phd-cdn-${CACHE_VERSION}`;
 const API_CACHE = `phd-api-${CACHE_VERSION}`;
@@ -54,6 +54,14 @@ self.addEventListener('fetch', (event) => {
 
   // 跳过 chrome-extension 等非 http(s)
   if (!url.protocol.startsWith('http')) return;
+
+  // ★ 跳过视频/音频文件：避免 Range 请求被 SW 劫持导致播放异常
+  //   浏览器对视频用字节分片请求，SW 缓存全文件会返回错误的 200（应为 206），导致黑屏/卡住
+  if (/\.(mp4|webm|ogg|mov|m4a|mp3|wav)(\?|$)/i.test(url.pathname)) {
+    return; // 让浏览器直接走网络，不经过 SW
+  }
+  // 同样跳过带 Range header 的任何请求（视频/大文件分片下载）
+  if (req.headers.has('range')) return;
 
   // Supabase API: network-first
   if (url.hostname.endsWith('.supabase.co')) {
