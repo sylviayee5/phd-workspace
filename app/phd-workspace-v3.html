@@ -5596,11 +5596,11 @@
         saveState(); renderAll();
       });
       document.getElementById('clearWakeBtn').addEventListener('click', () => {
-        if (!confirm(localeText('清空今日起床记录？', 'Clear today\\'s wake record?'))) return;
+        if (!confirm(localeText('清空今日起床记录？', 'Clear today wake record?'))) return;
         clearWake(); renderAll();
       });
       document.getElementById('clearSleepBtn').addEventListener('click', () => {
-        if (!confirm(localeText('清空今日睡觉记录？', 'Clear today\\'s sleep record?'))) return;
+        if (!confirm(localeText('清空今日睡觉记录？', 'Clear today sleep record?'))) return;
         clearSleep(); renderAll();
       });
       const wakeBadge = document.getElementById('wakeTargetBadge');
