@@ -2485,6 +2485,9 @@
     const SYNC_PUSH_TIME_KEY = `${STORAGE_KEY}_sync_push_time`;
     const SYNC_PULL_TIME_KEY = `${STORAGE_KEY}_sync_pull_time`;
     const SYNC_AUTO_KEY = `${STORAGE_KEY}_sync_auto`;
+    // Phase 7: 离线队列 & 冲突保护
+    const SYNC_DIRTY_KEY = `${STORAGE_KEY}_sync_dirty_since`;      // 本地有未推送改动的起始时间（ms）
+    const SYNC_CLOUD_SEEN_KEY = `${STORAGE_KEY}_sync_cloud_seen`;  // 上次成功同步时云端的 updated_at（ms）
     const DEFAULT_HABITS = [
       { id: 'habit_reading', name: '阅读论文', icon: '📚' },
       { id: 'habit_writing', name: '学术写作', icon: '✍️' },
@@ -5013,29 +5016,48 @@
       if (!el) return;
       const pushTime = localStorage.getItem(SYNC_PUSH_TIME_KEY);
       const pullTime = localStorage.getItem(SYNC_PULL_TIME_KEY);
+      const dirty = localStorage.getItem(SYNC_DIRTY_KEY);
+      const online = navigator.onLine;
       const autoLabel = syncAutoEnabled ? ' · <span class="text-green-600 font-bold">自动同步已开启</span>' : '';
-      el.innerHTML = `上次推送：${pushTime || '<span class="opacity-60">从未</span>'} <span class="mx-2 opacity-30">·</span> 上次拉取：${pullTime || '<span class="opacity-60">从未</span>'}${autoLabel}`;
+      let badge = '';
+      if (!online) {
+        badge = ' <span class="ml-2 px-2 py-0.5 rounded-full bg-gray-200 text-gray-700 text-xs font-bold">📡 离线</span>';
+      } else if (dirty) {
+        badge = ' <span class="ml-2 px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-xs font-bold">⏳ 待上传</span>';
+      }
+      el.innerHTML = `上次推送：${pushTime || '<span class="opacity-60">从未</span>'} <span class="mx-2 opacity-30">·</span> 上次拉取：${pullTime || '<span class="opacity-60">从未</span>'}${autoLabel}${badge}`;
     }
-    async function syncPush() {
+    async function syncPush(silent) {
       const btn = document.getElementById('syncPushBtn');
       const statusEl = document.getElementById('syncStatusBar');
       try {
-        if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>推送中…'; }
+        if (btn && !silent) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>推送中…'; }
+        const pushedAtIso = new Date().toISOString();
         const res = await fetch(`${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}`, {
           method: 'POST',
           headers: { ...supabaseHeaders(), 'Prefer': 'resolution=merge-duplicates,return=minimal' },
-          body: JSON.stringify({ id: SUPABASE_ROW_ID, data: JSON.stringify(state), updated_at: new Date().toISOString() })
+          body: JSON.stringify({ id: SUPABASE_ROW_ID, data: JSON.stringify(state), updated_at: pushedAtIso })
         });
         if (!res.ok) { const txt = await res.text(); throw new Error(`HTTP ${res.status}: ${txt}`); }
         const now = new Date().toLocaleString('zh-CN');
         localStorage.setItem(SYNC_PUSH_TIME_KEY, now);
+        // 成功推送：清除 dirty、记录云端已见时间戳
+        localStorage.removeItem(SYNC_DIRTY_KEY);
+        localStorage.setItem(SYNC_CLOUD_SEEN_KEY, String(new Date(pushedAtIso).getTime()));
         renderSyncStatus();
-        if (statusEl) statusEl.innerHTML += ' &nbsp;<span class="text-green-600">✓ 刚刚推送成功</span>';
+        if (!silent && statusEl) statusEl.innerHTML += ' &nbsp;<span class="text-green-600">✓ 刚刚推送成功</span>';
+        return true;
       } catch (e) {
         console.error('syncPush error:', e);
-        if (statusEl) statusEl.innerHTML = `<span class="text-red-500">推送失败: ${escapeHtml(e.message)}</span>`;
+        // 失败：记下 dirty 时间戳（首次失败才记，重试保留原时间）
+        if (!localStorage.getItem(SYNC_DIRTY_KEY)) {
+          localStorage.setItem(SYNC_DIRTY_KEY, String(Date.now()));
+        }
+        renderSyncStatus();
+        if (!silent && statusEl) statusEl.innerHTML = `<span class="text-red-500">推送失败: ${escapeHtml(e.message)}</span> <span class="text-xs text-calm-mute">（已标记待上传，恢复网络后会自动重试）</span>`;
+        return false;
       } finally {
-        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up mr-2"></i>推送到云端'; }
+        if (btn && !silent) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up mr-2"></i>推送到云端'; }
       }
     }
     async function syncPull() {
@@ -5058,6 +5080,9 @@
         renderNow();
         const now = new Date().toLocaleString('zh-CN');
         localStorage.setItem(SYNC_PULL_TIME_KEY, now);
+        // 手动拉取：清除 dirty、记录云端时间戳
+        localStorage.removeItem(SYNC_DIRTY_KEY);
+        if (rows[0].updated_at) localStorage.setItem(SYNC_CLOUD_SEEN_KEY, String(new Date(rows[0].updated_at).getTime()));
         renderSyncStatus();
         const cloudTime = rows[0].updated_at ? rows[0].updated_at.slice(0, 16).replace('T', ' ') : '?';
         if (statusEl) statusEl.innerHTML += ` &nbsp;<span class="text-green-600">✓ 拉取成功（云端时间 ${escapeHtml(cloudTime)}）</span>`;
@@ -5069,11 +5094,15 @@
       }
     }
     function scheduleSyncPush() {
-      if (!syncAutoEnabled) return;
+      // 任何本地改动都打 dirty 标记，无论自动同步是否开启
+      if (!localStorage.getItem(SYNC_DIRTY_KEY)) {
+        localStorage.setItem(SYNC_DIRTY_KEY, String(Date.now()));
+      }
+      if (!syncAutoEnabled) { renderSyncStatus(); return; }
       clearTimeout(syncDebounceTimer);
-      syncDebounceTimer = setTimeout(syncPush, 5000);
+      syncDebounceTimer = setTimeout(() => { syncPush(true); }, 5000);
     }
-    // 页面加载时静默双向同步：无云端数据则推送；云端更新则拉取
+    // 页面加载时静默双向同步：无云端数据则推送；云端更新则拉取；冲突则询问用户
     async function autoSyncOnLoad() {
       if (!syncAutoEnabled) return;
       const statusEl = document.getElementById('syncStatusBar');
@@ -5086,14 +5115,48 @@
         const rows = await res.json();
         // 云端无数据 → 自动推送本地数据上去
         if (!Array.isArray(rows) || rows.length === 0) {
-          await syncPush();
+          await syncPush(true);
           return;
         }
         const cloudUpdatedAt = rows[0].updated_at ? new Date(rows[0].updated_at).getTime() : 0;
-        const lastPushRaw = localStorage.getItem(SYNC_PUSH_TIME_KEY);
-        const lastPushMs = lastPushRaw ? new Date(lastPushRaw).getTime() : 0;
-        if (cloudUpdatedAt <= lastPushMs) return; // 云端不比本地新，已是最新
-        // 云端更新 → 静默拉取
+        const seenRaw = localStorage.getItem(SYNC_CLOUD_SEEN_KEY);
+        const lastSeen = seenRaw ? Number(seenRaw) : 0;
+        const localDirty = !!localStorage.getItem(SYNC_DIRTY_KEY);
+        // 云端不比我们上次看到的新 → 无事发生
+        if (cloudUpdatedAt <= lastSeen) {
+          // 有本地未推送改动，顺手推一次
+          if (localDirty) await syncPush(true);
+          return;
+        }
+        // 云端比上次看到的新
+        if (localDirty) {
+          // 冲突：本地有未上传改动 + 云端也被其他设备更新了
+          const cloudTime = rows[0].updated_at ? rows[0].updated_at.slice(0, 16).replace('T', ' ') : '?';
+          const choice = confirm(
+            `检测到同步冲突：\n\n` +
+            `· 本设备有未上传的改动\n` +
+            `· 云端也在另一台设备更新过（${cloudTime}）\n\n` +
+            `点「确定」= 保留本机改动，推送覆盖云端（云端新改动会丢失）\n` +
+            `点「取消」= 拉取云端覆盖本机（本机未上传改动会丢失）`
+          );
+          if (choice) {
+            await syncPush(true);
+            if (statusEl) statusEl.innerHTML = `<span class="text-amber-600">⚠ 冲突：已保留本机改动推送到云端</span>`;
+          } else {
+            const remoteState = JSON.parse(rows[0].data);
+            Object.assign(state, remoteState);
+            saveState();
+            renderAll();
+            renderNow();
+            localStorage.setItem(SYNC_PULL_TIME_KEY, new Date().toLocaleString('zh-CN'));
+            localStorage.removeItem(SYNC_DIRTY_KEY);
+            localStorage.setItem(SYNC_CLOUD_SEEN_KEY, String(cloudUpdatedAt));
+            renderSyncStatus();
+            if (statusEl) statusEl.innerHTML = `<span class="text-amber-600">⚠ 冲突：已放弃本机改动，拉取云端</span>`;
+          }
+          return;
+        }
+        // 无冲突：云端更新 → 静默拉取
         const remoteState = JSON.parse(rows[0].data);
         Object.assign(state, remoteState);
         saveState();
@@ -5101,12 +5164,26 @@
         renderNow();
         const now = new Date().toLocaleString('zh-CN');
         localStorage.setItem(SYNC_PULL_TIME_KEY, now);
+        localStorage.setItem(SYNC_CLOUD_SEEN_KEY, String(cloudUpdatedAt));
+        // 拉取后 saveState 会误打 dirty，这里撤销
+        localStorage.removeItem(SYNC_DIRTY_KEY);
         renderSyncStatus();
         const cloudTime = rows[0].updated_at ? rows[0].updated_at.slice(0, 16).replace('T', ' ') : '?';
         if (statusEl) statusEl.innerHTML = `<span class="text-green-600">✓ 已自动同步最新数据（${escapeHtml(cloudTime)}）</span>`;
       } catch (e) {
         console.warn('autoSyncOnLoad error:', e);
       }
+    }
+    // 网络恢复时自动重推待上传数据
+    function bindOnlineRetry() {
+      window.addEventListener('online', () => {
+        renderSyncStatus();
+        if (syncAutoEnabled && localStorage.getItem(SYNC_DIRTY_KEY)) {
+          console.log('[sync] 网络恢复，重试推送');
+          setTimeout(() => syncPush(true), 1500);
+        }
+      });
+      window.addEventListener('offline', () => { renderSyncStatus(); });
     }
     function bindSync() {
       // 默认开启自动同步（首次打开时 localStorage 中无此键，默认视为已开启）
@@ -5117,8 +5194,9 @@
       const pushBtn = document.getElementById('syncPushBtn');
       const pullBtn = document.getElementById('syncPullBtn');
       const autoToggle = document.getElementById('syncAutoToggle');
-      if (pushBtn) pushBtn.addEventListener('click', syncPush);
+      if (pushBtn) pushBtn.addEventListener('click', () => syncPush(false));
       if (pullBtn) pullBtn.addEventListener('click', syncPull);
+      bindOnlineRetry();
       if (autoToggle) {
         autoToggle.checked = syncAutoEnabled;
         autoToggle.addEventListener('change', () => {
