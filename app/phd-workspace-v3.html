@@ -783,6 +783,7 @@
               <span id="localeHint" class="text-[11px] uppercase tracking-wider text-calm-mute">Language</span>
               <div class="flex items-center gap-1.5">
                 <button id="localeToggleBtn" class="px-2.5 py-1 rounded-lg bg-white/60 backdrop-blur border border-white/80 text-xs font-bold text-[#1F2328] hover:bg-white/80">EN</button>
+                <button id="hardReloadBtn" onclick="hardReloadApp()" class="w-8 h-7 rounded-lg bg-white/60 backdrop-blur border border-white/80 flex items-center justify-center text-[#1F2328] hover:bg-white/80" title="刷新 / Reload"><i class="fa-solid fa-arrows-rotate text-xs"></i></button>
                 <button id="settingsIconBtn" data-target="settings-section" class="nav-btn w-8 h-7 rounded-lg bg-white/60 backdrop-blur border border-white/80 flex items-center justify-center text-[#1F2328] hover:bg-white/80" title="设置 / Settings"><i class="fa-solid fa-gear text-xs"></i></button>
               </div>
             </div>
@@ -9168,6 +9169,26 @@
     window.toggleHabit = toggleHabit;
     window.incrementHabit = incrementHabit;
     window.decrementHabit = decrementHabit;
+    // 整页强制刷新：先 flush 数据 → 清 PWA 缓存 → 注销 SW → 带时间戳 reload，避免缓存残留
+    async function hardReloadApp() {
+      try { if (typeof saveState === 'function') saveState(); } catch (e) {}
+      try {
+        if ('caches' in window) {
+          const keys = await caches.keys();
+          await Promise.all(keys.map(k => caches.delete(k)));
+        }
+      } catch (e) {}
+      try {
+        if ('serviceWorker' in navigator) {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(regs.map(r => r.unregister()));
+        }
+      } catch (e) {}
+      const url = new URL(window.location.href);
+      url.searchParams.set('_r', Date.now().toString());
+      window.location.replace(url.toString());
+    }
+    window.hardReloadApp = hardReloadApp;
     window.deleteFood = deleteFood;
     window.removeLeave = removeLeave;
     window.removeTimeBlock = removeTimeBlock;
