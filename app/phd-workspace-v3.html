@@ -6254,19 +6254,31 @@
       document.getElementById('newHabitInput').value = '';
       saveState(); renderLifestyleSection(); renderAll();
     }
-    function editHabit(id) {
+    let editingHabitId = null;
+    function startEditHabit(id) {
+      editingHabitId = id;
+      renderLifestyleSection();
+      setTimeout(() => {
+        const input = document.getElementById(`habitNameInput_${id}`);
+        if (input) { input.focus(); input.select(); }
+      }, 30);
+    }
+    function saveEditHabit(id) {
       const h = state.habits.list.find(x => x.id === id);
       if (!h) return;
-      const tipName = localeText('修改习惯名称：', 'Edit habit name:');
-      const newName = prompt(tipName, h.name);
-      if (newName === null) return;
-      const trimmed = newName.trim();
-      if (!trimmed) return;
-      h.name = trimmed;
-      const tipIcon = localeText('修改 emoji（可留空保留原样）：', 'Edit emoji (leave blank to keep):');
-      const newIcon = prompt(tipIcon, h.icon || '✨');
-      if (newIcon !== null && newIcon.trim()) h.icon = newIcon.trim();
+      const nameInput = document.getElementById(`habitNameInput_${id}`);
+      const iconInput = document.getElementById(`habitIconInput_${id}`);
+      const newName = (nameInput?.value || '').trim();
+      if (!newName) return;
+      h.name = newName;
+      const newIcon = (iconInput?.value || '').trim();
+      if (newIcon) h.icon = newIcon;
+      editingHabitId = null;
       saveState(); renderLifestyleSection(); renderAll();
+    }
+    function cancelEditHabit() {
+      editingHabitId = null;
+      renderLifestyleSection();
     }
     function deleteHabit(id) {
       const h = state.habits.list.find(x => x.id === id);
@@ -6277,9 +6289,12 @@
       Object.keys(state.habits.logs || {}).forEach(d => {
         if (state.habits.logs[d]) delete state.habits.logs[d][id];
       });
+      if (editingHabitId === id) editingHabitId = null;
       saveState(); renderLifestyleSection(); renderAll();
     }
-    window.editHabit = editHabit;
+    window.startEditHabit = startEditHabit;
+    window.saveEditHabit = saveEditHabit;
+    window.cancelEditHabit = cancelEditHabit;
     window.deleteHabit = deleteHabit;
     function toggleHabit(id) {
       const date = document.getElementById('habitDate').value || todayStr();
@@ -6457,16 +6472,25 @@
         const countBadge = count > 0
           ? `<span class="inline-flex items-center gap-0.5 text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-100" title="${localeText('累计完成','Total completions')}">${uiLocale==='en'?`&times; ${count}`:`${count} 次`}</span>`
           : '';
+        // 编辑模式：原位显示输入框
+        if (editingHabitId === h.id) {
+          return `<div class="rounded-2xl border border-amber-200 bg-amber-50/40 p-3 flex items-center gap-2">
+            <input id="habitIconInput_${h.id}" value="${escapeHtml(h.icon || '✨')}" maxlength="4" class="w-12 h-10 text-xl text-center border border-gray-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-amber-200" />
+            <input id="habitNameInput_${h.id}" value="${escapeHtml(habitName)}" class="flex-1 min-w-0 h-10 px-3 border border-gray-200 rounded-lg font-black bg-white outline-none focus:ring-2 focus:ring-amber-200" onkeydown="if(event.key==='Enter'){saveEditHabit('${h.id}')}else if(event.key==='Escape'){cancelEditHabit()}" />
+            <button type="button" onclick="saveEditHabit('${h.id}')" class="w-10 h-10 flex items-center justify-center rounded-lg bg-dopamine-mint text-white hover:opacity-90" title="${localeText('保存','Save')}"><i class="fa-solid fa-check"></i></button>
+            <button type="button" onclick="cancelEditHabit()" class="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-100 text-calm-ink hover:bg-gray-200" title="${localeText('取消','Cancel')}"><i class="fa-solid fa-xmark"></i></button>
+          </div>`;
+        }
         return `<div class="rounded-2xl border ${checked ? 'border-green-200 bg-green-50' : 'border-gray-100 bg-white'} p-4 flex items-center justify-between gap-3 group">
-          <label class="flex items-center gap-3 flex-1 min-w-0 cursor-pointer">
+          <label for="habitCheck_${h.id}" class="flex items-center gap-3 flex-1 min-w-0 cursor-pointer select-none">
             <span class="text-2xl flex-shrink-0">${h.icon || '✨'}</span>
             <span class="font-black truncate">${escapeHtml(habitName)}</span>
             ${countBadge}
           </label>
           <div class="flex items-center gap-2 flex-shrink-0">
-            <button type="button" onclick="editHabit('${h.id}')" class="w-7 h-7 flex items-center justify-center rounded-lg text-calm-mute hover:bg-gray-100 hover:text-calm-ink opacity-0 group-hover:opacity-100 transition-opacity" title="${localeText('编辑','Edit')}"><i class="fa-solid fa-pen text-xs"></i></button>
+            <button type="button" onclick="startEditHabit('${h.id}')" class="w-7 h-7 flex items-center justify-center rounded-lg text-calm-mute hover:bg-gray-100 hover:text-calm-ink opacity-0 group-hover:opacity-100 transition-opacity" title="${localeText('编辑','Edit')}"><i class="fa-solid fa-pen text-xs"></i></button>
             <button type="button" onclick="deleteHabit('${h.id}')" class="w-7 h-7 flex items-center justify-center rounded-lg text-calm-mute hover:bg-red-50 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" title="${localeText('删除','Delete')}"><i class="fa-solid fa-trash text-xs"></i></button>
-            <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleHabit('${h.id}')" class="w-5 h-5 cursor-pointer">
+            <input type="checkbox" id="habitCheck_${h.id}" ${checked ? 'checked' : ''} onchange="toggleHabit('${h.id}')" class="w-5 h-5 cursor-pointer">
           </div>
         </div>`;
       }).join('');
