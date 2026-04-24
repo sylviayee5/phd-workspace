@@ -721,6 +721,42 @@
     <i class="fa-solid fa-bars"></i>
   </button>
   <div id="mobileBackdrop" class="mobile-backdrop"></div>
+
+  <!-- 登录遮罩：未登录时显示 -->
+  <div id="loginOverlay" style="display:none; position:fixed; inset:0; z-index:200; background:rgba(250,247,241,.97); backdrop-filter:blur(20px); align-items:center; justify-content:center; padding:20px;">
+    <div style="max-width:420px; width:100%; background:#fff; border-radius:24px; padding:36px 28px; box-shadow:0 20px 60px rgba(0,0,0,.12);">
+      <div style="text-align:center; margin-bottom:24px;">
+        <div style="font-family:'Instrument Serif',Georgia,serif; font-size:42px; color:#1F2328;">Shu<sup style="font-size:14px;opacity:.5">®</sup></div>
+        <div style="font-size:13px; color:#6B6F76; margin-top:4px;">PhD Studio · 登录同步</div>
+      </div>
+      <div id="loginStep1">
+        <label style="display:block; font-size:12px; color:#6B6F76; margin-bottom:6px;">邮箱地址 / Email</label>
+        <input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com"
+               style="width:100%; padding:12px 14px; border:1px solid #E5E7EB; border-radius:12px; font-size:14px; outline:none; box-sizing:border-box;">
+        <button id="loginSendBtn"
+                style="margin-top:14px; width:100%; padding:12px; background:#B8755A; color:#fff; border:0; border-radius:12px; font-weight:700; font-size:14px; cursor:pointer;">
+          发送登录链接
+        </button>
+        <div id="loginMsg" style="margin-top:12px; font-size:12px; min-height:18px; text-align:center;"></div>
+        <div style="margin-top:18px; font-size:11px; color:#8C8F94; line-height:1.6; text-align:center;">
+          我们会向你邮箱发一个登录链接。点链接即登录，无需记密码。<br>
+          登录状态保留 7 天。
+        </div>
+      </div>
+      <div id="loginStep2" style="display:none; text-align:center;">
+        <div style="font-size:40px; margin-bottom:12px;">📧</div>
+        <div style="font-size:15px; font-weight:700; color:#1F2328; margin-bottom:8px;">邮件已发送</div>
+        <div id="loginStep2Email" style="font-size:13px; color:#6B6F76; margin-bottom:20px;"></div>
+        <div style="font-size:12px; color:#8C8F94; line-height:1.7; padding:12px; background:#FAF7F1; border-radius:10px; text-align:left;">
+          · 打开邮箱，找到来自 Supabase 的邮件<br>
+          · 点邮件里的「 Log In 」按钮或链接<br>
+          · 浏览器会自动跳回并登录成功<br>
+          · 如果没收到，请检查垃圾邮件夹
+        </div>
+        <button id="loginBackBtn" style="margin-top:14px; background:none; border:0; color:#B8755A; font-size:12px; cursor:pointer;">重新输入邮箱</button>
+      </div>
+    </div>
+  </div>
   <div class="mx-auto px-5 py-6 lg:px-8 xl:px-10" style="max-width: 1840px;">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-7 app-shell-grid">
       <aside class="app-sidebar lg:col-span-3 xl:col-span-2">
@@ -5005,9 +5041,11 @@
 
     // Supabase 云端同步
     function supabaseHeaders() {
+      // 登录后用 session.access_token；未登录退回到 anon key（RLS 会拒，预期内）
+      const token = (window.appAuth && window.appAuth.session && window.appAuth.session.access_token) || SUPABASE_KEY;
       return {
         'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       };
     }
@@ -5030,13 +5068,18 @@
     async function syncPush(silent) {
       const btn = document.getElementById('syncPushBtn');
       const statusEl = document.getElementById('syncStatusBar');
+      const userId = window.appAuth && window.appAuth.userId;
+      if (!userId) {
+        if (!silent && statusEl) statusEl.innerHTML = `<span class="text-amber-600">⚠ 请先登录再同步</span>`;
+        return false;
+      }
       try {
         if (btn && !silent) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>推送中…'; }
         const pushedAtIso = new Date().toISOString();
         const res = await fetch(`${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}`, {
           method: 'POST',
           headers: { ...supabaseHeaders(), 'Prefer': 'resolution=merge-duplicates,return=minimal' },
-          body: JSON.stringify({ id: SUPABASE_ROW_ID, data: JSON.stringify(state), updated_at: pushedAtIso })
+          body: JSON.stringify({ id: SUPABASE_ROW_ID, user_id: userId, data: JSON.stringify(state), updated_at: pushedAtIso })
         });
         if (!res.ok) { const txt = await res.text(); throw new Error(`HTTP ${res.status}: ${txt}`); }
         const now = new Date().toLocaleString('zh-CN');
@@ -5105,6 +5148,7 @@
     // 页面加载时静默双向同步：无云端数据则推送；云端更新则拉取；冲突则询问用户
     async function autoSyncOnLoad() {
       if (!syncAutoEnabled) return;
+      if (!window.appAuth || !window.appAuth.userId) return; // 未登录不同步
       const statusEl = document.getElementById('syncStatusBar');
       try {
         const res = await fetch(
@@ -9182,6 +9226,123 @@
         if (e.key === 'Escape' && aside.classList.contains('open')) close();
       });
     })();
+  </script>
+
+  <!-- Supabase Auth（邮箱魔法链接登录） -->
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
+
+    const SB_URL = 'https://exzigbuwkvrhyjtpizad.supabase.co';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4emlnYnV3a3ZyaHlqdHBpemFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDQyODAsImV4cCI6MjA5MjM4MDI4MH0.YVE493Zbiolw9v52KvQ-4oz3_qfgmeuXXhAu5OldbuQ';
+    const supa = createClient(SB_URL, SB_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true, // 处理 magic link 回跳
+        storage: window.localStorage,
+        storageKey: 'phd_workspace_sb_auth'
+      }
+    });
+
+    window.appAuth = {
+      client: supa,
+      session: null,
+      userId: null,
+      email: null,
+      async signIn(email) {
+        return await supa.auth.signInWithOtp({
+          email,
+          options: { emailRedirectTo: window.location.href.split('#')[0].split('?')[0] }
+        });
+      },
+      async signOut() {
+        await supa.auth.signOut();
+        location.reload();
+      }
+    };
+
+    const overlay = document.getElementById('loginOverlay');
+    const step1 = document.getElementById('loginStep1');
+    const step2 = document.getElementById('loginStep2');
+    const emailInput = document.getElementById('loginEmail');
+    const sendBtn = document.getElementById('loginSendBtn');
+    const backBtn = document.getElementById('loginBackBtn');
+    const msgEl = document.getElementById('loginMsg');
+
+    function showLogin() {
+      overlay.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+    function hideLogin() {
+      overlay.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    sendBtn.addEventListener('click', async () => {
+      const email = (emailInput.value || '').trim();
+      if (!email || !email.includes('@')) {
+        msgEl.innerHTML = '<span style="color:#be123c">请输入有效邮箱</span>';
+        return;
+      }
+      sendBtn.disabled = true;
+      sendBtn.textContent = '发送中…';
+      msgEl.textContent = '';
+      try {
+        const { error } = await window.appAuth.signIn(email);
+        if (error) throw error;
+        document.getElementById('loginStep2Email').textContent = email;
+        step1.style.display = 'none';
+        step2.style.display = 'block';
+      } catch (e) {
+        msgEl.innerHTML = `<span style="color:#be123c">发送失败：${e.message || e}</span>`;
+      } finally {
+        sendBtn.disabled = false;
+        sendBtn.textContent = '发送登录链接';
+      }
+    });
+    backBtn.addEventListener('click', () => {
+      step1.style.display = 'block';
+      step2.style.display = 'none';
+      msgEl.textContent = '';
+    });
+    emailInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') sendBtn.click();
+    });
+
+    // 启动：检查 session
+    (async () => {
+      const { data: { session } } = await supa.auth.getSession();
+      if (session) {
+        window.appAuth.session = session;
+        window.appAuth.userId = session.user.id;
+        window.appAuth.email = session.user.email;
+        hideLogin();
+      } else {
+        showLogin();
+      }
+    })();
+
+    // 登录状态变化监听（magic link 回跳 / 登出 / token 刷新）
+    supa.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        window.appAuth.session = session;
+        window.appAuth.userId = session.user.id;
+        window.appAuth.email = session.user.email;
+        hideLogin();
+        // 登录成功后触发一次自动同步
+        if (event === 'SIGNED_IN' && typeof autoSyncOnLoad === 'function') {
+          setTimeout(() => autoSyncOnLoad(), 500);
+        }
+      } else {
+        window.appAuth.session = null;
+        window.appAuth.userId = null;
+        window.appAuth.email = null;
+        showLogin();
+      }
+    });
+
+    // 暴露登出给全局（方便在设置里加按钮）
+    window.appSignOut = () => window.appAuth.signOut();
   </script>
 </body>
 </html>
