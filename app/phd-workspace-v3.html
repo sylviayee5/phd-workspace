@@ -735,25 +735,31 @@
                style="width:100%; padding:12px 14px; border:1px solid #E5E7EB; border-radius:12px; font-size:14px; outline:none; box-sizing:border-box;">
         <button id="loginSendBtn"
                 style="margin-top:14px; width:100%; padding:12px; background:#B8755A; color:#fff; border:0; border-radius:12px; font-weight:700; font-size:14px; cursor:pointer;">
-          发送登录链接
+          发送验证码
         </button>
         <div id="loginMsg" style="margin-top:12px; font-size:12px; min-height:18px; text-align:center;"></div>
         <div style="margin-top:18px; font-size:11px; color:#8C8F94; line-height:1.6; text-align:center;">
-          我们会向你邮箱发一个登录链接。点链接即登录，无需记密码。<br>
-          登录状态保留 7 天。
+          我们会向你邮箱发一个 6 位验证码。<br>
+          每台设备只需登录一次，登录状态长期保留。
         </div>
       </div>
       <div id="loginStep2" style="display:none; text-align:center;">
         <div style="font-size:40px; margin-bottom:12px;">📧</div>
-        <div style="font-size:15px; font-weight:700; color:#1F2328; margin-bottom:8px;">邮件已发送</div>
-        <div id="loginStep2Email" style="font-size:13px; color:#6B6F76; margin-bottom:20px;"></div>
-        <div style="font-size:12px; color:#8C8F94; line-height:1.7; padding:12px; background:#FAF7F1; border-radius:10px; text-align:left;">
-          · 打开邮箱，找到来自 Supabase 的邮件<br>
-          · 点邮件里的「 Log In 」按钮或链接<br>
-          · 浏览器会自动跳回并登录成功<br>
-          · 如果没收到，请检查垃圾邮件夹
+        <div style="font-size:15px; font-weight:700; color:#1F2328; margin-bottom:8px;">验证码已发送</div>
+        <div id="loginStep2Email" style="font-size:13px; color:#6B6F76; margin-bottom:16px;"></div>
+        <input id="loginCode" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code"
+               placeholder="6 位验证码"
+               style="width:100%; padding:14px; border:1px solid #E5E7EB; border-radius:12px; font-size:22px; text-align:center; letter-spacing:8px; font-family:monospace; outline:none; box-sizing:border-box;">
+        <button id="loginVerifyBtn"
+                style="margin-top:12px; width:100%; padding:12px; background:#B8755A; color:#fff; border:0; border-radius:12px; font-weight:700; font-size:14px; cursor:pointer;">
+          登录
+        </button>
+        <div id="loginVerifyMsg" style="margin-top:10px; font-size:12px; min-height:18px;"></div>
+        <div style="margin-top:14px; font-size:11px; color:#8C8F94; line-height:1.6;">
+          打开邮箱，找到来自 Supabase 的邮件，复制 6 位数字粘贴在此。<br>
+          没收到？检查垃圾邮件夹，或 5 分钟后重发。
         </div>
-        <button id="loginBackBtn" style="margin-top:14px; background:none; border:0; color:#B8755A; font-size:12px; cursor:pointer;">重新输入邮箱</button>
+        <button id="loginBackBtn" style="margin-top:10px; background:none; border:0; color:#B8755A; font-size:12px; cursor:pointer;">重新输入邮箱</button>
       </div>
     </div>
   </div>
@@ -9249,11 +9255,17 @@
       session: null,
       userId: null,
       email: null,
+      pendingEmail: null,
       async signIn(email) {
         return await supa.auth.signInWithOtp({
           email,
-          options: { emailRedirectTo: window.location.href.split('#')[0].split('?')[0] }
+          options: {
+            emailRedirectTo: window.location.href.split('#')[0].split('?')[0]
+          }
         });
+      },
+      async verifyCode(email, code) {
+        return await supa.auth.verifyOtp({ email, token: code, type: 'email' });
       },
       async signOut() {
         await supa.auth.signOut();
@@ -9268,6 +9280,9 @@
     const sendBtn = document.getElementById('loginSendBtn');
     const backBtn = document.getElementById('loginBackBtn');
     const msgEl = document.getElementById('loginMsg');
+    const codeInput = document.getElementById('loginCode');
+    const verifyBtn = document.getElementById('loginVerifyBtn');
+    const verifyMsgEl = document.getElementById('loginVerifyMsg');
 
     function showLogin() {
       overlay.style.display = 'flex';
@@ -9290,20 +9305,57 @@
       try {
         const { error } = await window.appAuth.signIn(email);
         if (error) throw error;
+        window.appAuth.pendingEmail = email;
         document.getElementById('loginStep2Email').textContent = email;
         step1.style.display = 'none';
         step2.style.display = 'block';
+        setTimeout(() => codeInput && codeInput.focus(), 100);
       } catch (e) {
         msgEl.innerHTML = `<span style="color:#be123c">发送失败：${e.message || e}</span>`;
       } finally {
         sendBtn.disabled = false;
-        sendBtn.textContent = '发送登录链接';
+        sendBtn.textContent = '发送验证码';
       }
     });
+
+    async function doVerify() {
+      const email = window.appAuth.pendingEmail || (emailInput.value || '').trim();
+      const code = (codeInput.value || '').trim();
+      if (!code || code.length !== 6) {
+        verifyMsgEl.innerHTML = '<span style="color:#be123c">请输入 6 位数字</span>';
+        return;
+      }
+      verifyBtn.disabled = true;
+      verifyBtn.textContent = '验证中…';
+      verifyMsgEl.textContent = '';
+      try {
+        const { data, error } = await window.appAuth.verifyCode(email, code);
+        if (error) throw error;
+        verifyMsgEl.innerHTML = '<span style="color:#047857">✓ 登录成功</span>';
+        // onAuthStateChange 会自动隐藏 overlay
+      } catch (e) {
+        verifyMsgEl.innerHTML = `<span style="color:#be123c">验证失败：${e.message || e}</span>`;
+        verifyBtn.disabled = false;
+        verifyBtn.textContent = '登录';
+      }
+    }
+    verifyBtn.addEventListener('click', doVerify);
+    codeInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') doVerify();
+    });
+    // 允许从邮件 app 里复制过来的粘贴自动触发验证
+    codeInput.addEventListener('input', () => {
+      const v = (codeInput.value || '').replace(/\D/g, '').slice(0, 6);
+      codeInput.value = v;
+      if (v.length === 6) doVerify();
+    });
+
     backBtn.addEventListener('click', () => {
       step1.style.display = 'block';
       step2.style.display = 'none';
       msgEl.textContent = '';
+      verifyMsgEl.textContent = '';
+      if (codeInput) codeInput.value = '';
     });
     emailInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') sendBtn.click();

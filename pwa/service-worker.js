@@ -6,7 +6,7 @@
 //
 // 升级说明：改 CACHE_VERSION 触发老缓存清理
 
-const CACHE_VERSION = 'v3-2026-04-24-auth';
+const CACHE_VERSION = 'v4-2026-04-24-otp';
 const APP_CACHE = `phd-app-${CACHE_VERSION}`;
 const CDN_CACHE = `phd-cdn-${CACHE_VERSION}`;
 const API_CACHE = `phd-api-${CACHE_VERSION}`;
