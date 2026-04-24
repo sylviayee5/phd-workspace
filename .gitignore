@@ -17,3 +17,6 @@ logs/*.log
 .vscode/
 *.swp
 *.swo
+
+# Claude Code worktrees (临时工作区，不入库)
+.claude/worktrees/
