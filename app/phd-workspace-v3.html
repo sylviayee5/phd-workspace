@@ -1000,13 +1000,13 @@
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div class="rounded-2xl bg-yellow-50 border border-yellow-100 p-5">
                   <div class="flex items-center justify-between mb-3"><h3 id="wakeCardTitle" class="font-black text-dopamine-orange"><i class="fa-regular fa-sun mr-2"></i>起床打卡</h3><span id="wakeTargetBadge" class="mini-badge bg-white text-dopamine-orange">目标 09:00 前</span></div>
-                  <button id="btnWake" class="w-full bg-dopamine-yellow hover:brightness-95 text-white font-bold py-3 rounded-xl shadow-soft">我起床啦</button>
-                  <div class="mt-3 text-sm text-calm-mute flex items-center justify-between gap-3"><span id="wakeRecordLabel">今日记录：</span><span id="wakeDisplay" class="font-bold text-calm-ink">-</span><button id="clearWakeBtn" class="text-xs text-dopamine-sky font-bold">修改</button></div>
+                  <div class="flex gap-2 mb-3"><input id="wakeTimeInput" type="time" class="flex-1 px-3 py-2 rounded-xl border border-yellow-200 outline-none focus:ring-2 focus:ring-dopamine-yellow text-base font-mono"><button id="btnWake" class="bg-dopamine-yellow hover:brightness-95 text-white font-bold px-4 py-2 rounded-xl shadow-soft whitespace-nowrap">我起床啦</button></div>
+                  <div class="text-xs text-calm-mute flex items-center justify-between gap-3"><span id="wakeRecordLabel">今日记录：</span><span id="wakeDisplay" class="font-bold text-calm-ink">-</span><button id="clearWakeBtn" class="text-xs text-dopamine-sky font-bold">清空</button></div>
                 </div>
                 <div class="rounded-2xl bg-purple-50 border border-purple-100 p-5">
                   <div class="flex items-center justify-between mb-3"><h3 id="sleepCardTitle" class="font-black text-dopamine-purple"><i class="fa-regular fa-moon mr-2"></i>睡觉打卡</h3><span id="sleepTargetBadge" class="mini-badge bg-white text-dopamine-purple">目标 23:30 前</span></div>
-                  <button id="btnSleep" class="w-full bg-dopamine-purple hover:brightness-95 text-white font-bold py-3 rounded-xl shadow-soft">我要睡了</button>
-                  <div class="mt-3 text-sm text-calm-mute flex items-center justify-between gap-3"><span id="sleepRecordLabel">今日记录：</span><span id="sleepDisplay" class="font-bold text-calm-ink">-</span><button id="clearSleepBtn" class="text-xs text-dopamine-sky font-bold">修改</button></div>
+                  <div class="flex gap-2 mb-3"><input id="sleepTimeInput" type="time" class="flex-1 px-3 py-2 rounded-xl border border-purple-200 outline-none focus:ring-2 focus:ring-dopamine-purple text-base font-mono"><button id="btnSleep" class="bg-dopamine-purple hover:brightness-95 text-white font-bold px-4 py-2 rounded-xl shadow-soft whitespace-nowrap">我要睡了</button></div>
+                  <div class="text-xs text-calm-mute flex items-center justify-between gap-3"><span id="sleepRecordLabel">今日记录：</span><span id="sleepDisplay" class="font-bold text-calm-ink">-</span><button id="clearSleepBtn" class="text-xs text-dopamine-sky font-bold">清空</button></div>
                 </div>
               </div>
 
@@ -1171,6 +1171,19 @@
                 <div id="focusTimerHint" class="text-calm-mute text-sm mb-2">当前专注时长</div>
                 <div id="focusTimerDisplay" class="text-5xl font-black text-dopamine-orange tracking-tight">00:00:00</div>
                 <div id="focusLiveBadge" class="mt-3 text-sm font-bold text-calm-mute">暂无进行中的专注</div>
+                <div id="focusAdjustRow" class="mt-3 flex flex-wrap items-center justify-center gap-1 text-xs">
+                  <button onclick="adjustFocusTime(-30)" class="px-2 py-1 rounded-full bg-white border border-orange-200 text-dopamine-orange font-bold hover:bg-orange-50">-30</button>
+                  <button onclick="adjustFocusTime(-15)" class="px-2 py-1 rounded-full bg-white border border-orange-200 text-dopamine-orange font-bold hover:bg-orange-50">-15</button>
+                  <button onclick="adjustFocusTime(-5)" class="px-2 py-1 rounded-full bg-white border border-orange-200 text-dopamine-orange font-bold hover:bg-orange-50">-5</button>
+                  <button onclick="adjustFocusTime(-1)" class="px-2 py-1 rounded-full bg-white border border-orange-200 text-dopamine-orange font-bold hover:bg-orange-50">-1</button>
+                  <span class="text-calm-mute mx-1">分钟</span>
+                  <button onclick="adjustFocusTime(1)" class="px-2 py-1 rounded-full bg-dopamine-orange text-white font-bold hover:brightness-95">+1</button>
+                  <button onclick="adjustFocusTime(5)" class="px-2 py-1 rounded-full bg-dopamine-orange text-white font-bold hover:brightness-95">+5</button>
+                  <button onclick="adjustFocusTime(15)" class="px-2 py-1 rounded-full bg-dopamine-orange text-white font-bold hover:brightness-95">+15</button>
+                  <button onclick="adjustFocusTime(30)" class="px-2 py-1 rounded-full bg-dopamine-orange text-white font-bold hover:brightness-95">+30</button>
+                  <button onclick="adjustFocusTimeCustom()" class="px-2 py-1 rounded-full bg-gray-100 text-calm-ink font-bold">自定义</button>
+                </div>
+                <div id="focusStartedAtHint" class="mt-2 text-xs text-calm-mute"></div>
               </div>
               <div class="space-y-3">
                 <input id="focusTitle" type="text" placeholder="本次专注主题，例如：改 Related Work" class="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-dopamine-orange">
@@ -1359,11 +1372,25 @@
               <label class="block text-xs text-calm-mute">今日情绪记录 / Mood Note
                 <textarea id="moodNote" rows="5" placeholder="今天的情绪来源、触发点、身体感受……" class="w-full mt-1 px-3 py-2.5 rounded-2xl border border-gray-200 outline-none focus:ring-2 focus:ring-dopamine-yellow resize-none text-sm"></textarea>
               </label>
-              <div class="mt-4 flex gap-3">
-                <button id="saveMoodBtn" class="bg-dopamine-yellow text-white px-5 py-3 rounded-xl font-black">保存情绪记录</button>
-                <button id="deleteMoodBtn" class="bg-gray-100 text-calm-ink px-5 py-3 rounded-xl font-black border border-gray-200">清空当天记录</button>
+              <div class="mt-4 flex gap-3 flex-wrap">
+                <button id="saveMoodBtn" class="bg-dopamine-yellow text-white px-5 py-3 rounded-xl font-black">添加情绪记录</button>
+                <button id="deleteMoodBtn" class="bg-gray-100 text-calm-ink px-5 py-3 rounded-xl font-black border border-gray-200">清空当天全部</button>
               </div>
-              <div id="moodHistoryList" class="mt-5 space-y-3"></div>
+              <!-- 月/周日历视图 -->
+              <div class="mt-5 border-t border-gray-100 pt-4">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="font-black text-sm">情绪日历 / Mood Calendar</div>
+                  <div class="flex gap-1 text-xs">
+                    <button id="moodCalWeekTab" class="px-3 py-1 rounded-full bg-dopamine-yellow text-white font-bold">周</button>
+                    <button id="moodCalMonthTab" class="px-3 py-1 rounded-full bg-gray-100 text-calm-ink font-bold">月</button>
+                    <button id="moodCalPrev" class="px-2 py-1 rounded-full bg-gray-100 text-calm-ink font-bold">‹</button>
+                    <button id="moodCalNext" class="px-2 py-1 rounded-full bg-gray-100 text-calm-ink font-bold">›</button>
+                  </div>
+                </div>
+                <div id="moodCalLabel" class="text-xs text-calm-mute mb-2"></div>
+                <div id="moodCalGrid" class="grid grid-cols-7 gap-1"></div>
+              </div>
+              <div id="moodHistoryList" class="mt-5 space-y-2"></div>
             </div>
             <div class="soft-card p-6">
               <div class="flex items-center justify-between mb-5">
@@ -2759,6 +2786,18 @@
         }
         const parsed = raw ? JSON.parse(raw) : {};
         const legacy = parsed && parsed.state && typeof parsed.state === 'object' ? parsed.state : parsed;
+        // 情绪数据迁移：旧版本 mood[date]={mood,note,savedAt}（对象，覆盖式）
+        // 新版本 mood[date]=[{mood,note,savedAt}, ...]（数组，追加式）
+        const rawMood = legacy.mood || {};
+        const migratedMood = {};
+        Object.keys(rawMood).forEach(date => {
+          const v = rawMood[date];
+          if (Array.isArray(v)) {
+            migratedMood[date] = v.filter(x => x && typeof x === 'object');
+          } else if (v && typeof v === 'object' && (v.mood || v.note)) {
+            migratedMood[date] = [v];
+          }
+        });
         return {
           attendance: legacy.attendance || {},
           timeBlocks: legacy.timeBlocks || {},
@@ -2766,7 +2805,7 @@
           focus: legacy.focus || { active: null, sessions: [] },
           habits: legacy.habits || { list: DEFAULT_HABITS.slice(), logs: {} },
           foods: Array.isArray(legacy.foods) ? legacy.foods : [],
-          mood: legacy.mood || {},
+          mood: migratedMood,
           reflections: legacy.reflections || {},
           phone: legacy.phone || { logs: [] },
           submissions: Array.isArray(legacy.submissions) ? legacy.submissions.map(normalizeSubmission) : [],
@@ -5499,7 +5538,8 @@
         return `<div class="rounded-xl ${cardClass} p-3"><div class="font-bold line-clamp-2">${escapeHtml(s.title)}</div><div class="text-xs text-calm-mute mt-1">${escapeHtml(s.venue || (uiLocale === 'en' ? 'Venue not set' : '未填写 venue'))} · ${s.deadline} · ${getSubmissionUrgency(s) || ''}</div></div>`;
       }).join('') : `<div class="text-sm text-calm-mute">${uiLocale === 'en' ? 'No submission projects yet.' : '暂无投稿项目。'}</div>`;
 
-      const mind = state.mood[todayStr()] || {};
+      const moodArrToday = state.mood[todayStr()];
+      const mind = (Array.isArray(moodArrToday) && moodArrToday.length) ? moodArrToday[moodArrToday.length-1] : {};
       const reflect = state.reflections[todayStr()] || {};
       const moodMap = uiLocale === 'en'
         ? {great:'🤩 Great', happy:'😊 Happy', neutral:'😐 Neutral', tired:'🥲 Tired', sad:'😔 Low'}
@@ -5522,26 +5562,47 @@
     function bindAttendance() {
       document.getElementById('btnWake').addEventListener('click', () => {
         const day = getDayAttendance();
-        const preset = day.wake || timeNow();
-        const next = prompt(localeText('请输入真实起床时间（HH:MM，留空清空）', 'Enter actual wake-up time (HH:MM, blank to clear)'), preset);
-        if (next === null) return;
-        const hm = normalizeHM(next);
+        const inp = document.getElementById('wakeTimeInput');
+        const val = (inp.value || timeNow()).trim();
+        const hm = normalizeHM(val);
         if (hm === null) { alert(localeText('时间格式应为 HH:MM', 'Invalid time format, use HH:MM')); return; }
         day.wake = hm || null;
         saveState(); renderAll();
       });
       document.getElementById('btnSleep').addEventListener('click', () => {
         const day = getDayAttendance();
-        const preset = day.sleep || timeNow();
-        const next = prompt(localeText('请输入真实睡觉时间（HH:MM，留空清空）', 'Enter actual sleep time (HH:MM, blank to clear)'), preset);
-        if (next === null) return;
-        const hm = normalizeHM(next);
+        const inp = document.getElementById('sleepTimeInput');
+        const val = (inp.value || timeNow()).trim();
+        const hm = normalizeHM(val);
         if (hm === null) { alert(localeText('时间格式应为 HH:MM', 'Invalid time format, use HH:MM')); return; }
         day.sleep = hm || null;
         saveState(); renderAll();
       });
-      document.getElementById('clearWakeBtn').addEventListener('click', () => editWake());
-      document.getElementById('clearSleepBtn').addEventListener('click', () => editSleep());
+      // 已打卡后，input 失焦自动更新
+      document.getElementById('wakeTimeInput').addEventListener('change', () => {
+        const day = getDayAttendance();
+        if (day.wake == null) return; // 未打卡时不自动写入
+        const hm = normalizeHM(document.getElementById('wakeTimeInput').value);
+        if (hm === null) return;
+        day.wake = hm || null;
+        saveState(); renderAll();
+      });
+      document.getElementById('sleepTimeInput').addEventListener('change', () => {
+        const day = getDayAttendance();
+        if (day.sleep == null) return;
+        const hm = normalizeHM(document.getElementById('sleepTimeInput').value);
+        if (hm === null) return;
+        day.sleep = hm || null;
+        saveState(); renderAll();
+      });
+      document.getElementById('clearWakeBtn').addEventListener('click', () => {
+        if (!confirm(localeText('清空今日起床记录？', 'Clear today\\'s wake record?'))) return;
+        clearWake(); renderAll();
+      });
+      document.getElementById('clearSleepBtn').addEventListener('click', () => {
+        if (!confirm(localeText('清空今日睡觉记录？', 'Clear today\\'s sleep record?'))) return;
+        clearSleep(); renderAll();
+      });
       const wakeBadge = document.getElementById('wakeTargetBadge');
       if (wakeBadge) { wakeBadge.style.cursor = 'pointer'; wakeBadge.title = localeText('点击修改目标时间', 'Click to edit target time'); wakeBadge.addEventListener('click', () => editWakeTarget()); }
       const sleepBadge = document.getElementById('sleepTargetBadge');
@@ -5647,6 +5708,11 @@
       const day = getDayAttendance();
       document.getElementById('wakeDisplay').textContent = day.wake || '-';
       document.getElementById('sleepDisplay').textContent = day.sleep || '-';
+      // 同步 input 值：已打卡 → 显示打卡时间；未打卡 → 显示当前时间方便一键确认
+      const wIn = document.getElementById('wakeTimeInput');
+      if (wIn && document.activeElement !== wIn) wIn.value = day.wake || timeNow();
+      const sIn = document.getElementById('sleepTimeInput');
+      if (sIn && document.activeElement !== sIn) sIn.value = day.sleep || timeNow();
 
       ['morning','afternoon','evening'].forEach(period => {
         const slot = day.periods[period];
@@ -6072,16 +6138,43 @@
       const el = document.getElementById('focusTimerDisplay');
       const badge = document.getElementById('focusLiveBadge');
       if (!el || !badge) return;
+      const startedHint = document.getElementById('focusStartedAtHint');
       if (!state.focus.active) {
         el.textContent = '00:00:00';
         badge.textContent = localeText('暂无进行中的专注', 'No active focus session');
         badge.classList.remove('pulse-ring');
+        if (startedHint) startedHint.textContent = '';
         return;
       }
       const sec = Math.floor((Date.now() - state.focus.active.startTs)/1000);
       el.textContent = `${pad(Math.floor(sec/3600))}:${pad(Math.floor(sec%3600/60))}:${pad(sec%60)}`;
       badge.textContent = uiLocale === 'en' ? `Active: ${state.focus.active.title}` : `进行中：${state.focus.active.title}`;
       badge.classList.add('pulse-ring');
+      if (startedHint) {
+        const d = new Date(state.focus.active.startTs);
+        startedHint.textContent = `${localeText('开始于', 'Started at')} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      }
+    }
+    // 实时调整计时器：正数 +N 分钟（看起来已专注更久），负数 -N 分钟
+    function adjustFocusTime(minutes) {
+      if (!state.focus.active) { alert(localeText('当前没有进行中的专注。', 'No active focus session.')); return; }
+      const delta = Number(minutes) * 60000;
+      let nextStart = state.focus.active.startTs - delta; // +N 让 startTs 提前
+      const now = Date.now();
+      if (nextStart > now) nextStart = now; // 不能让 elapsed 变负
+      state.focus.active.startTs = nextStart;
+      // 同步 startedAt 显示（仅用于停止时的开始时间记录）
+      const d = new Date(nextStart);
+      state.focus.active.startedAt = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+      saveState();
+      renderFocusTimer();
+    }
+    function adjustFocusTimeCustom() {
+      const raw = prompt(localeText('输入要调整的分钟数（正数 +，负数 -）', 'Enter minutes to adjust (positive +, negative -)'), '10');
+      if (raw == null) return;
+      const n = parseInt(raw, 10);
+      if (!Number.isFinite(n) || n === 0) { alert(localeText('请输入非零整数', 'Enter a non-zero integer')); return; }
+      adjustFocusTime(n);
     }
     function renderFocusSection() {
       const select = document.getElementById('focusTaskLink');
@@ -6540,6 +6633,7 @@
       document.getElementById('clearReflectionBtn').addEventListener('click', clearReflectionInputs);
       document.getElementById('deleteReflectionBtn').addEventListener('click', deleteReflectionForSelectedDate);
       document.getElementById('mindDate').addEventListener('change', renderMindSection);
+      bindMoodCalendar();
     }
     function selectMood(mood) {
       document.querySelectorAll('.mood-emoji').forEach(el => el.classList.toggle('active', el.dataset.mood === mood));
@@ -6549,7 +6643,13 @@
       const date = document.getElementById('mindDate').value || todayStr();
       const mood = document.body.dataset.selectedMood;
       if (!mood) { alert(localeText('先选一个心情表情吧。', 'Please select a mood emoji first.')); return; }
-      state.mood[date] = { mood, note: document.getElementById('moodNote').value.trim(), savedAt: dateTimeNow() };
+      const note = document.getElementById('moodNote').value.trim();
+      if (!Array.isArray(state.mood[date])) state.mood[date] = [];
+      state.mood[date].push({ mood, note, savedAt: dateTimeNow() });
+      // 清空输入，方便再加一条
+      document.getElementById('moodNote').value = '';
+      document.body.dataset.selectedMood = '';
+      document.querySelectorAll('.mood-emoji').forEach(el => el.classList.remove('active'));
       saveState(); renderMindSection(); renderAll();
     }
     function saveReflection() {
@@ -6565,6 +6665,7 @@
     }
     function deleteMoodForSelectedDate() {
       const date = document.getElementById('mindDate').value || todayStr();
+      if (!confirm(localeText('确认清空该日全部情绪记录？', 'Clear all mood records for this date?'))) return;
       delete state.mood[date];
       document.body.dataset.selectedMood = '';
       saveState(); renderMindSection(); renderAll();
@@ -6577,6 +6678,17 @@
     function deleteMood(date) {
       delete state.mood[date];
       saveState(); renderMindSection(); renderAll();
+    }
+    // 删除某日的某一条
+    function deleteMoodEntry(date, savedAt) {
+      const arr = state.mood[date];
+      if (!Array.isArray(arr)) return;
+      state.mood[date] = arr.filter(x => x.savedAt !== savedAt);
+      if (state.mood[date].length === 0) delete state.mood[date];
+      saveState();
+      renderMoodDetailModal(date);
+      renderMindSection();
+      renderAll();
     }
     function deleteReflection(date) {
       delete state.reflections[date];
@@ -6595,23 +6707,164 @@
     function renderMindSection() {
       const date = document.getElementById('mindDate').value || todayStr();
       document.getElementById('mindDate').value = date;
-      const mood = state.mood[date] || {};
-      document.querySelectorAll('.mood-emoji').forEach(el => el.classList.toggle('active', el.dataset.mood === mood.mood));
-      document.body.dataset.selectedMood = mood.mood || '';
-      document.getElementById('moodNote').value = mood.note || '';
+      // 输入区不再回填（避免覆盖正在写的新条目）；改为显示"今日已有 N 条"
+      const todayArr = Array.isArray(state.mood[date]) ? state.mood[date] : [];
       const ref = state.reflections[date] || {};
       document.getElementById('reflectProud').value = ref.proud || '';
       document.getElementById('reflectChange').value = ref.change || '';
       document.getElementById('reflectInsight').value = ref.insight || '';
       document.getElementById('reflectGratitude').value = ref.gratitude || '';
 
-      const moodEntries = Object.entries(state.mood).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,6);
       const moodMap = uiLocale === 'en'
         ? {great:'🤩 Great', happy:'😊 Happy', neutral:'😐 Neutral', tired:'🥲 Tired', sad:'😔 Low'}
         : {great:'🤩 很棒', happy:'😊 开心', neutral:'😐 平静', tired:'🥲 疲惫', sad:'😔 低落'};
-      document.getElementById('moodHistoryList').innerHTML = moodEntries.length ? moodEntries.map(([d,m]) => `<div class="bg-white rounded-2xl border border-gray-100 p-4"><div class="flex items-start justify-between gap-3"><div><div class="font-black">${d} · ${moodMap[m.mood] || localeText('未标记', 'Unmarked')}</div><div class="text-sm text-calm-mute mt-2 line-clamp-2">${escapeHtml(m.note || localeText('无文字说明', 'No note'))}</div></div><button onclick="openMoodRecordActions('${d}')" class="text-dopamine-sky text-sm font-bold shrink-0">${localeText('修改', 'Edit')}</button></div></div>`).join('') : `<div class="text-sm text-calm-mute">${localeText('暂无情绪记录。', 'No mood records yet.')}</div>`;
+
+      // 把所有 mood 摊平为 entries：[{date, mood, note, savedAt}]
+      const allEntries = [];
+      Object.keys(state.mood).forEach(d => {
+        const arr = Array.isArray(state.mood[d]) ? state.mood[d] : [];
+        arr.forEach(m => allEntries.push({ date: d, ...m }));
+      });
+      // 倒序，最近 30 条
+      allEntries.sort((a,b) => (b.savedAt||b.date).localeCompare(a.savedAt||a.date));
+      const top = allEntries.slice(0, 30);
+
+      const todayBadge = todayArr.length
+        ? `<div class="text-xs text-calm-mute mb-2">${localeText(`今日已有 ${todayArr.length} 条记录`, `${todayArr.length} record(s) today`)}</div>`
+        : '';
+      const listHtml = top.length
+        ? top.map(e => {
+            const note = (e.note || '').replace(/\s+/g, ' ').trim();
+            const preview = note.length > 30 ? note.slice(0, 30) + '…' : (note || localeText('无文字说明', 'No note'));
+            const time = (e.savedAt || '').slice(11, 16);
+            return `<div class="bg-white rounded-xl border border-gray-100 p-3 cursor-pointer hover:border-dopamine-yellow" onclick="openMoodDetail('${e.date}')"><div class="flex items-center justify-between gap-3"><div class="min-w-0 flex-1"><div class="text-xs text-calm-mute">${e.date} ${time}</div><div class="font-bold text-sm mt-0.5">${moodMap[e.mood] || localeText('未标记', 'Unmarked')}</div><div class="text-xs text-calm-mute mt-1 truncate">${escapeHtml(preview)}</div></div><i class="fa-solid fa-chevron-right text-calm-mute text-xs"></i></div></div>`;
+          }).join('')
+        : `<div class="text-sm text-calm-mute">${localeText('暂无情绪记录。', 'No mood records yet.')}</div>`;
+      document.getElementById('moodHistoryList').innerHTML = todayBadge + listHtml;
+
       const refEntries = Object.entries(state.reflections).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,5);
       document.getElementById('reflectionHistoryList').innerHTML = refEntries.length ? refEntries.map(([d,r]) => `<div class="bg-white rounded-2xl border border-gray-100 p-4"><div class="flex items-start justify-between gap-3"><div><div class="font-black">${d}</div><div class="text-sm text-calm-mute mt-2">${escapeHtml(r.insight || r.proud || r.change || localeText('无内容', 'No content'))}</div></div><button onclick="openReflectionRecordActions('${d}')" class="text-dopamine-sky text-sm font-bold shrink-0">${localeText('修改', 'Edit')}</button></div></div>`).join('') : `<div class="text-sm text-calm-mute">${localeText('暂无观心记录。', 'No reflection records yet.')}</div>`;
+
+      renderMoodCalendar();
+    }
+
+    // ==== 情绪日历（周/月）====
+    const moodCalState = { mode: 'week', cursor: new Date() };
+    function renderMoodCalendar() {
+      const grid = document.getElementById('moodCalGrid');
+      const label = document.getElementById('moodCalLabel');
+      if (!grid || !label) return;
+      // tab 高亮
+      const wk = document.getElementById('moodCalWeekTab');
+      const mn = document.getElementById('moodCalMonthTab');
+      if (wk && mn) {
+        wk.className = `px-3 py-1 rounded-full font-bold ${moodCalState.mode==='week' ? 'bg-dopamine-yellow text-white' : 'bg-gray-100 text-calm-ink'}`;
+        mn.className = `px-3 py-1 rounded-full font-bold ${moodCalState.mode==='month' ? 'bg-dopamine-yellow text-white' : 'bg-gray-100 text-calm-ink'}`;
+      }
+      const moodEmoji = { great:'🤩', happy:'😊', neutral:'😐', tired:'🥲', sad:'😔' };
+      const fmtDate = (d) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+      const cells = [];
+      let labelText = '';
+      if (moodCalState.mode === 'week') {
+        // 周一为起点
+        const cur = new Date(moodCalState.cursor);
+        const dow = (cur.getDay() + 6) % 7;
+        const monday = new Date(cur); monday.setDate(cur.getDate() - dow);
+        const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+        labelText = `${fmtDate(monday)} ~ ${fmtDate(sunday)}`;
+        for (let i = 0; i < 7; i++) {
+          const d = new Date(monday); d.setDate(monday.getDate() + i);
+          cells.push({ date: fmtDate(d), inMonth: true, day: d.getDate() });
+        }
+      } else {
+        // 月视图
+        const cur = new Date(moodCalState.cursor);
+        const y = cur.getFullYear(), m = cur.getMonth();
+        labelText = `${y}-${pad(m+1)}`;
+        const first = new Date(y, m, 1);
+        const offset = (first.getDay() + 6) % 7;
+        const start = new Date(first); start.setDate(1 - offset);
+        for (let i = 0; i < 42; i++) {
+          const d = new Date(start); d.setDate(start.getDate() + i);
+          cells.push({ date: fmtDate(d), inMonth: d.getMonth() === m, day: d.getDate() });
+        }
+      }
+      label.textContent = labelText;
+      // 周一到周日表头（合并到同一 grid，前 7 格作表头）
+      const headers = ['一','二','三','四','五','六','日'].map(t => `<div class="text-center text-[10px] text-calm-mute font-bold py-1">${t}</div>`).join('');
+      const cellsHtml = cells.map(c => {
+        const arr = state.mood[c.date];
+        const last = Array.isArray(arr) && arr.length ? arr[arr.length-1] : null;
+        const emoji = last ? (moodEmoji[last.mood] || '·') : '';
+        const today = c.date === todayStr();
+        const cls = `aspect-square rounded-md text-center flex flex-col items-center justify-center text-xs ${c.inMonth ? '' : 'opacity-30'} ${today ? 'ring-2 ring-dopamine-yellow' : 'border border-gray-100'} ${arr ? 'cursor-pointer bg-yellow-50' : 'bg-white'}`;
+        const click = arr ? `onclick="openMoodDetail('${c.date}')"` : '';
+        return `<div class="${cls}" ${click}><div class="text-[10px] text-calm-mute leading-tight">${c.day}</div><div class="text-base leading-none">${emoji}</div></div>`;
+      }).join('');
+      grid.innerHTML = headers + cellsHtml;
+    }
+
+    function bindMoodCalendar() {
+      const wk = document.getElementById('moodCalWeekTab');
+      const mn = document.getElementById('moodCalMonthTab');
+      const pv = document.getElementById('moodCalPrev');
+      const nx = document.getElementById('moodCalNext');
+      if (wk) wk.addEventListener('click', () => { moodCalState.mode = 'week'; renderMoodCalendar(); });
+      if (mn) mn.addEventListener('click', () => { moodCalState.mode = 'month'; renderMoodCalendar(); });
+      if (pv) pv.addEventListener('click', () => {
+        const d = new Date(moodCalState.cursor);
+        if (moodCalState.mode === 'week') d.setDate(d.getDate() - 7); else d.setMonth(d.getMonth() - 1);
+        moodCalState.cursor = d; renderMoodCalendar();
+      });
+      if (nx) nx.addEventListener('click', () => {
+        const d = new Date(moodCalState.cursor);
+        if (moodCalState.mode === 'week') d.setDate(d.getDate() + 7); else d.setMonth(d.getMonth() + 1);
+        moodCalState.cursor = d; renderMoodCalendar();
+      });
+    }
+
+    // ==== 情绪详情 modal ====
+    function openMoodDetail(date) {
+      let modal = document.getElementById('moodDetailModal');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'moodDetailModal';
+        modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;display:none;align-items:center;justify-content:center;padding:16px;';
+        modal.innerHTML = `<div style="background:#fff;border-radius:18px;max-width:520px;width:100%;max-height:80vh;overflow:auto;padding:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <div id="moodDetailTitle" style="font-weight:900;font-size:16px;"></div>
+            <button id="moodDetailClose" style="background:none;border:0;font-size:20px;cursor:pointer;color:#888;">×</button>
+          </div>
+          <div id="moodDetailBody"></div>
+        </div>`;
+        document.body.appendChild(modal);
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
+        modal.querySelector('#moodDetailClose').addEventListener('click', () => modal.style.display = 'none');
+      }
+      modal.dataset.date = date;
+      modal.style.display = 'flex';
+      renderMoodDetailModal(date);
+    }
+    function renderMoodDetailModal(date) {
+      const modal = document.getElementById('moodDetailModal');
+      if (!modal) return;
+      const arr = Array.isArray(state.mood[date]) ? state.mood[date] : [];
+      if (arr.length === 0) { modal.style.display = 'none'; return; }
+      const moodMap = uiLocale === 'en'
+        ? {great:'🤩 Great', happy:'😊 Happy', neutral:'😐 Neutral', tired:'🥲 Tired', sad:'😔 Low'}
+        : {great:'🤩 很棒', happy:'😊 开心', neutral:'😐 平静', tired:'🥲 疲惫', sad:'😔 低落'};
+      modal.querySelector('#moodDetailTitle').textContent = `${date} · ${arr.length} ${localeText('条记录', 'record(s)')}`;
+      modal.querySelector('#moodDetailBody').innerHTML = arr.slice().reverse().map(e => {
+        const time = (e.savedAt || '').slice(11, 16);
+        return `<div style="border:1px solid #eee;border-radius:12px;padding:12px;margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <div style="font-weight:700;font-size:14px;">${moodMap[e.mood] || ''}</div>
+            <div style="font-size:11px;color:#888;">${time}</div>
+          </div>
+          <div style="font-size:13px;color:#333;white-space:pre-wrap;">${escapeHtml(e.note || localeText('无文字说明', 'No note'))}</div>
+          <button onclick="if(confirm('${localeText('删除这一条？', 'Delete this entry?')}'))deleteMoodEntry('${date}','${e.savedAt}')" style="margin-top:8px;background:none;border:0;color:#be123c;font-size:11px;cursor:pointer;">${localeText('删除这条', 'Delete')}</button>
+        </div>`;
+      }).join('');
     }
 
     function bindPhone() {
