@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Shu's PhD Studio</title>
+  <title>Glean · A PhD Studio</title>
   <!-- PWA -->
   <link rel="manifest" href="../assets/manifest.json" />
   <meta name="theme-color" content="#B8755A" />
@@ -726,8 +726,9 @@
   <div id="loginOverlay" style="display:none; position:fixed; inset:0; z-index:200; background:rgba(250,247,241,.97); backdrop-filter:blur(20px); align-items:center; justify-content:center; padding:20px;">
     <div style="max-width:420px; width:100%; background:#fff; border-radius:24px; padding:36px 28px; box-shadow:0 20px 60px rgba(0,0,0,.12);">
       <div style="text-align:center; margin-bottom:24px;">
-        <div style="font-family:'Instrument Serif',Georgia,serif; font-size:42px; color:#1F2328;">Shu<sup style="font-size:14px;opacity:.5">®</sup></div>
-        <div style="font-size:13px; color:#6B6F76; margin-top:4px;">PhD Studio · 登录同步</div>
+        <div style="font-family:'Instrument Serif',Georgia,serif; font-size:48px; color:#1F2328; letter-spacing:-0.02em;">Glean<span style="opacity:.45">.</span></div>
+        <div style="font-size:12px; color:#6B6F76; margin-top:6px; letter-spacing:0.08em; text-transform:uppercase;">A PhD Studio · Sign in to sync</div>
+        <div style="font-family:'Instrument Serif',Georgia,serif; font-style:italic; font-size:11px; color:#8C8F94; margin-top:10px; opacity:.7;">by Shu<sup style="font-size:.7em;opacity:.7">®</sup></div>
       </div>
       <div id="loginStep1">
         <label style="display:block; font-size:12px; color:#6B6F76; margin-bottom:6px;">邮箱地址 / Email</label>
@@ -773,8 +774,8 @@
                 <i class="fa-solid fa-graduation-cap text-base"></i>
               </div>
               <div>
-                <h1 class="serif-title text-2xl text-[#1F2328] leading-none">Shu<sup class="text-[10px] align-super opacity-60">®</sup></h1>
-                <p id="sidebarSubtitle" class="text-[11px] tracking-[0.18em] uppercase text-calm-mute mt-1">PhD Studio</p>
+                <h1 class="serif-title text-2xl text-[#1F2328] leading-none">Glean<span class="opacity-40">.</span></h1>
+                <p id="sidebarSubtitle" class="text-[11px] tracking-[0.18em] uppercase text-calm-mute mt-1">A PhD Studio</p>
               </div>
             </a>
             <div id="currentDateTime" class="text-xs text-calm-mute bg-white/40 rounded-xl px-3 py-2 border border-white/60 leading-relaxed"></div>
@@ -830,8 +831,8 @@
             <div class="absolute right-20 bottom-0 w-48 h-48 rounded-full bg-[#7A9080]/15 blur-3xl"></div>
             <div class="relative flex flex-col xl:flex-row xl:items-center xl:justify-between gap-5">
               <div>
-                <h2 class="text-5xl md:text-6xl tracking-tight mb-2 text-[#1F2328]" style="font-family: 'Instrument Serif', Georgia, serif; font-weight: 400;">Shu<sup class="text-base align-super opacity-50">®</sup></h2>
-                <p id="dashboardSubtitle" class="text-calm-mute max-w-3xl leading-7">Shu's PhD Studio · 田野 · 写作 · 投稿</p>
+                <h2 class="text-5xl md:text-6xl tracking-tight mb-2 text-[#1F2328]" style="font-family: 'Instrument Serif', Georgia, serif; font-weight: 400;">Glean<span class="opacity-40">.</span></h2>
+                <p id="dashboardSubtitle" class="text-calm-mute max-w-3xl leading-7">A PhD Studio · 田野 · 写作 · 投稿</p>
               </div>
               <div class="grid grid-cols-2 gap-3 min-w-[300px]">
                 <div class="bg-white rounded-2xl p-4 shadow-soft border border-orange-50">
@@ -2958,7 +2959,7 @@
         periodSegmentNoRecord: (label) => `${label} 暂无已完成记录`,
         periodSegmentTitle: (label, index) => `${label} 第${index}段`,
         leaveListEmpty: '暂无请假记录。',
-        dashboardSubtitle: 'Shu\'s PhD Studio · 田野 · 写作 · 投稿',
+        dashboardSubtitle: 'A PhD Studio · 田野 · 写作 · 投稿',
         dashboardFootnote: '把田野、阅读、写作、投稿、里程碑、导师会议放进同一个工作台。整合起居考勤、时间块、专注、饮食、情绪、手机克制、成就系统、数据看板和论文/会议投稿管理。所有数据默认保存在本地浏览器。',
         countdownPanelTitle: '倒计时',
         countdownPanelHint: '自动汇总里程碑 · 投稿 · 会议 · 田野，并支持自定义',
@@ -3091,7 +3092,7 @@
         periodSegmentNoRecord: (label) => `No completed segment in ${label}`,
         periodSegmentTitle: (label, index) => `${label} segment ${index}`,
         leaveListEmpty: 'No leave records.',
-        dashboardSubtitle: 'Shu\'s PhD Studio · Fieldwork · Writing · Submission',
+        dashboardSubtitle: 'A PhD Studio · Fieldwork · Writing · Submission',
         dashboardFootnote: 'A single workspace for discipline, research, and submissions. It combines routines, attendance, time blocks, focus, diet, mood, phone restraint, achievements, analytics, and paper or conference submission tracking. All data is saved locally in your browser by default.',
         countdownPanelTitle: 'Countdown',
         countdownPanelHint: 'Auto-aggregates milestones, submissions, meetings, fieldwork. Custom items supported.',

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Shu — A Quiet PhD Studio</title>
+<title>Glean — A PhD Studio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500&display=swap" rel="stylesheet">
@@ -153,23 +153,22 @@
     font-weight: 600;
   }
   @media (min-width: 640px) { .hero-subtitle { font-size: 18px; } }
-  .hero-subtitle .shu-inline {
+  /* Footer signature — author credit, separate from the Glean brand */
+  .hero-footer {
+    position: absolute;
+    bottom: 32px;
+    left: 0;
+    right: 0;
+    text-align: center;
     font-family: var(--font-display);
-    font-weight: 700;
     font-style: italic;
-    color: var(--fg);
-    font-size: 1.15em;
-    letter-spacing: -0.01em;
-    white-space: nowrap;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    color: var(--muted);
+    opacity: 0.6;
+    z-index: 10;
   }
-  .hero-subtitle .shu-inline svg {
-    width: 0.85em;
-    height: 0.85em;
-    vertical-align: -0.08em;
-    margin-right: 0.18em;
-    display: inline-block;
-    flex-shrink: 0;
-  }
+  .hero-footer sup { font-size: 0.7em; opacity: 0.7; margin-left: 0.1em; }
 
   /* Animations */
   @keyframes fade-rise {
@@ -193,15 +192,20 @@
 <div class="page">
   <main class="hero">
     <div class="signature animate-fade-rise">Shu<sup>®</sup></div>
+    <h1 class="animate-fade-rise-delay">Glean<span style="opacity:.5">.</span></div>
     <h1 class="animate-fade-rise-delay">
-      Where <em>research</em> writes through the <em>silence.</em>
+      Where every PhD is a <em>gleaner's</em> long walk,
+      picking up what the day <em>leaves behind.</em>
     </h1>
     <p class="hero-subtitle animate-fade-rise-delay-2">
-      A quiet studio for moods, daily rituals, and the life of research. A companion to <span class="shu-inline"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2z"/></svg>Shu</span> through the long rhythms of a PhD.
+      A quiet studio for moods, rituals, fieldwork, and the slow harvest of a doctoral life.
     </p>
-    <a href="phd-workspace-v3.html" class="liquid-glass animate-fade-rise-delay-3">Begin Today</a>
+    <a href="phd-workspace-v3.html" class="liquid-glass animate-fade-rise-delay-3">Begin gleaning.</a>
   </main>
 </div>
+
+<div class="hero-footer animate-fade-rise-delay-3">
+  A studio by Shu<sup>®</sup> &nbsp;✦&nbsp; for the bent-over work of thinking.
 
 </body>
 </html>
