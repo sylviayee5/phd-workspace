@@ -1015,6 +1015,9 @@
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div class="rounded-2xl bg-orange-50 border border-orange-100 p-4">
                   <div class="flex items-center justify-between mb-3"><h3 id="periodMorningTitle" class="font-black text-dopamine-orange">上午</h3><span class="text-xs text-calm-mute">08:00-12:00</span></div>
+                  <div class="flex gap-2 mb-2">
+                    <input id="periodTimeInput-morning" type="time" class="flex-1 min-w-0 px-3 py-2 rounded-xl border border-orange-200 outline-none focus:ring-2 focus:ring-dopamine-orange text-sm font-mono">
+                  </div>
                   <div class="flex gap-2 mb-3">
                     <button class="period-btn flex-1 bg-dopamine-orange text-white rounded-xl py-2 font-bold" data-period="morning" data-action="start">开始</button>
                     <button class="period-btn flex-1 bg-white text-dopamine-orange border border-orange-200 rounded-xl py-2 font-bold" data-period="morning" data-action="end">结束</button>
@@ -1024,6 +1027,9 @@
                 </div>
                 <div class="rounded-2xl bg-sky-50 border border-sky-100 p-4">
                   <div class="flex items-center justify-between mb-3"><h3 id="periodAfternoonTitle" class="font-black text-dopamine-sky">下午</h3><span class="text-xs text-calm-mute">14:00-18:00</span></div>
+                  <div class="flex gap-2 mb-2">
+                    <input id="periodTimeInput-afternoon" type="time" class="flex-1 min-w-0 px-3 py-2 rounded-xl border border-sky-200 outline-none focus:ring-2 focus:ring-dopamine-sky text-sm font-mono">
+                  </div>
                   <div class="flex gap-2 mb-3">
                     <button class="period-btn flex-1 bg-dopamine-sky text-white rounded-xl py-2 font-bold" data-period="afternoon" data-action="start">开始</button>
                     <button class="period-btn flex-1 bg-white text-dopamine-sky border border-sky-200 rounded-xl py-2 font-bold" data-period="afternoon" data-action="end">结束</button>
@@ -1033,6 +1039,9 @@
                 </div>
                 <div class="rounded-2xl bg-purple-50 border border-purple-100 p-4">
                   <div class="flex items-center justify-between mb-3"><h3 id="periodEveningTitle" class="font-black text-dopamine-purple">晚上</h3><span class="text-xs text-calm-mute">19:00-22:00</span></div>
+                  <div class="flex gap-2 mb-2">
+                    <input id="periodTimeInput-evening" type="time" class="flex-1 min-w-0 px-3 py-2 rounded-xl border border-purple-200 outline-none focus:ring-2 focus:ring-dopamine-purple text-sm font-mono">
+                  </div>
                   <div class="flex gap-2 mb-3">
                     <button class="period-btn flex-1 bg-dopamine-purple text-white rounded-xl py-2 font-bold" data-period="evening" data-action="start">开始</button>
                     <button class="period-btn flex-1 bg-white text-dopamine-purple border border-purple-200 rounded-xl py-2 font-bold" data-period="evening" data-action="end">结束</button>
@@ -5688,41 +5697,23 @@
       if (day.leave) { alert(uiLocale === 'en' ? 'Today is marked as leave. Remove leave record before attendance check-in.' : '今日已请假，若要打卡请先删除请假记录。'); return; }
       const slot = day.periods[period];
       const label = (typeof periodLabel === 'function') ? periodLabel(period) : period;
+      // 从该时段的内联输入框读取时间，没填则退回当前时间
+      const inputEl = document.getElementById(`periodTimeInput-${period}`);
+      const rawInput = inputEl ? inputEl.value : '';
+      const hm = normalizeHM(rawInput) || timeNow();
       if (action === 'start') {
         if (slot.activeStart) { alert(uiLocale === 'en' ? 'This period is already in progress.' : '这一时段已经在进行中。'); return; }
-        // 支持补录：输入真实开始时间
-        const preset = timeNow();
-        const input = await showInputModal(localeText('输入开始时间', 'Start Time'), localeText(`${label}真实开始时间（HH:MM）`, `Enter actual ${label} start time (HH:MM)`), preset);
-        if (input === null) return;
-        const hm = normalizeHM(input);
-        if (!hm) { alert(localeText('时间格式应为 HH:MM', 'Invalid time format, use HH:MM')); return; }
         slot.activeStart = hm;
+        if (inputEl) inputEl.value = '';
       } else {
         if (!slot.activeStart) {
-          // 没有活跃开始：允许补录一整段（开始 + 结束）
-          const confirmFill = confirm(localeText(`尚未记录${label}开始时间。是否一次性补录一整段（开始 + 结束）？`, `No active ${label} start recorded. Backfill a full segment (start + end)?`));
-          if (!confirmFill) return;
-          const startInput = await showInputModal(localeText('输入开始时间', 'Start Time'), localeText(`${label}开始时间（HH:MM）`, `${label} start time (HH:MM)`), timeNow());
-          if (startInput === null) return;
-          const startHM = normalizeHM(startInput);
-          if (!startHM) { alert(localeText('时间格式应为 HH:MM', 'Invalid time format, use HH:MM')); return; }
-          const endInput = await showInputModal(localeText('输入结束时间', 'End Time'), localeText(`${label}结束时间（HH:MM）`, `${label} end time (HH:MM)`), timeNow());
-          if (endInput === null) return;
-          const endHM = normalizeHM(endInput);
-          if (!endHM) { alert(localeText('时间格式应为 HH:MM', 'Invalid time format, use HH:MM')); return; }
-          if (endHM <= startHM) { alert(localeText('结束时间必须晚于开始时间。', 'End time must be later than start time.')); return; }
-          slot.segments.push({ start: startHM, end: endHM, minutes: minutesBetween(startHM, endHM), qualified: startHM <= PERIOD_META[period].startStandard });
-          saveState(); renderAll();
+          alert(localeText(`尚未记录${label}开始时间。请先点「开始」。`, `No active ${label} start recorded. Click 'Start' first.`));
           return;
         }
-        // 已有活跃开始：输入真实结束时间
-        const endInput = await showInputModal(localeText('输入结束时间', 'End Time'), localeText(`${label}真实结束时间（HH:MM）`, `Enter actual ${label} end time (HH:MM)`), timeNow());
-        if (endInput === null) return;
-        const endHM = normalizeHM(endInput);
-        if (!endHM) { alert(localeText('时间格式应为 HH:MM', 'Invalid time format, use HH:MM')); return; }
-        if (endHM <= slot.activeStart) { alert(localeText('结束时间必须晚于开始时间。', 'End time must be later than start time.')); return; }
-        slot.segments.push({ start: slot.activeStart, end: endHM, minutes: minutesBetween(slot.activeStart, endHM), qualified: slot.activeStart <= PERIOD_META[period].startStandard });
+        if (hm <= slot.activeStart) { alert(localeText('结束时间必须晚于开始时间。', 'End time must be later than start time.')); return; }
+        slot.segments.push({ start: slot.activeStart, end: hm, minutes: minutesBetween(slot.activeStart, hm), qualified: slot.activeStart <= PERIOD_META[period].startStandard });
         slot.activeStart = null;
+        if (inputEl) inputEl.value = '';
       }
       saveState(); renderAll();
     }
