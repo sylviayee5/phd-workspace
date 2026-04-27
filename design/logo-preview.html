@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8" />
+<title>Glean Logo Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #EFEAE2;
+    margin: 0;
+    padding: 48px 32px;
+    color: #1F2328;
+  }
+  h1 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: 42px;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+  .sub { color: #6B6F76; font-size: 13px; margin-bottom: 40px; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 40px;
+    max-width: 1400px;
+  }
+  .card {
+    background: white;
+    border-radius: 24px;
+    padding: 28px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .icon-box {
+    width: 100%;
+    aspect-ratio: 1/1;
+    display: block;
+    border-radius: 32px;
+    overflow: hidden;
+    position: relative;
+  }
+  .icon-box svg { width: 100%; height: 100%; display: block; }
+  .label {
+    font-size: 12px;
+    font-weight: 800;
+    color: #1F2328;
+    margin-top: 14px;
+    letter-spacing: 0.04em;
+  }
+  .desc { font-size: 11px; color: #6B6F76; margin-top: 4px; line-height: 1.5; }
+  .actions { margin-top: 12px; display: flex; gap: 8px; }
+  button {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid #E5E5E5;
+    background: white;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    color: #1F2328;
+  }
+  button:hover { background: #FAF7F1; }
+  /* === 变体样式 === */
+  .ivory { background: #FAF7F1; }
+  .ink   { background: #1F2328; }
+  .amber { background: #B8755A; }
+  .mono  { background: #F5F3EE; }
+
+  .glyph {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    line-height: 1;
+    user-select: none;
+  }
+</style>
+</head>
+<body>
+
+<h1>Glean — Logo Preview</h1>
+<div class="sub">六个方向，每个都是 512×512 纯 SVG。点下面 "Download SVG" 导出。选定的那个告诉我编号，我就部署成 APP 图标。</div>
+
+<div class="grid" id="grid"></div>
+
+<script>
+// 所有方案：纯 SVG，导出 512×512，Instrument Serif 作为 web font 嵌入
+const FONT_IMPORT = `@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');`;
+
+function svgShell(bg, inner, { roundedRect = true } = {}) {
+  const rect = roundedRect
+    ? `<rect x="0" y="0" width="512" height="512" rx="114" ry="114" fill="${bg}"/>`
+    : `<rect x="0" y="0" width="512" height="512" fill="${bg}"/>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs><style>${FONT_IMPORT}</style></defs>
+  ${rect}
+  ${inner}
+</svg>`;
+}
+
+const variants = [
+  {
+    id: 'A-ivory-amber',
+    name: 'A — 经典：米白底 + 琥珀 G.',
+    desc: 'Instrument Serif italic，最贴合品牌，最适合日常 APP 图标。',
+    svg: svgShell('#FAF7F1', `
+      <text x="256" y="340" font-family="Instrument Serif" font-style="italic" font-size="260" fill="#B8755A" text-anchor="middle" dominant-baseline="alphabetic">G</text>
+      <circle cx="336" cy="332" r="16" fill="#B8755A"/>
+    `),
+  },
+  {
+    id: 'B-ink-ivory',
+    name: 'B — 深墨反白',
+    desc: '深墨底 #1F2328，米白字。适合深色系统、桌面暗黑模式。',
+    svg: svgShell('#1F2328', `
+      <text x="256" y="340" font-family="Instrument Serif" font-style="italic" font-size="260" fill="#FAF7F1" text-anchor="middle">G</text>
+      <circle cx="336" cy="332" r="16" fill="#B8755A"/>
+    `),
+  },
+  {
+    id: 'C-amber-ivory',
+    name: 'C — 琥珀底反白',
+    desc: '饱和度最高的版本，图标里最醒目。适合 favicon、小尺寸。',
+    svg: svgShell('#B8755A', `
+      <text x="256" y="340" font-family="Instrument Serif" font-style="italic" font-size="260" fill="#FAF7F1" text-anchor="middle">G</text>
+      <circle cx="336" cy="332" r="16" fill="#FAF7F1"/>
+    `),
+  },
+  {
+    id: 'D-ivory-ink',
+    name: 'D — 米白底 + 深墨 G. + 琥珀句点',
+    desc: '最学术、最克制。句点用琥珀作为唯一亮色，"被拾起的一粒"。',
+    svg: svgShell('#FAF7F1', `
+      <text x="256" y="340" font-family="Instrument Serif" font-style="italic" font-size="260" fill="#1F2328" text-anchor="middle">G</text>
+      <circle cx="336" cy="332" r="18" fill="#B8755A"/>
+    `),
+  },
+  {
+    id: 'E-wordmark',
+    name: 'E — 完整字标 Glean.',
+    desc: '不是字母 G，是完整单词。适合闪屏/登录页，不适合方形图标。',
+    svg: svgShell('#FAF7F1', `
+      <text x="256" y="280" font-family="Instrument Serif" font-size="130" fill="#1F2328" text-anchor="middle">Glean</text>
+      <circle cx="372" cy="270" r="11" fill="#B8755A"/>
+      <text x="256" y="340" font-family="Inter" font-weight="800" font-size="22" fill="#6B6F76" text-anchor="middle" letter-spacing="5">A PHD STUDIO</text>
+    `),
+  },
+  {
+    id: 'F-dot-only',
+    name: 'F — 极简：只有一个句点',
+    desc: '偏概念向。大量留白 + 右下一粒琥珀小圆。像一粒被捡到的谷。',
+    svg: svgShell('#FAF7F1', `
+      <circle cx="340" cy="340" r="32" fill="#B8755A"/>
+      <text x="92" y="430" font-family="Instrument Serif" font-style="italic" font-size="64" fill="#6B6F76">glean</text>
+    `),
+  },
+];
+
+const grid = document.getElementById('grid');
+variants.forEach(v => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <div class="icon-box">${v.svg}</div>
+    <div class="label">${v.name}</div>
+    <div class="desc">${v.desc}</div>
+    <div class="actions">
+      <button data-id="${v.id}" data-act="svg">Download SVG</button>
+      <button data-id="${v.id}" data-act="png">Download PNG 512</button>
+    </div>
+  `;
+  grid.appendChild(card);
+});
+
+document.querySelectorAll('button').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const id = btn.dataset.id;
+    const act = btn.dataset.act;
+    const v = variants.find(x => x.id === id);
+    if (act === 'svg') {
+      const blob = new Blob([v.svg], { type: 'image/svg+xml' });
+      downloadBlob(blob, `glean-${id}.svg`);
+    } else {
+      const png = await svgToPng(v.svg, 512);
+      downloadBlob(png, `glean-${id}-512.png`);
+    }
+  });
+});
+
+function downloadBlob(blob, name) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+async function svgToPng(svgText, size) {
+  // 先等字体就绪，避免导出时 Instrument Serif 未加载
+  if (document.fonts && document.fonts.ready) { await document.fonts.ready; }
+  const blob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = url; });
+  const canvas = document.createElement('canvas');
+  canvas.width = size; canvas.height = size;
+  canvas.getContext('2d').drawImage(img, 0, 0, size, size);
+  URL.revokeObjectURL(url);
+  return await new Promise(res => canvas.toBlob(res, 'image/png'));
+}
+</script>
+</body>
+</html>
