@@ -1,7 +1,7 @@
 {
-  "name": "Shu's PhD Workspace",
-  "short_name": "PhD Workspace",
-  "description": "博士日常工作台：田野、写作、投稿、起居、专注一体化",
+  "name": "Glean",
+  "short_name": "Glean",
+  "description": "Glean — A PhD Studio. 田野、写作、投稿、起居、专注一体化",
   "start_url": "../app/phd-workspace-v3.html",
   "scope": "../",
   "display": "standalone",
