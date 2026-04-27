@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-cn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Glean — Versions Index</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#FAF7F1; --ink:#1a1a1a; --muted:#6b6b6b; --accent:#b45309; --line:#e7e2d6; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; padding:0; background:var(--bg); color:var(--ink); font-family:'Inter',system-ui,sans-serif; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 64px 28px 80px; }
+  h1 { font-family:'Instrument Serif',serif; font-size: 56px; font-weight:400; margin: 0 0 8px; letter-spacing:-0.01em; }
+  h1 em { color: var(--accent); font-style: italic; }
+  .sub { color: var(--muted); font-size: 15px; margin: 0 0 48px; }
+  h2 { font-family:'Instrument Serif',serif; font-size: 24px; font-weight:400; margin: 40px 0 16px; color:#444; }
+  .ver { border:1px solid var(--line); border-radius: 14px; padding: 22px 24px; margin-bottom: 16px; background:#fff; }
+  .ver.current { border-color: var(--accent); border-width: 1.5px; box-shadow: 0 4px 16px rgba(180,83,9,0.08); }
+  .ver-head { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:10px; flex-wrap:wrap; }
+  .ver-name { font-family:'Instrument Serif',serif; font-size: 26px; font-weight:400; }
+  .badge { font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; padding: 4px 10px; border-radius: 999px; }
+  .badge.current { background: var(--accent); color:#fff; }
+  .badge.archive { background:#e7e2d6; color:#6b5a3a; }
+  .meta { font-size: 13px; color: var(--muted); margin: 4px 0 14px; }
+  .meta span + span::before { content: " · "; }
+  a.url { display:block; font-family:'Inter',monospace; font-size: 13px; color: var(--accent); text-decoration:none; word-break:break-all; padding: 8px 12px; background:#fdf6e3; border-radius:6px; margin-top:6px; }
+  a.url:hover { background:#fbeac4; }
+  a.url::before { content:"→  "; opacity:.5; }
+  .note { font-size: 13px; color: var(--muted); margin-top: 10px; line-height:1.6; }
+  .warn { background:#fef3c7; border-left:3px solid #d97706; padding: 14px 18px; border-radius:6px; margin: 32px 0; font-size:14px; line-height:1.6; }
+  .warn strong { color:#92400e; }
+  footer { margin-top:60px; padding-top:24px; border-top:1px solid var(--line); font-size:12px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Glean <em>Versions</em></h1>
+  <p class="sub">PhD Workspace — 版本索引 / Version index</p>
+
+  <div class="warn">
+    <strong>给 AI agents 的提示：</strong> 当前正在使用的版本是 <code>app/phd-workspace-v3.html</code>。
+    请<strong>只编辑 v3</strong>，不要修改 <code>app/archive/</code> 下的历史版本。
+    若不确定，先查阅项目根目录的 <code>AGENTS.md</code>。
+  </div>
+
+  <h2>当前版本 / Current</h2>
+
+  <div class="ver current">
+    <div class="ver-head">
+      <span class="ver-name">V3 — Glean</span>
+      <span class="badge current">CURRENT</span>
+    </div>
+    <div class="meta">
+      <span>路径: app/phd-workspace-v3.html</span>
+      <span>最近更新: 2026-04-27</span>
+    </div>
+    <a class="url" href="phd-workspace-v3.html">phd-workspace-v3.html</a>
+    <a class="url" href="https://sylviayee5.github.io/phd-workspace/app/phd-workspace-v3.html">sylviayee5.github.io/phd-workspace/app/phd-workspace-v3.html</a>
+    <p class="note">
+      品牌 Glean，蒲公英 logo，#FAF7F1 主题。包含可编辑习惯模块、三时段考勤内联时间输入、硬刷新按钮、
+      epigraph、Supabase 同步等。PWA 入口与 service-worker 均指向此版本。
+    </p>
+  </div>
+
+  <h2>历史版本 / Archive</h2>
+
+  <div class="ver">
+    <div class="ver-head">
+      <span class="ver-name">V2 — Shu's PhD Studio</span>
+      <span class="badge archive">ARCHIVED</span>
+    </div>
+    <div class="meta">
+      <span>路径: app/archive/phd-workspace-v2.html</span>
+      <span>最后修改: 2026-04-23</span>
+    </div>
+    <a class="url" href="archive/phd-workspace-v2.html">archive/phd-workspace-v2.html</a>
+    <a class="url" href="https://sylviayee5.github.io/phd-workspace/app/archive/phd-workspace-v2.html">sylviayee5.github.io/phd-workspace/app/archive/phd-workspace-v2.html</a>
+    <p class="note">
+      Glean 改版前的版本（旧名 "Shu's PhD Studio"），保留作历史参考。已加 ARCHIVED 横幅，请勿编辑。
+    </p>
+  </div>
+
+  <h2>入口 / Entry points</h2>
+
+  <div class="ver">
+    <div class="ver-head">
+      <span class="ver-name">Landing</span>
+      <span class="badge archive">PUBLIC</span>
+    </div>
+    <div class="meta"><span>路径: app/index.html</span></div>
+    <a class="url" href="index.html">index.html</a>
+    <a class="url" href="https://sylviayee5.github.io/phd-workspace/">sylviayee5.github.io/phd-workspace/</a>
+    <p class="note">视频背景着陆页，"Begin gleaning." CTA 指向 V3。</p>
+  </div>
+
+  <footer>
+    最后更新 2026-04-27 · 仓库: sylviayee5/phd-workspace
+  </footer>
+</div>
+</body>
+</html>
